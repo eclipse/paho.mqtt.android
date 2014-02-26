@@ -155,7 +155,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements IMqtt
 	 * @param persistence The object to use to store persisted data
 	 */
 	public MqttClientAndroidService(Context ctx, String serverURI, String clientId, MqttClientPersistence persistence) {
-		this(ctx, serverURI, clientId, null, Ack.AUTO_ACK);
+		this(ctx, serverURI, clientId, persistence, Ack.AUTO_ACK);
 	}
 
 	/**
