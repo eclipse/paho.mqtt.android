@@ -1,0 +1,20 @@
+<!-- 
+Licensed Materials - Property of IBM
+
+5747-SM3
+
+(C) Copyright IBM Corp. 1999, 2012 All Rights Reserved.
+
+US Government Users Restricted Rights - Use, duplication or
+disclosure restricted by GSA ADP Schedule Contract with
+IBM Corp.
+ -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    
+        <item
+        android:id="@+id/subscribe"
+		android:showAsAction="ifRoom"
+        android:title="@string/subscribe" />
+        <item android:id="@+id/connectMenuOption" android:title="@string/connect" android:showAsAction="ifRoom"></item>
+</menu>

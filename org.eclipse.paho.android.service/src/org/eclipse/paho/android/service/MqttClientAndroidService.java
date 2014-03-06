@@ -1,0 +1,1195 @@
+/*
+============================================================================ 
+Licensed Materials - Property of IBM
+
+5747-SM3
+ 
+(C) Copyright IBM Corp. 1999, 2012 All Rights Reserved.
+ 
+US Government Users Restricted Rights - Use, duplication or
+disclosure restricted by GSA ADP Schedule Contract with
+IBM Corp.
+============================================================================
+ */
+package org.eclipse.paho.android.service;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.MqttToken;
+
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.SparseArray;
+
+/**
+ * Enables an android application to communicate with an MQTT server using non-blocking methods.
+ * <p>
+ * Implementation of the MQTT asynchronous client interface {@link IMqttAsyncClient} , using the MQTT
+ * android service to actually interface with MQTT server. It provides android applications a simple programming interface to all features of the MQTT version 3.1
+ * specification including:
+ * <ul>
+ * <li>connect
+ * <li>publish
+ * <li>subscribe
+ * <li>unsubscribe
+ * <li>disconnect
+ * </ul>
+ * </p>
+ */
+public class MqttClientAndroidService extends BroadcastReceiver implements
+    IMqttAsyncClient {
+
+  private static final String SERVICE_NAME = "org.eclipse.paho.android.service.MqttService";
+
+  private static final int BIND_SERVICE_FLAG = 0;
+
+  private static ExecutorService pool = Executors.newCachedThreadPool();
+
+  /**
+   * ServiceConnection to process when we bind to our service
+   */
+  private final class MyServiceConnection implements ServiceConnection {
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+      mqttService = ((MqttServiceBinder) binder).getService();
+
+      // now that we have the service available, we can actually
+      // connect...
+      doConnect();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+      mqttService = null;
+    }
+  }
+
+  // Listener for when the service is connected or disconnected
+  private MyServiceConnection serviceConnection = new MyServiceConnection();
+
+  // The Android Service which will process our mqtt calls
+  private MqttService mqttService;
+
+  // An identifier for the underlying client connection, which we can pass to
+  // the service
+  private String clientHandle;
+
+  Context myContext;
+
+  // We hold the various tokens in a collection and pass identifiers for them
+  // to the service
+  private SparseArray<IMqttToken> tokenMap = new SparseArray<IMqttToken>();
+  private int tokenNumber = 0;
+
+  // Connection data
+  private String serverURI;
+  private String clientId;
+  private MqttClientPersistence persistence = null;
+  private MqttConnectOptions connectOptions;
+  private IMqttToken connectToken;
+
+  // The MqttCallback provided by the application
+  private MqttCallback callback;
+
+  /**
+   * Constructor
+   * 
+   * @param context 
+   *            optional object used to pass context to the callback. Use
+   *            null if not required.
+   * @param serverURI
+   *            specifies the protocol, host name and port to be used to
+   *            connect to an MQTT server
+   * @param clientId
+   *            specifies the name by which this connection should be
+   *            identified to the server
+   */
+  public MqttClientAndroidService(Context context, String serverURI,
+      String clientId) {
+    this(context, serverURI, clientId, null);
+  }
+
+  /**
+   * constructor
+   * 
+   * @param context
+   *            optional object used to pass context to the callback. Use
+   *            null if not required.
+   * @param serverURI
+   *            specifies the protocol, host name and port to be used to
+   *            connect to an MQTT server
+   * @param clientId
+   *            specifies the name by which this connection should be
+   *            identified to the server
+   * @param persistence
+   *			the persistence class to use to store in-flight message. If null then the
+   * 			default persistence mechanism is used
+   */
+  public MqttClientAndroidService(Context context, String serverURI,
+      String clientId, MqttClientPersistence persistence) {
+    myContext = context;
+    this.serverURI = serverURI;
+    this.clientId = clientId;
+    this.persistence = persistence;
+  }
+
+   /**
+	 * Determines if this client is currently connected to the server.
+	 *
+	 * @return <code>true</code> if connected, <code>false</code> otherwise.
+	 */
+  @Override
+  public boolean isConnected() {
+    return mqttService.isConnected(clientHandle);
+  }
+
+   /**
+	 * Returns the client ID used by this client.
+	 * <p>All clients connected to the
+	 * same server or server farm must have a unique ID.
+	 * </p>
+	 *
+	 * @return the client ID used by this client.
+	 */
+  @Override
+  public String getClientId() {
+    return clientId;
+  }
+
+   /**
+	 * Returns the URI address of the server used by this client.
+	 * <p>The format of the returned String is the same as that used on the constructor.</p>
+	 *
+	 * @return the server's address, as a URI String.
+	 */
+  @Override
+  public String getServerURI() {
+    return serverURI;
+  }
+
+    /**
+	 * Close the client
+	 * Releases all resource associated with the client. After the client has
+	 * been closed it cannot be reused. For instance attempts to connect will fail.
+	 * @throws MqttException  if the client is not disconnected.
+	 */
+  @Override
+  public void close() {
+    // Nothing to do TODO should pass this over to paho
+  }
+  
+   /**
+	 * Connects to an MQTT server using the default options.
+	 * <p>The default options are specified in {@link MqttConnectOptions} class.
+	 * </p>
+	 *
+	 * @throws MqttException  for any connected problems
+	 * @return token used to track and wait for the connect to complete. The token
+	 * will be passed to the callback methods if a callback is set.
+	 * @see #connect(MqttConnectOptions, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken connect() throws MqttException {
+    return connect(null, null);
+  }
+
+  
+	/**
+	 * Connects to an MQTT server using the provided connect options.
+	 * <p>The connection will be established using the options specified in the
+	 * {@link MqttConnectOptions} parameter.
+	 * </p>
+	 *
+	 * @param options a set of connection parameters that override the defaults.
+	 * @throws MqttException for any connected problems
+	 * @return token used to track and wait for the connect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @see #connect(MqttConnectOptions, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken connect(MqttConnectOptions options) throws MqttException {
+    return connect(options, null, null);
+  }
+
+	/**
+	 * Connects to an MQTT server using the default options.
+	 * <p>The default options are specified in {@link MqttConnectOptions} class.
+	 * </p>
+	 *
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when the connect completes. Use
+	 * null if not required.
+	 * @throws MqttException for any connected problems
+	 * @return token used to track and wait for the connect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @see #connect(MqttConnectOptions, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken connect(Object userContext, IMqttActionListener callback)
+      throws MqttException {
+    return connect(new MqttConnectOptions(), userContext, callback);
+  }
+
+   /**
+	 * Connects to an MQTT server using the specified options.
+	 * <p>The server to connect to is specified on the constructor.
+	 * It is recommended to call {@link #setCallback(MqttCallback)} prior to
+	 * connecting in order that messages destined for the client can be accepted
+	 * as soon as the client is connected.
+	 * </p>
+	 * <p>The method returns control before the connect completes. Completion can
+	 * be tracked by:
+	 * <ul>
+	 * <li>Waiting on the returned token {@link IMqttToken#waitForCompletion()} or</li>
+	 * <li>Passing in a callback {@link IMqttActionListener}</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param options a set of connection parameters that override the defaults.
+	 * @param userContext optional object for used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when the connect completes. Use
+	 * null if not required.
+	 * @return token used to track and wait for the connect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttException for any connected problems, including communication errors
+	 */
+
+  @Override
+  public IMqttToken connect(MqttConnectOptions options, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback);
+
+    connectOptions = options;
+    connectToken = token;
+
+    /*
+     * The actual connection depends on the service, which we start and bind
+     * to here, but which we can't actually use until the serviceConnection
+     * onServiceConnected() method has run (asynchronously), so the
+     * connection itself takes place in the onServiceConnected() method
+     */
+    if (mqttService == null) { // First time - must bind to the service
+      Intent serviceStartIntent = new Intent();
+      serviceStartIntent.setClassName(myContext, SERVICE_NAME);
+      Object service = myContext.startService(serviceStartIntent);
+      if (service == null) {
+        IMqttActionListener listener = token.getActionCallback();
+        if (listener != null) {
+          listener.onFailure(token, new RuntimeException(
+              "cannot start service " + SERVICE_NAME));
+        }
+      }
+
+      // We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
+      // until the last time it is stopped by a call to stopService()
+      myContext.bindService(serviceStartIntent, serviceConnection,
+          BIND_SERVICE_FLAG);
+
+      IntentFilter filter = new IntentFilter();
+      filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
+      myContext.registerReceiver(this, filter);
+    }
+    else {
+      pool.execute(new Runnable() {
+
+        @Override
+        public void run() {
+          doConnect();
+
+        }
+
+      });
+    }
+
+    return token;
+  }
+
+  /**
+   * Actually do the mqtt connect operation
+   */
+  private void doConnect() {
+    if (clientHandle == null) {
+      clientHandle = mqttService.getClient(serverURI, clientId,
+          persistence);
+    }
+    String activityToken = storeToken(connectToken);
+    try {
+      mqttService.connect(clientHandle, connectOptions, null,
+          activityToken);
+    }
+    catch (MqttException e) {
+      IMqttActionListener listener = connectToken.getActionCallback();
+      if (listener != null) {
+        listener.onFailure(connectToken, e);
+      }
+    }
+  }
+
+   /**
+	 * Disconnects from the server.
+	 * <p>An attempt is made to quiesce the client allowing outstanding
+	 * work to complete before disconnecting. It will wait
+	 * for a maximum of 30 seconds for work to quiesce before disconnecting.
+	 * This method must not be called from inside {@link MqttCallback} methods.
+	 * </p>
+	 *
+	 * @return token used to track and wait for disconnect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttException for problems encountered while disconnecting
+	 * @see #disconnect(long, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken disconnect() throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, null,
+        (IMqttActionListener) null);
+    String activityToken = storeToken(token);
+    mqttService.disconnect(clientHandle, null, activityToken);
+    return token;
+  }
+
+   /**
+	 * Disconnects from the server.
+	 * <p>An attempt is made to quiesce the client allowing outstanding
+	 * work to complete before disconnecting. It will wait
+	 * for a maximum of the specified quiesce time  for work to complete before disconnecting.
+	 * This method must not be called from inside {@link MqttCallback} methods.
+	 * </p>
+	 * @param quiesceTimeout the amount of time in milliseconds to allow for
+	 * existing work to finish before disconnecting.  A value of zero or less
+	 * means the client will not quiesce.
+	 * @return token used to track and wait for disconnect to complete. The token
+	 * will be passed to the callback methods if a callback is set.
+	 * @throws MqttException for problems encountered while disconnecting
+	 * @see #disconnect(long, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken disconnect(long quiesceTimeout) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, null,
+        (IMqttActionListener) null);
+    String activityToken = storeToken(token);
+    mqttService.disconnect(clientHandle, quiesceTimeout, null,
+        activityToken);
+    return token;
+  }
+
+   /**
+	 * Disconnects from the server.
+	 * <p>An attempt is made to quiesce the client allowing outstanding
+	 * work to complete before disconnecting. It will wait
+	 * for a maximum of 30 seconds for work to quiesce before disconnecting.
+	 * This method must not be called from inside {@link MqttCallback} methods.
+	 * </p>
+	 *
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when the disconnect completes. Use
+	 * null if not required.
+	 * @return token used to track and wait for the disconnect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttException for problems encountered while disconnecting
+	 * @see #disconnect(long, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken disconnect(Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback);
+    String activityToken = storeToken(token);
+    mqttService.disconnect(clientHandle, null, activityToken);
+    return token;
+  }
+
+   /**
+	 * Disconnects from the server.
+	 * <p>
+	 * The client will wait for {@link MqttCallback} methods to
+	 * complete. It will then wait for up to the quiesce timeout to allow for
+	 * work which has already been initiated to complete. For instance when a QoS 2
+	 * message has started flowing to the server but the QoS 2 flow has not completed.It
+	 * prevents new messages being accepted and does not send any messages that have
+	 * been accepted but not yet started delivery across the network to the server. When
+	 * work has completed or after the quiesce timeout, the client will disconnect from
+	 * the server. If the cleanSession flag was set to false and is set to false the
+	 * next time a connection is made QoS 1 and 2 messages that
+	 * were not previously delivered will be delivered.</p>
+	 * <p>This method must not be called from inside {@link MqttCallback} methods.</p>
+	 * <p>The method returns control before the disconnect completes. Completion can
+	 * be tracked by:
+	 * <ul>
+	 * <li>Waiting on the returned token {@link IMqttToken#waitForCompletion()} or</li>
+	 * <li>Passing in a callback {@link IMqttActionListener}</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param quiesceTimeout the amount of time in milliseconds to allow for
+	 * existing work to finish before disconnecting.  A value of zero or less
+	 * means the client will not quiesce.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when the disconnect completes. Use
+	 * null if not required.
+	 * @return token used to track and wait for the connect to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttException for problems encountered while disconnecting
+	 */
+  @Override
+  public IMqttToken disconnect(long quiesceTimeout, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback);
+    String activityToken = storeToken(token);
+    mqttService.disconnect(clientHandle, quiesceTimeout, null,
+        activityToken);
+    return token;
+  }
+
+   /**
+	 * Publishes a message to a topic on the server.
+	 * <p>A convenience method, which will
+	 * create a new {@link MqttMessage} object with a byte array payload and the
+	 * specified QoS, and then publish it.
+	 * </p>
+	 *
+	 * @param topic to deliver the message to, for example "finance/stock/ibm".
+	 * @param payload the byte array to use as the payload
+	 * @param qos the Quality of Service to deliver the message at. Valid values are 0, 1 or 2.
+	 * @param retained whether or not this message should be retained by the server.
+	 * @return token used to track and wait for the publish to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttPersistenceException when a problem occurs storing the message
+	 * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
+	 * @throws MqttException for other errors encountered while publishing the message.
+	 * For instance if too many messages are being processed.
+	 * @see #publish(String, MqttMessage, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttDeliveryToken publish(String topic, byte[] payload, int qos,
+      boolean retained) throws MqttException, MqttPersistenceException {
+    return publish(topic, payload, qos, retained, null, null);
+  }
+
+  /**
+	 * Publishes a message to a topic on the server.
+	 * Takes an {@link MqttMessage} message and delivers it to the server at the
+	 * requested quality of service.
+	 *
+	 * @param topic  to deliver the message to, for example "finance/stock/ibm".
+	 * @param message to deliver to the server
+	 * @return token used to track and wait for the publish to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttPersistenceException when a problem occurs storing the message
+	 * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
+	 * @throws MqttException for other errors encountered while publishing the message.
+	 * For instance client not connected.
+	 * @see #publish(String, MqttMessage, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttDeliveryToken publish(String topic, MqttMessage message)
+      throws MqttException, MqttPersistenceException {
+    return publish(topic, message, null, null);
+  }
+
+	/**
+	 * Publishes a message to a topic on the server.
+	 * <p>A convenience method, which will
+	 * create a new {@link MqttMessage} object with a byte array payload and the
+	 * specified QoS, and then publish it.
+	 * </p>
+	 *
+	 * @param topic  to deliver the message to, for example "finance/stock/ibm".
+	 * @param payload the byte array to use as the payload
+	 * @param qos the Quality of Service to deliver the message at.  Valid values are 0, 1 or 2.
+	 * @param retained whether or not this message should be retained by the server.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when message delivery
+	 * hsa completed to the requested quality of service
+	 * @return token used to track and wait for the publish to complete. The token
+	 * will be passed to any callback that has been set.
+	 * @throws MqttPersistenceException when a problem occurs storing the message
+	 * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
+	 * @throws MqttException for other errors encountered while publishing the message.
+	 * For instance client not connected.
+	 * @see #publish(String, MqttMessage, Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttDeliveryToken publish(String topic, byte[] payload, int qos,
+      boolean retained, Object userContext, IMqttActionListener callback)
+      throws MqttException, MqttPersistenceException {
+
+    MqttMessage message = new MqttMessage(payload);
+    message.setQos(qos);
+    message.setRetained(retained);
+    MqttDeliveryTokenAndroidService token = new MqttDeliveryTokenAndroidService(
+        this, userContext, callback, message);
+    String activityToken = storeToken(token);
+    IMqttDeliveryToken internalToken = mqttService.publish(clientHandle,
+        topic, payload, qos, retained, null, activityToken);
+    token.setDelegate(internalToken);
+    return token;
+  }
+
+    /**
+	 * Publishes a message to a topic on the server.
+	 * <p>
+	 * Once this method has returned cleanly, the message has been accepted for publication by the
+	 * client and will be delivered on a background thread.
+	 * In the event the connection fails or the client stops. Messages will be delivered to the
+	 * requested quality of service once the connection is re-established to the server on condition that:
+	 * <ul>
+	 * <li>The connection is re-established with the same clientID
+	 * <li>The original connection was made with (@link MqttConnectOptions#setCleanSession(boolean)}
+	 * set to false
+	 * <li>The connection is re-established with (@link MqttConnectOptions#setCleanSession(boolean)}
+	 * set to false
+	 * <li>Depending when the failure occurs QoS 0 messages may not be delivered.
+	 * </ul>
+	 * </p>
+	 *
+	 * <p>When building an application,
+	 * the design of the topic tree should take into account the following principles
+	 * of topic name syntax and semantics:</p>
+	 *
+	 * <ul>
+	 * 	<li>A topic must be at least one character long.</li>
+	 * 	<li>Topic names are case sensitive.  For example, <em>ACCOUNTS</em> and <em>Accounts</em> are
+	 * 	two different topics.</li>
+	 * 	<li>Topic names can include the space character.  For example, <em>Accounts
+	 * 	payable</em> is a valid topic.</li>
+	 * 	<li>A leading "/" creates a distinct topic.  For example, <em>/finance</em> is
+	 * 	different from <em>finance</em>. <em>/finance</em> matches "+/+" and "/+", but
+	 * 	not "+".</li>
+	 * 	<li>Do not include the null character (Unicode <samp class="codeph">\x0000</samp>) in
+	 * 	any topic.</li>
+	 * </ul>
+	 *
+	 * <p>The following principles apply to the construction and content of a topic
+	 * tree:</p>
+	 *
+	 * <ul>
+	 * 	<li>The length is limited to 64k but within that there are no limits to the
+	 * 	number of levels in a topic tree.</li>
+	 * 	<li>There can be any number of root nodes; that is, there can be any number
+	 * 	of topic trees.</li>
+	 * 	</ul>
+	 * </p>
+	 * <p>The method returns control before the publish completes. Completion can
+	 * be tracked by:
+	 * <ul>
+	 * <li>Setting an {@link IMqttAsyncClient#setCallback(MqttCallback)} where the
+	 * {@link MqttCallback#deliveryComplete(IMqttDeliveryToken)}
+	 * method will be called.</li>
+	 * <li>Waiting on the returned token {@link MqttToken#waitForCompletion()} or</li>
+	 * <li>Passing in a callback {@link IMqttActionListener} to this method</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param topic to deliver the message to, for example "finance/stock/ibm".
+	 * @param message to deliver to the server
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when message delivery
+	 * has completed to the requested quality of service
+	 * @return token used to track and wait for the publish to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttPersistenceException when a problem occurs storing the message
+	 * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
+	 * @throws MqttException for other errors encountered while publishing the message.
+	 * For instance client not connected.
+	 * @see MqttMessage
+	 */
+  @Override
+  public IMqttDeliveryToken publish(String topic, MqttMessage message,
+      Object userContext, IMqttActionListener callback)
+      throws MqttException, MqttPersistenceException {
+    MqttDeliveryTokenAndroidService token = new MqttDeliveryTokenAndroidService(
+        this, userContext, callback, message);
+    String activityToken = storeToken(token);
+    IMqttDeliveryToken internalToken = mqttService.publish(clientHandle,
+        topic, message, null, activityToken);
+    token.setDelegate(internalToken);
+    return token;
+  }
+
+    /**
+	 * Subscribe to a topic, which may include wildcards.
+	 *
+	 * @param topic the topic to subscribe to, which can include wildcards.
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttSecurityException  for security related problems
+	 * @throws MqttException  for non security related problems
+	 * 
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken subscribe(String topic, int qos) throws MqttException,
+      MqttSecurityException {
+    return subscribe(topic, qos, null, null);
+  }
+
+  /**
+	 * Subscribe to multiple topics, each of which may include wildcards.
+	 *
+	 * <p>Provides an optimized way to subscribe to multiple topics compared to
+	 * subscribing to each one individually.</p>
+	 *
+	 * @param topicFilters one or more topics to subscribe to, which can include wildcards
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttSecurityException  for security related problems
+	 * @throws MqttException  for non security related problems
+	 * 
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken subscribe(String[] topic, int[] qos)
+      throws MqttException, MqttSecurityException {
+    return subscribe(topic, qos, null, null);
+  }
+
+    /**
+	 * Subscribe to a topic, which may include wildcards.
+	 *
+	 * @param topic the topic to subscribe to, which can include wildcards.
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when subscribe
+	 * has completed
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 * 
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken subscribe(String topic, int qos, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback, new String[]{topic});
+    String activityToken = storeToken(token);
+    mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+    return token;
+  }
+
+  /**
+	 * Subscribes to multiple topics, each of which may include wildcards.
+	 * <p>Provides an optimized way to subscribe to multiple topics compared to
+	 * subscribing to each one individually.</p>
+	 * <p>The {@link #setCallback(MqttCallback)} method
+	 * should be called before this method, otherwise any received messages
+	 * will be discarded.
+	 * </p>
+	 * <p>
+	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to true
+	 * when when connecting to the server then the subscription remains in place
+	 * until either:
+	 * <ul>
+	 * <li>The client disconnects</li>
+	 * <li>An unsubscribe method is called to un-subscribe the topic</li>
+	 * </li>
+	 * </p>
+	 * <p>
+	 * If (@link MqttConnectOptions#setCleanSession(boolean)} was set to false
+	 * when connecting to the server then the subscription remains in place
+	 * until either:
+	 * <ul>
+	 * <li>An unsubscribe method is called to unsubscribe the topic</li>
+	 * <li>The next time the client connects with cleanSession set to true</ul>
+	 * </li>
+	 * With cleanSession set to false the MQTT server will store messages on
+	 * behalf of the client when the client is not connected. The next time the
+	 * client connects with the <bold>same client ID</bold> the server will
+	 * deliver the stored messages to the client.
+	 * </p>
+	 *
+	 * <p>The "topic filter" string used when subscribing
+	 * may contain special characters, which allow you to subscribe to multiple topics
+	 * at once.</p>
+	 * <p>The topic level separator is used to introduce structure into the topic, and
+	 * can therefore be specified within the topic for that purpose.  The multi-level
+	 * wildcard and single-level wildcard can be used for subscriptions, but they
+	 * cannot be used within a topic by the publisher of a message.
+	 * <dl>
+	 * 	<dt>Topic level separator</dt>
+	 * 	<dd>The forward slash (/) is used to separate each level within
+	 * 	a topic tree and provide a hierarchical structure to the topic space. The
+	 * 	use of the topic level separator is significant when the two wildcard characters
+	 * 	are encountered in topics specified by subscribers.</dd>
+	 *
+	 * 	<dt>Multi-level wildcard</dt>
+	 * 	<dd><p>The number sign (#) is a wildcard character that matches
+	 * 	any number of levels within a topic. For example, if you subscribe to
+	 *  <span><span class="filepath">finance/stock/ibm/#</span></span>, you receive
+	 * 	messages on these topics:
+	 *  <pre>   finance/stock/ibm<br />   finance/stock/ibm/closingprice<br />   finance/stock/ibm/currentprice</pre>
+	 *  </p>
+	 *  <p>The multi-level wildcard
+	 *  can represent zero or more levels. Therefore, <em>finance/#</em> can also match
+	 * 	the singular <em>finance</em>, where <em>#</em> represents zero levels. The topic
+	 * 	level separator is meaningless in this context, because there are no levels
+	 * 	to separate.</p>
+	 *
+	 * 	<p>The <span>multi-level</span> wildcard can
+	 * 	be specified only on its own or next to the topic level separator character.
+	 * 	Therefore, <em>#</em> and <em>finance/#</em> are both valid, but <em>finance#</em> is
+	 * 	not valid. <span>The multi-level wildcard must be the last character
+	 *  used within the topic tree. For example, <em>finance/#</em> is valid but
+	 *  <em>finance/#/closingprice</em> is 	not valid.</span></p></dd>
+	 *
+	 * 	<dt>Single-level wildcard</dt>
+	 * 	<dd><p>The plus sign (+) is a wildcard character that matches only one topic
+	 * 	level. For example, <em>finance/stock/+</em> matches
+	 * <em>finance/stock/ibm</em> and <em>finance/stock/xyz</em>,
+	 * 	but not <em>finance/stock/ibm/closingprice</em>. Also, because the single-level
+	 * 	wildcard matches only a single level, <em>finance/+</em> does not match <em>finance</em>.</p>
+	 *
+	 * 	<p>Use
+	 * 	the single-level wildcard at any level in the topic tree, and in conjunction
+	 * 	with the multilevel wildcard. Specify the single-level wildcard next to the
+	 * 	topic level separator, except when it is specified on its own. Therefore,
+	 *  <em>+</em> and <em>finance/+</em> are both valid, but <em>finance+</em> is
+	 *  not valid. <span>The single-level wildcard can be used at the end of the
+	 *  topic tree or within the topic tree.
+	 * 	For example, <em>finance/+</em> and <em>finance/+/ibm</em> are both valid.</span></p>
+	 * 	</dd>
+	 * </dl>
+	 * </p>
+	 * <p>The method returns control before the subscribe completes. Completion can
+	 * be tracked by:
+	 * <ul>
+	 * <li>Waiting on the supplied token {@link MqttToken#waitForCompletion()} or</li>
+	 * <li>Passing in a callback {@link IMqttActionListener} to this method</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param topicFilters one or more topics to subscribe to, which can include wildcards
+	 * @param qos the maximum quality of service to subscribe each topic at.Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when subscribe
+	 * has completed
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 * @throws IllegalArgumentException if the two supplied arrays are not the same size.
+	 */
+  @Override
+  public IMqttToken subscribe(String[] topic, int[] qos, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback, topic);
+    String activityToken = storeToken(token);
+    mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
+    return token;
+  }
+
+    /**
+	 * Requests the server unsubscribe the client from a topic.
+	 *
+	 * @param topic the topic to unsubscribe from. It must match a topic
+	 * specified on an earlier subscribe.
+	 * @return token used to track and wait for the unsubscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error unregistering the subscription.
+	 * 
+	 * @see #unsubscribe(String[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken unsubscribe(String topic) throws MqttException {
+    return unsubscribe(topic, null, null);
+  }
+
+    /**
+	 * Requests the server unsubscribe the client from one or more topics.
+	 *
+	 * @param topic one or more topics to unsubscribe from. Each topic
+	 * must match one specified on an earlier subscribe.	 
+	 * @return token used to track and wait for the unsubscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error unregistering the subscription.
+	 * 
+	 * @see #unsubscribe(String[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken unsubscribe(String[] topic) throws MqttException {
+    return unsubscribe(topic, null, null);
+  }
+
+    /**
+	 * Requests the server unsubscribe the client from a topics.
+	 *
+	 * @param topic the topic to unsubscribe from. It must match a topic
+	 * specified on an earlier subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when unsubscribe
+	 * has completed
+	 * @return token used to track and wait for the unsubscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error unregistering the subscription.
+	 * 
+	 * @see #unsubscribe(String[], Object, IMqttActionListener)
+	 */
+  @Override
+  public IMqttToken unsubscribe(String topic, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback);
+    String activityToken = storeToken(token);
+    mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+    return token;
+  }
+
+    /**
+	 * Requests the server unsubscribe the client from one or more topics.
+	 * <p>
+	 * Unsubcribing is the opposite of subscribing. When the server receives the
+	 * unsubscribe request it looks to see if it can find a matching subscription for the
+	 * client and then removes it. After this point the server will send no more
+	 * messages to the client for this subscription.
+	 * </p>
+	 * <p>The topic(s) specified on the unsubscribe must match the topic(s)
+	 * specified in the original subscribe request for the unsubscribe to succeed
+	 * </p>
+	 * <p>The method returns control before the unsubscribe completes. Completion can
+	 * be tracked by:
+	 * <ul>
+	 * <li>Waiting on the returned token {@link MqttToken#waitForCompletion()} or</li>
+	 * <li>Passing in a callback {@link IMqttActionListener} to this method</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param topic one or more topics to unsubscribe from. Each topic
+	 * must match one specified on an earlier subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when unsubscribe
+	 * has completed
+	 * @return token used to track and wait for the unsubscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error unregistering the subscription.
+	 */
+  @Override
+  public IMqttToken unsubscribe(String[] topic, Object userContext,
+      IMqttActionListener callback) throws MqttException {
+    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+        callback);
+    String activityToken = storeToken(token);
+    mqttService.unsubscribe(clientHandle, topic, null, activityToken);
+    return token;
+  }
+
+    /**
+	 * Returns the delivery tokens for any outstanding publish operations.
+	 * <p>If a client has been restarted and there are messages that were in the
+	 * process of being delivered when the client stopped this method
+	 * returns a token for each in-flight message enabling the delivery to be tracked
+	 * Alternately the {@link MqttCallback#deliveryComplete(IMqttDeliveryToken)}
+	 * callback can be used to track the delivery of outstanding messages.
+	 * </p>
+	 * <p>If a client connects with cleanSession true then there will be no
+	 * delivery tokens as the cleanSession option deletes all earlier state.
+	 * For state to be remembered the client must connect with cleanSession
+	 * set to false</P>
+	 * @return zero or more delivery tokens
+	 */
+  @Override
+  public IMqttDeliveryToken[] getPendingDeliveryTokens() {
+    return mqttService.getPendingDeliveryTokens(clientHandle);
+  }
+
+    /**
+	 * Sets a callback listener to use for events that happen asynchronously.
+	 * <p>There are a number of events that the listener will be notified about.
+	 * These include:
+	 * <ul>
+	 * <li>A new message has arrived and is ready to be processed</li>
+	 * <li>The connection to the server has been lost</li>
+	 * <li>Delivery of a message to the server has completed</li>
+	 * </ul>
+	 * </p>
+	 * <p>Other events that track the progress of an individual operation such
+	 * as connect and subscribe can be tracked using the {@link MqttToken} returned from
+	 * each non-blocking method or using setting a {@link IMqttActionListener} on the
+	 * non-blocking method.<p>
+	 * @param callback which will be invoked for certain asynchronous events
+	 * 
+	 * @see MqttCallback
+	 */
+  @Override
+  public void setCallback(MqttCallback callback) {
+    this.callback = callback;
+
+  }
+
+  /**
+   * <p>
+   * Process incoming Intent objects representing the results of operations
+   * and asynchronous activities such as message received
+   * </p>
+   * <p>
+   * <strong>Note:</strong> This is only a public method because the Android
+   * APIs require such.<br>
+   * This method should not be explicitly invoked.
+   * </p>
+   */
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    Bundle data = intent.getExtras();
+
+    String handleFromIntent = data
+        .getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE);
+
+    if ((handleFromIntent == null)
+        || (!handleFromIntent.equals(clientHandle))) {
+      return;
+    }
+
+    String action = data.getString(MqttServiceConstants.CALLBACK_ACTION);
+
+    if (action.equals(MqttServiceConstants.CONNECT_ACTION)) {
+      connectAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.MESSAGE_ARRIVED_ACTION)) {
+      messageArrivedAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.SUBSCRIBE_ACTION)) {
+      subscribeAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.UNSUBSCRIBE_ACTION)) {
+      unSubscribeAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.SEND_ACTION)) {
+      sendAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.MESSAGE_DELIVERED_ACTION)) {
+      messageDeliveredAction(data);
+    }
+    else if (action
+        .equals(MqttServiceConstants.ON_CONNECTION_LOST_ACTION)) {
+      connectionLostAction(data);
+    }
+    else if (action.equals(MqttServiceConstants.DISCONNECT_ACTION)) {
+      disconnected(data);
+    }
+
+  }
+
+  /**
+   * Process the results of a connection
+   * 
+   * @param data
+   */
+  private void connectAction(Bundle data) {
+    IMqttToken token = removeMqttToken(data);
+    simpleAction(token, data);
+  }
+
+  /**
+   * Process a notification that we have disconnected
+   * 
+   * @param data
+   */
+  private void disconnected(Bundle data) {
+    clientHandle = null; // avoid reuse!
+    IMqttToken token = removeMqttToken(data);
+    if (token != null) {
+      ((MqttTokenAndroidService) token).notifyComplete();
+    }
+    if (callback != null) {
+      callback.connectionLost(null);
+    }
+  }
+
+  /**
+   * Process a Connection Lost notification
+   * 
+   * @param data
+   */
+  private void connectionLostAction(Bundle data) {
+    if (callback != null) {
+      Exception reason = (Exception) data
+          .getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
+      callback.connectionLost(reason);
+    }
+  }
+
+  /**
+   * Common processing for many notifications
+   * 
+   * @param token
+   *            the token associated with the action being undertake
+   * @param data
+   *            the result data
+   */
+  private void simpleAction(IMqttToken token, Bundle data) {
+    if (token != null) {
+      Status status = (Status) data
+          .getSerializable(MqttServiceConstants.CALLBACK_STATUS);
+      if (status == Status.OK) {
+        ((MqttTokenAndroidService) token).notifyComplete();
+      }
+      else {
+
+        Exception exceptionThrown = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
+        ((MqttTokenAndroidService) token)
+            .notifyFailure(exceptionThrown);
+      }
+    }
+  }
+
+  /**
+   * Process notification of a publish(send) operation
+   * 
+   * @param data
+   */
+  private void sendAction(Bundle data) {
+    IMqttToken token = getMqttToken(data); // get, don't remove - will
+    // remove on delivery
+    simpleAction(token, data);
+  }
+
+  /**
+   * Process notification of a subscribe operation
+   * 
+   * @param data
+   */
+  private void subscribeAction(Bundle data) {
+    IMqttToken token = removeMqttToken(data);
+    simpleAction(token, data);
+  }
+
+  /**
+   * Process notification of an unsubscribe operation
+   * 
+   * @param data
+   */
+  private void unSubscribeAction(Bundle data) {
+    IMqttToken token = removeMqttToken(data);
+    simpleAction(token, data);
+  }
+
+  /**
+   * Process notification of a published message having been delivered
+   * 
+   * @param data
+   */
+  private void messageDeliveredAction(Bundle data) {
+    IMqttToken token = removeMqttToken(data);
+    if (token != null) {
+      if (callback != null) {
+        Status status = (Status) data
+            .getSerializable(MqttServiceConstants.CALLBACK_STATUS);
+        if (status == Status.OK) {
+          callback.deliveryComplete((IMqttDeliveryToken) token);
+        }
+      }
+    }
+  }
+
+  /**
+   * Process notification of a message's arrival
+   * 
+   * @param data
+   */
+  private void messageArrivedAction(Bundle data) {
+    if (callback != null) {
+      String messageId = data
+          .getString(MqttServiceConstants.CALLBACK_MESSAGE_ID);
+      String destinationName = data
+          .getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME);
+
+      ParcelableMqttMessage message = (ParcelableMqttMessage) data
+          .getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL);
+      try {
+        callback.messageArrived(destinationName, message);
+        mqttService.acknowledgeMessageArrival(clientHandle, messageId);
+        // let the service discard the saved message details
+      }
+      catch (Exception e) {
+        // Swallow the exception
+      }
+    }
+  }
+
+  /**
+   * @param token
+   *            identifying an operation
+   * @return an identifier for the token which can be passed to the Android
+   *         Service
+   */
+  private synchronized String storeToken(IMqttToken token) {
+    tokenMap.put(tokenNumber, token);
+    return Integer.toString(tokenNumber++);
+  }
+
+  /**
+   * Get a token identified by a string, and remove it from our map
+   * 
+   * @param data
+   * @return the token
+   */
+  private synchronized IMqttToken removeMqttToken(Bundle data) {
+	  
+    String activityToken = data.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN);
+    if (activityToken!=null){
+    	int tokenNumber = Integer.parseInt(activityToken);
+    	IMqttToken token = tokenMap.get(tokenNumber);
+    	tokenMap.delete(tokenNumber);
+    	return token;
+    }
+    return null;
+  }
+
+  /**
+   * Get a token identified by a string, and remove it from our map
+   * 
+   * @param data
+   * @return the token
+   */
+  private synchronized IMqttToken getMqttToken(Bundle data) {
+    String activityToken = data
+        .getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN);
+    IMqttToken token = tokenMap.get(Integer.parseInt(activityToken));
+    return token;
+  }
+}

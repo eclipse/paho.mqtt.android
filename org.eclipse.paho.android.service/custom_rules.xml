@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.paho.android.service.package" default="package_docs">
+
+    <description>Builds a redistributable JAR and documentation for the Android Service client.</description>
+
+    <target name="package_docs" depends="init_package, generate_javadoc"/>
+
+    <!-- init all properties-->
+    <target name="init_package">
+        <property name="output.folder" value="${basedir}/out"/>
+
+        <property name="docs.dir" value="${output.folder}/docs"/>
+
+        <mkdir dir="${docs.dir}"/>
+
+        <!-- Peek into manifest xml file, ${mainfest.abs.file} definition is in <android-sdk>/tools/ant/build.xml-->
+        <xmlproperty file="${manifest.abs.file}" collapseattributes="true"/>
+        <property name="package.names" value="${manifest.package}"/>
+        <property name="doc.package.names" value="${package.names}.*"/>
+    </target>
+
+    <target name="generate_javadoc" depends="clean_docs">
+        <javadoc packagenames="${doc.package.names}"
+                 sourcepath="${source.absolute.dir}"
+                 destdir="${docs.dir}"
+                 verbose="false"
+                />
+    </target>
+
+    <target name="clean_docs" description="Clean up docs.">
+        <echo>Cleaning project...</echo>
+        <delete dir="${output.folder}" />
+    </target>
+
+    <!-- -post-build is defined in android build.xml-->
+    <target name="-post-build" depends="package_docs" />
+
+    <target name="-pre-clean" depends="clean_docs" />
+</project>

@@ -1,0 +1,40 @@
+<body>
+	Contains a set of classes which allow an Android App to communicate
+	with an MQTT server using an Android Service.
+	<p>
+		The Android environment requires that a Service is used to support
+		such things as a long-lasting network connection.<br> This
+		package provides the classes need to implement such a Service to
+		interact with MQTT, together with an implementation of the
+		IMqttAsyncClient interface which uses the Service to implement the
+		interface operations.
+	</p>
+	<p>The Service returns results via the Android Intent mechanism.
+		The MqttClientAndroidService class shows how the interaction is
+		managed</p>
+	<p>
+		<strong>Note:</strong> An App which uses this service must include the
+		appropriate Service tag in its manifest - e.g.
+	<pre>
+       &lsaquo;!-- Mqtt Service --&rsaquo;
+       &lsaquo;service android:name="com.ibm.android.service.MqttService" /&rsaquo;
+</pre>
+	</p>
+<p><strong>Note regarding network connectivity</strong></p>
+<p>
+The service does not attempt to track network state and automatically reconnect to MQTT servers as connectivity is lost and regained
+While this is clearly possible, determining appropriate behaviour presents certain challenges. <br>
+Any maintainer adding support for such functionality should look to providing a <i>BroadcastReceiver</i> for 
+<i>ConnectivityManager.CONNECTIVITY_ACTION</i> probably as part of the MqttService object.<br> 
+Changes in network connectivity would then need to be notified to the relevant MqttServiceClient objects.
+</p>
+<p> 
+The behaviour in response to changes in network connectivity would need to be considered in some detail - for example :-
+<ul>
+<li>Should the behaviour differ for CleanSession=true vs CleanSession=false?<br>
+Remember that CleanSession=false will preserve subscriptions and messages with QOS > 0 should not be lost.
+This would not be true for CleanSession=true;
+<li>What is the meaning of the <i>isConnected()</i> in this context?
+</ul>
+</p>
+</body>
