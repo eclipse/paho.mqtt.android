@@ -13,8 +13,22 @@ IBM Corp.
  */
 package org.eclipse.paho.android.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
@@ -37,6 +51,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -1192,4 +1207,36 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     IMqttToken token = tokenMap.get(Integer.parseInt(activityToken));
     return token;
   }
+  
+  
+ public SSLSocketFactory getSSLSocketFactory (InputStream keyStore, String password) throws MqttSecurityException {
+	 try{
+		 SSLContext ctx = null;
+		 SSLSocketFactory sslSockFactory=null;
+		 KeyStore ts;
+		 ts = KeyStore.getInstance("BKS");			
+		 ts.load(keyStore, password.toCharArray());
+		 TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+		 tmf.init(ts);
+		 TrustManager[] tm = tmf.getTrustManagers();
+		 ctx = SSLContext.getInstance("SSL");
+		 ctx.init(null, tm, null);
+		 
+		 sslSockFactory=ctx.getSocketFactory();
+		 return sslSockFactory;
+		 
+	 	} catch (KeyStoreException e) {
+			throw new MqttSecurityException(e);
+		} catch (CertificateException e) {
+			throw new MqttSecurityException(e);
+		} catch (FileNotFoundException e) {
+			throw new MqttSecurityException(e);
+		} catch (IOException e) {
+			throw new MqttSecurityException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new MqttSecurityException(e);
+		} catch (KeyManagementException e) {
+			throw new MqttSecurityException(e);
+		}
+ 	}
 }
