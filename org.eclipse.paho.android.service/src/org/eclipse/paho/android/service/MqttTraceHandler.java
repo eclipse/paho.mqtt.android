@@ -17,7 +17,7 @@ package org.eclipse.paho.android.service;
  * Interface for simple trace handling
  *
  */
-interface MqttTraceHandler {
+public interface MqttTraceHandler {
 
 	public abstract void traceDebug(String source, String message);
 

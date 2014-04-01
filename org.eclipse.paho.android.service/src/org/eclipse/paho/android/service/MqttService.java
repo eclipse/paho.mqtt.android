@@ -628,7 +628,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   @Override
   public void traceDebug(String tag, String message) {
-    traceCallback("debug", message);
+    traceCallback(MqttServiceConstants.TRACE_DEBUG, tag, message);
   }
 
   /**
@@ -641,19 +641,18 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   @Override
   public void traceError(String tag, String message) {
-    traceCallback("error", message);
+    traceCallback(MqttServiceConstants.TRACE_ERROR, tag, message);
   }
 
-  private void traceCallback(String severity, String message) {
+  private void traceCallback(String severity, String tag, String message) {
     if ((traceCallbackId != null) && (traceEnabled)) {
       Bundle dataBundle = new Bundle();
-      dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
-          MqttServiceConstants.TRACE_ACTION);
-      dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY,
-          severity);
-      dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,
-          message);
-      callbackToActivity(null, Status.ERROR, dataBundle);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, severity);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_TAG, tag);
+      //dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_ID, traceCallbackId);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, message);
+      callbackToActivity(traceCallbackId, Status.ERROR, dataBundle);
     }
   }
 
@@ -671,13 +670,13 @@ public class MqttService extends Service implements MqttTraceHandler {
   public void traceException(String tag, String message, Exception e) {
     if (traceCallbackId != null) {
       Bundle dataBundle = new Bundle();
-      dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
-          MqttServiceConstants.TRACE_ACTION);
-      dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,
-          message);
-      dataBundle.putString(MqttServiceConstants.CALLBACK_EXCEPTION_STACK,
-          Log.getStackTraceString(e));
-      callbackToActivity(null, Status.ERROR, dataBundle);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, MqttServiceConstants.TRACE_EXCEPTION);
+      dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,  message);
+      dataBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, e); //TODO: Check 
+      dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_TAG, tag);
+      //dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_ID, traceCallbackId);
+      callbackToActivity(traceCallbackId, Status.ERROR, dataBundle);
     }
   }
 

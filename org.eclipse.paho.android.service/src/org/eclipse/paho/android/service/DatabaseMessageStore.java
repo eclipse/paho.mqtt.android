@@ -285,6 +285,9 @@ public class DatabaseMessageStore implements MessageStore {
 
 			@Override
 			public boolean hasNext() {
+		        if (hasNext == false){
+		          	c.close();
+				}
 				return hasNext;
 			}
 
@@ -320,8 +323,17 @@ public class DatabaseMessageStore implements MessageStore {
 				throw new UnsupportedOperationException();
 			}
 
-		};
-	}
+      /* (non-Javadoc)
+       * @see java.lang.Object#finalize()
+       */
+      @Override
+      protected void finalize() throws Throwable {
+        c.close();
+        super.finalize();
+      }
+
+    };
+  }
 
 	/**
 	 * Delete all messages (optionally for a specific client)

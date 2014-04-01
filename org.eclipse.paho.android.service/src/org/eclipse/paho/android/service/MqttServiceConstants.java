@@ -65,11 +65,20 @@ public interface MqttServiceConstants {
   static final String CALLBACK_MESSAGE_PARCEL = MqttService.TAG + ".PARCEL";
   static final String CALLBACK_TRACE_SEVERITY = MqttService.TAG
                                                 + ".traceSeverity";
+  static final String CALLBACK_TRACE_TAG = MqttService.TAG + ".traceTag";
+  static final String CALLBACK_TRACE_ID = MqttService.TAG + ".traceId";
   static final String CALLBACK_ERROR_NUMBER = MqttService.TAG
                                               + ".ERROR_NUMBER";
 
   static final String CALLBACK_EXCEPTION = MqttService.TAG + ".exception";
 
+  //Trace severity levels
+  
+  static final String TRACE_ERROR = "error";
+  static final String TRACE_DEBUG = "debug";
+  static final String TRACE_EXCEPTION = "exception";
+  
+  
   //exception code for non mqttexceptions
   static final int NON_MQTT_EXCEPTION = -1;
 

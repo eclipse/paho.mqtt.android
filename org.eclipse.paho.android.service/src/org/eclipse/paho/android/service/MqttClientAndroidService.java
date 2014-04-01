@@ -49,6 +49,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -71,6 +73,25 @@ import android.util.SparseArray;
  */
 public class MqttClientAndroidService extends BroadcastReceiver implements
     IMqttAsyncClient {
+
+  /**
+   * 
+   * The Acknowledgment mode for messages received from {@link MqttCallback#messageArrived(String, MqttMessage)}
+   *
+   */
+  public enum Ack {
+    /**
+     * As soon as the {@link MqttCallback#messageArrived(String, MqttMessage)} returns
+     * the message has been acknowledged as received .
+     */
+    AUTO_ACK,
+    /**
+     * When {@link MqttCallback#messageArrived(String, MqttMessage)} returns the message
+     * will not be acknowledged as received, the application will have to make an acknowledgment call
+     * to {@link MqttClientAndroidService} using {@link MqttClientAndroidService#acknowledgeMessage(MqttMessage)}
+     */
+    MANUAL_ACK
+  }
 
   private static final String SERVICE_NAME = "org.eclipse.paho.android.service.MqttService";
 
@@ -124,6 +145,11 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 
   // The MqttCallback provided by the application
   private MqttCallback callback;
+  private MqttTraceHandler traceCallback;
+
+  //The acknowledgment that a message has been processed by the application
+  private Ack messageAck;
+  private boolean traceEnabled = false;
 
   /**
    * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
@@ -139,11 +165,33 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
    */
   public MqttClientAndroidService(Context context, String serverURI,
       String clientId) {
-    this(context, serverURI, clientId, null);
+    this(context, serverURI, clientId, null, Ack.AUTO_ACK);
   }
 
   /**
    * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
+   * @param ctx Application's context
+   * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
+   * @param clientId specifies the name by which this connection should be identified to the server
+   * @param ackType how the application wishes to acknowledge a message has been processed
+   */
+  public MqttClientAndroidService(Context ctx, String serverURI, String clientId, Ack ackType) {
+    this(ctx, serverURI, clientId, null, ackType);
+  }
+
+  /**
+   * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
+   * @param ctx Application's context
+   * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
+   * @param clientId specifies the name by which this connection should be identified to the server
+   * @param persistence The object to use to store persisted data
+   */
+  public MqttClientAndroidService(Context ctx, String serverURI, String clientId, MqttClientPersistence persistence) {
+    this(ctx, serverURI, clientId, null, Ack.AUTO_ACK);
+  }
+
+  /**
+   * constructor
    * 
    * @param context
    *            used to pass context to the callback.
@@ -156,13 +204,16 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
    * @param persistence
    *			the persistence class to use to store in-flight message. If null then the
    * 			default persistence mechanism is used
+   * @param ackType 
+   *            how the application wishes to acknowledge a message has been processed.
    */
   public MqttClientAndroidService(Context context, String serverURI,
-      String clientId, MqttClientPersistence persistence) {
+      String clientId, MqttClientPersistence persistence, Ack ackType) {
     myContext = context;
     this.serverURI = serverURI;
     this.clientId = clientId;
     this.persistence = persistence;
+    messageAck = ackType;
   }
 
    /**
@@ -292,6 +343,14 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   public IMqttToken connect(MqttConnectOptions options, Object userContext,
       IMqttActionListener callback) throws MqttException {
 
+    //check to see if there is a network connection where we can send data before attempting the connect
+    ConnectivityManager conManager = (ConnectivityManager) myContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+    NetworkInfo netInf = conManager.getActiveNetworkInfo();
+    if ((netInf == null) || !netInf.isConnected()) {
+      throw new MqttException(MqttException.REASON_CODE_BROKER_UNAVAILABLE);
+    }
+
     IMqttToken token = new MqttTokenAndroidService(this, userContext,
         callback);
 
@@ -348,6 +407,9 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
       clientHandle = mqttService.getClient(serverURI, clientId,
           persistence);
     }
+    mqttService.setTraceEnabled(traceEnabled);
+    mqttService.setTraceCallbackId(clientHandle);
+
     String activityToken = storeToken(connectToken);
     try {
       mqttService.connect(clientHandle, connectOptions, null,
@@ -975,6 +1037,28 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   }
 
   /**
+   * identify the callback to be invoked when making tracing calls back into
+   * the Activity
+   * 
+   * @param traceCallback handler
+   */
+  public void setTraceCallback(MqttTraceHandler traceCallback) {
+	  this.traceCallback = traceCallback;
+   // mqttService.setTraceCallbackId(traceCallbackId);
+  }
+
+  /**
+   * turn tracing on and off
+   * 
+   * @param traceEnabled
+   */
+  public void setTraceEnabled(boolean traceEnabled) {
+	this.traceEnabled = traceEnabled;
+	if (mqttService !=null)
+      mqttService.setTraceEnabled(traceEnabled);
+  }
+  
+  /**
    * <p>
    * Process incoming Intent objects representing the results of operations
    * and asynchronous activities such as message received
@@ -1024,6 +1108,23 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     else if (action.equals(MqttServiceConstants.DISCONNECT_ACTION)) {
       disconnected(data);
     }
+    else if (action.equals(MqttServiceConstants.TRACE_ACTION)) {
+      traceAction(data);
+    }
+
+  }
+
+  /**
+   * Acknowledges a message received on the {@link MqttCallback#messageArrived(String, MqttMessage)} 
+   * @param messageId the messageId received from the MqttMessage (To access this field you need to cast {@link MqttMessage} to {@link ParcelableMqttMessage}) 
+   * @return whether or not the message was successfully acknowledged
+   */
+  public boolean acknowledgeMessage(String messageId) {
+    if (messageAck == Ack.MANUAL_ACK) {
+      Status status = mqttService.acknowledgeMessageArrival(clientHandle, messageId);
+      return status == Status.OK;
+    }
+    return false;
 
   }
 
@@ -1154,8 +1255,15 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
       ParcelableMqttMessage message = (ParcelableMqttMessage) data
           .getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL);
       try {
-        callback.messageArrived(destinationName, message);
-        mqttService.acknowledgeMessageArrival(clientHandle, messageId);
+        if (messageAck == Ack.AUTO_ACK) {
+          callback.messageArrived(destinationName, message);
+          mqttService.acknowledgeMessageArrival(clientHandle, messageId);
+        }
+        else {
+          message.messageId = messageId;
+          callback.messageArrived(destinationName, message);
+        }
+
         // let the service discard the saved message details
       }
       catch (Exception e) {
@@ -1163,7 +1271,30 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
       }
     }
   }
+  
+  /**
+   * Process trace action - pass trace data back to the callback
+   * 
+   * @param data
+   */
+  private void traceAction(Bundle data) {
 
+	  if (traceCallback != null) {
+		  String severity = data.getString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY);
+		  String message =  data.getString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE);
+		  String tag = data.getString(MqttServiceConstants.CALLBACK_TRACE_TAG);
+		  if (severity == MqttServiceConstants.TRACE_DEBUG) 
+			  traceCallback.traceDebug(tag, message);
+		  else if (severity == MqttServiceConstants.TRACE_ERROR) 
+			  traceCallback.traceError(tag, message);
+		  else
+		  {
+			  Exception e = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
+			  traceCallback.traceException(tag, message, e);
+		  }
+	  }
+  }
+  
   /**
    * @param token
    *            identifying an operation
