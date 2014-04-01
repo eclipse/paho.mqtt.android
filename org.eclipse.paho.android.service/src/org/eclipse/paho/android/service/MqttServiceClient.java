@@ -95,7 +95,7 @@ class MqttServiceClient implements MqttCallback {
   private String wakeLockTag = null;
 
   /**
-   * Constructor
+   * Constructor - create an MqttServiceClient to communicate with MQTT server
    * 
    * @param service
    *            our "parent" service - we make callbacks to it
@@ -104,7 +104,8 @@ class MqttServiceClient implements MqttCallback {
    * @param clientId
    *            the name by which we will identify ourselves to the MQTT
    *            server
-   * @param persistence
+   * @param persistence the persistence class to use to store in-flight message. If null then the
+   * 			default persistence mechanism is used
    * @param clientHandle
    *            the "handle" by which the activity will identify us
    */
@@ -453,7 +454,7 @@ class MqttServiceClient implements MqttCallback {
   }
 
   /**
-   * subscribe to a topic
+   * Subscribe to a topic
    * 
    * @param topic
    *            a possibly wildcarded topic name
@@ -496,7 +497,7 @@ class MqttServiceClient implements MqttCallback {
   }
 
   /**
-   * subscribe to one or more topics
+   * Subscribe to one or more topics
    * 
    * @param topic
    *            a list of possibly wildcarded topic names
@@ -539,7 +540,7 @@ class MqttServiceClient implements MqttCallback {
   }
 
   /**
-   * unsubscribe from a topic
+   * Unsubscribe from a topic
    * 
    * @param topic
    *            a possibly wildcarded topic name
@@ -580,7 +581,7 @@ class MqttServiceClient implements MqttCallback {
   }
 
   /**
-   * unsubscribe from one or more topics
+   * Unsubscribe from one or more topics
    * 
    * @param topic
    *            a list of possibly wildcarded topic names
@@ -621,7 +622,7 @@ class MqttServiceClient implements MqttCallback {
   }
 
   /**
-   * get tokens for all outstanding deliveries for a client
+   * Get tokens for all outstanding deliveries for a client
    * 
    * @return an array (possibly empty) of tokens
    */

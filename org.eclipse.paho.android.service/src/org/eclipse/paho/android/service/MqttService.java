@@ -268,7 +268,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   // The major API implementation follows :-
 
   /**
-   * get an MqttServiceClient object to represent a connection to a server
+   * Get an MqttServiceClient object to represent a connection to a server
    * 
    * @param serverURI
    * @param clientId
@@ -309,7 +309,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * disconnect from the server
+   * Disconnect from the server
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient to use
@@ -331,7 +331,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * disconnect from the server
+   * Disconnect from the server
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient to use
@@ -355,6 +355,8 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
+   * Get the status of a specific client
+   * 
    * @param clientHandle
    *            identifies the MqttServiceClient to use
    * @return true if the specified client is connected to an MQTT server
@@ -419,7 +421,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * subscribe to a topic
+   * Subscribe to a topic
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient to use
@@ -439,7 +441,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * subscribe to one or more topics
+   * Subscribe to one or more topics
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient to use
@@ -459,7 +461,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * unsubscribe from a topic
+   * Unsubscribe from a topic
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient
@@ -477,7 +479,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * unsubscribe from one or more topics
+   * Unsubscribe from one or more topics
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient
@@ -495,7 +497,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * get tokens for all outstanding deliveries for a client
+   * Get tokens for all outstanding deliveries for a client
    * 
    * @param clientHandle
    *            identifies the MqttServiceClient
@@ -507,7 +509,9 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * @param clientHandle
+   * Get the MqttServiceClient identified by this client handle
+   * 
+   * @param clientHandle identifies the MqttServiceClient
    * @return the MqttServiceClient identified by this handle
    */
   private MqttServiceClient clientFromHandle(String clientHandle) {
@@ -522,8 +526,8 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Called by the Activity when a message has been passed back to the
    * application
    * 
-   * @param clientHandle
-   * @param id
+   * @param clientHandle identifier for the client which received the message
+   * @param id identifier for the MQTT message
    */
   public Status acknowledgeMessageArrival(String clientHandle, String id) {
     if (messageStore.discardArrived(clientHandle, id)) {
@@ -596,26 +600,26 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * identify the callbackId to be passed when making tracing calls back into
+   * Identify the callbackId to be passed when making tracing calls back into
    * the Activity
    * 
-   * @param traceCallbackId
+   * @param traceCallbackId identifier to the callback into the Activity
    */
   public void setTraceCallbackId(String traceCallbackId) {
     this.traceCallbackId = traceCallbackId;
   }
 
   /**
-   * turn tracing on and off
+   * Turn tracing on and off
    * 
-   * @param traceEnabled
+   * @param traceEnabled set <code>true</code> to turn on tracing, <code>false</code> to turn off tracing
    */
   public void setTraceEnabled(boolean traceEnabled) {
     this.traceEnabled = traceEnabled;
   }
 
   /**
-   * trace debugging information
+   * Trace debugging information
    * 
    * @param tag
    *            identifier for the source of the trace
@@ -628,7 +632,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
 
   /**
-   * trace error information
+   * Trace error information
    * 
    * @param tag
    *            identifier for the source of the trace

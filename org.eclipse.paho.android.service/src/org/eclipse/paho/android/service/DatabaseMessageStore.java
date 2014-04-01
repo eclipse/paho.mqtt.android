@@ -131,10 +131,10 @@ public class DatabaseMessageStore implements MessageStore {
 	}
 
 	/**
-	 * Constructor
+	 * Constructor - create a DatabaseMessageStore to store arrived MQTT message
 	 * 
 	 * @param service
-	 *            our parent Service
+	 *            our parent MqttService
 	 * @param context
 	 *            a context to use for android calls
 	 */
@@ -152,16 +152,15 @@ public class DatabaseMessageStore implements MessageStore {
 	}
 
 	/**
-	 * Store a message
+	 * Store an MQTT message
 	 * 
 	 * @param clientHandle
 	 *            identifier for the client storing the message
 	 * @param topic
 	 *            The topic on which the message was published
 	 * @param message
-	 *            the message
-	 * @return an identifier for the message, so that it can be removed when
-	 *         appropriate
+	 *            the arrived MQTT message
+	 * @return an identifier for the message, so that it can be removed when appropriate
 	 */
 	@Override
 	public String storeArrived(String clientHandle, String topic,
@@ -216,7 +215,7 @@ public class DatabaseMessageStore implements MessageStore {
 	}
 
 	/**
-	 * Delete a message.
+	 * Delete an MQTT message.
 	 * 
 	 * @param clientHandle
 	 *            identifier for the client which stored the message
@@ -255,13 +254,12 @@ public class DatabaseMessageStore implements MessageStore {
 	}
 
 	/**
-	 * Get an iterator over all messages stored<br>
-	 * (optionally for a specific client)
+	 * Get an iterator over all messages stored (optionally for a specific client)
 	 * 
 	 * @param clientHandle
 	 *            identifier for the client.<br>
 	 *            If null, all messages are retrieved
-	 * @return the iterator
+	 * @return iterator of all the arrived MQTT messages
 	 */
 	@Override
 	public Iterator<StoredMessage> getAllArrivedMessages(

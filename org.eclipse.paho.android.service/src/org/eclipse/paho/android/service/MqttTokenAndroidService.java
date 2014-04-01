@@ -46,11 +46,11 @@ class MqttTokenAndroidService implements IMqttToken {
   private MqttException pendingException;
 
   /**
-   * standard constructor
+   * Standard constructor
    * 
-   * @param client
-   * @param userContext
-   * @param listener
+   * @param client used to pass MqttClientAndroidService object
+   * @param userContext used to pass context
+   * @param listener optional listener that will be notified when the action completes. Use null if not required.
    */
   MqttTokenAndroidService(MqttClientAndroidService client,
       Object userContext, IMqttActionListener listener) {
@@ -58,12 +58,12 @@ class MqttTokenAndroidService implements IMqttToken {
   }
 
   /**
-   * constructor for use with subscribe operations
+   * Constructor for use with subscribe operations
    * 
-   * @param client
-   * @param userContext
-   * @param listener
-   * @param topics
+   * @param client used to pass MqttClientAndroidService object
+   * @param userContext used to pass context
+   * @param listener optional listener that will be notified when the action completes. Use null if not required.
+   * @param topics topics to subscribe to, which can include wildcards.
    */
   MqttTokenAndroidService(MqttClientAndroidService client,
       Object userContext, IMqttActionListener listener, String[] topics) {
