@@ -20,7 +20,7 @@ package org.eclipse.paho.android.service;
 public interface MqttServiceConstants {
 
   /*
-   * Attibutes of messages <p> Used for the column names in the database
+   * Attributes of messages <p> Used for the column names in the database
    */
   static final String DUPLICATE = "duplicate";
   static final String RETAINED = "retained";
@@ -71,6 +71,10 @@ public interface MqttServiceConstants {
                                               + ".ERROR_NUMBER";
 
   static final String CALLBACK_EXCEPTION = MqttService.TAG + ".exception";
+  
+  //Intent prefix for Ping sender.
+  static final String PING_SENDER = MqttService.TAG + ".pingSender.";
+  static final String PING_WAKELOCK = MqttService.TAG + ".client.";
 
   //Trace severity levels
   
@@ -79,7 +83,7 @@ public interface MqttServiceConstants {
   static final String TRACE_EXCEPTION = "exception";
   
   
-  //exception code for non mqttexceptions
+  //exception code for non MqttExceptions
   static final int NON_MQTT_EXCEPTION = -1;
 
 }

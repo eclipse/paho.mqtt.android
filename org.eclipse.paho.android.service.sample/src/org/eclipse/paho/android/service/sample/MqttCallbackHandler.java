@@ -47,6 +47,7 @@ public class MqttCallbackHandler implements MqttCallback {
    */
   @Override
   public void connectionLost(Throwable cause) {
+	  cause.printStackTrace();
     if (cause != null) {
       Connection c = Connections.getInstance(context).getConnection(clientHandle);
       c.addAction("Connection Lost");

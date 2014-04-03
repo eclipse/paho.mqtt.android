@@ -28,7 +28,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import org.eclipse.paho.android.service.sample.ActionListener.Action;
 import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
-import org.eclipse.paho.android.service.MqttClientAndroidService;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 /**
  * Deals with actions performed in the {@link ClientConnections} activity
@@ -37,7 +37,7 @@ import org.eclipse.paho.android.service.MqttClientAndroidService;
  */
 public class Listener implements OnMenuItemClickListener {
 
-  /** The handle to a {@link Connection} object which contains the {@link MqttClientAndroidService} associated with this object **/
+  /** The handle to a {@link Connection} object which contains the {@link MqttAndroidClient} associated with this object **/
   private String clientHandle = null;
 
   /** {@link ConnectionDetails} reference used to perform some actions**/
@@ -277,7 +277,7 @@ public class Listener implements OnMenuItemClickListener {
       clientConnections.invalidateOptionsMenu();
     }
     catch (IOException e) {
-      Log.e("MqttClientAndroidService",
+      Log.e("MqttAndroidClient",
           "Error reading logging parameters", e);
     }
 

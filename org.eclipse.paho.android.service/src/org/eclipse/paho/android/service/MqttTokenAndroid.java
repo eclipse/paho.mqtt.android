@@ -22,10 +22,10 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 /**
  * <p>
  * Implementation of the IMqttToken interface for use from within the
- * MqttClientAndroidService implementation
+ * MqttAndroidClient implementation
  */
 
-class MqttTokenAndroidService implements IMqttToken {
+class MqttTokenAndroid implements IMqttToken {
 
   private IMqttActionListener listener;
 
@@ -35,7 +35,7 @@ class MqttTokenAndroidService implements IMqttToken {
 
   private Object waitObject = new Object();
 
-  private MqttClientAndroidService client;
+  private MqttAndroidClient client;
 
   private Object userContext;
 
@@ -48,11 +48,11 @@ class MqttTokenAndroidService implements IMqttToken {
   /**
    * Standard constructor
    * 
-   * @param client used to pass MqttClientAndroidService object
+   * @param client used to pass MqttAndroidClient object
    * @param userContext used to pass context
    * @param listener optional listener that will be notified when the action completes. Use null if not required.
    */
-  MqttTokenAndroidService(MqttClientAndroidService client,
+  MqttTokenAndroid(MqttAndroidClient client,
       Object userContext, IMqttActionListener listener) {
     this(client, userContext, listener, (String[]) null);
   }
@@ -60,12 +60,12 @@ class MqttTokenAndroidService implements IMqttToken {
   /**
    * Constructor for use with subscribe operations
    * 
-   * @param client used to pass MqttClientAndroidService object
+   * @param client used to pass MqttAndroidClient object
    * @param userContext used to pass context
    * @param listener optional listener that will be notified when the action completes. Use null if not required.
    * @param topics topics to subscribe to, which can include wildcards.
    */
-  MqttTokenAndroidService(MqttClientAndroidService client,
+  MqttTokenAndroid(MqttAndroidClient client,
       Object userContext, IMqttActionListener listener, String[] topics) {
     this.client = client;
     this.userContext = userContext;

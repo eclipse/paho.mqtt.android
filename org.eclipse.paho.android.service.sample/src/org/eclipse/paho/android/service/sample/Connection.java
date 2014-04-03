@@ -22,11 +22,11 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
-import org.eclipse.paho.android.service.MqttClientAndroidService;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 /**
  * 
- * Represents a {@link MqttClientAndroidService} and the actions it has performed
+ * Represents a {@link MqttAndroidClient} and the actions it has performed
  *
  */
 public class Connection {
@@ -38,16 +38,16 @@ public class Connection {
   private String clientHandle = null;
   /** The clientId of the client associated with this <code>Connection</code> object **/
   private String clientId = null;
-  /** The host that the {@link MqttClientAndroidService} represented by this <code>Connection</code> is represented by **/
+  /** The host that the {@link MqttAndroidClient} represented by this <code>Connection</code> is represented by **/
   private String host = null;
   /** The port on the server this client is connecting to **/
   private int port = 0;
-  /** {@link ConnectionStatus} of the {@link MqttClientAndroidService} represented by this <code>Connection</code> object. Default value is {@link ConnectionStatus#NONE} **/
+  /** {@link ConnectionStatus} of the {@link MqttAndroidClient} represented by this <code>Connection</code> object. Default value is {@link ConnectionStatus#NONE} **/
   private ConnectionStatus status = ConnectionStatus.NONE;
-  /** The history of the {@link MqttClientAndroidService} represented by this <code>Connection</code> object **/
+  /** The history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object **/
   private ArrayList<String> history = null;
-  /** The {@link MqttClientAndroidService} instance this class represents**/
-  private MqttClientAndroidService client = null;
+  /** The {@link MqttAndroidClient} instance this class represents**/
+  private MqttAndroidClient client = null;
 
   /** Collection of {@link PropertyChangeListener} **/
   private ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
@@ -85,7 +85,7 @@ public class Connection {
 
   /**
    * Creates a connection from persisted information in the database store, attempting
-   * to create a {@link MqttClientAndroidService} and the client handle.
+   * to create a {@link MqttAndroidClient} and the client handle.
    * @param clientId The id of the client
    * @param host the server which the client is connecting to
    * @param port the port on the server which the client will attempt to connect to
@@ -105,7 +105,7 @@ public class Connection {
       uri = "tcp://" + host + ":" + port;
       handle = uri + clientId;
     }
-    MqttClientAndroidService client = new MqttClientAndroidService(context, uri, clientId);
+    MqttAndroidClient client = new MqttAndroidClient(context, uri, clientId);
     return new Connection(handle, clientId, host, port, context, client, sslConnection);
 
   }
@@ -118,11 +118,11 @@ public class Connection {
    * @param host The server which the client is connecting to
    * @param port The port on the server which the client will attempt to connect to
    * @param context The application context
-   * @param client The MqttClientAndroidService which communicates with the service for this connection
+   * @param client The MqttAndroidClient which communicates with the service for this connection
    * @param sslConnection true if the connection is secured by SSL
    */
   public Connection(String clientHandle, String clientId, String host,
-      int port, Context context, MqttClientAndroidService client, boolean sslConnection) {
+      int port, Context context, MqttAndroidClient client, boolean sslConnection) {
     //generate the client handle from its hash code
     this.clientHandle = clientHandle;
     this.clientId = clientId;
@@ -305,7 +305,7 @@ public class Connection {
    * Gets the client which communicates with the android service.
    * @return the client which communicates with the android service
    */
-  public MqttClientAndroidService getClient() {
+  public MqttAndroidClient getClient() {
     return client;
   }
 

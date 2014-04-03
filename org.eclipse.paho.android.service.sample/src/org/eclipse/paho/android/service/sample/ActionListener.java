@@ -12,17 +12,16 @@
  */
 package org.eclipse.paho.android.service.sample;
 
-import org.eclipse.paho.android.service.sample.R;
+import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+
 import android.content.Context;
 import android.widget.Toast;
-import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
-import org.eclipse.paho.android.service.MqttClientAndroidService;
 
 /**
  * This Class handles receiving information from the
- * {@link MqttClientAndroidService} and updating the {@link Connection} associated with 
+ * {@link MqttAndroidClient} and updating the {@link Connection} associated with 
  * the action
  */
 class ActionListener implements IMqttActionListener {

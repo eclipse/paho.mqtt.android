@@ -48,7 +48,7 @@ import android.util.Log;
  * </p>
  * <p>
  * To support multiple client connections, the bulk of the MQTT work is
- * delegated to MqttServiceClient objects. These are identified by "client
+ * delegated to MqttConnection objects. These are identified by "client
  * handle" strings, which is how the Activity, and the higher-level APIs refer
  * to them.
  * </p>
@@ -226,13 +226,9 @@ public class MqttService extends Service implements MqttTraceHandler {
   // a way to pass ourself back to the activity
   private MqttServiceBinder mqttServiceBinder;
 
-  // mapping from client handle strings to actual clients
-  private Map<String/* clientHandle */, MqttServiceClient/* client */> clients = new HashMap<String, MqttServiceClient>();
+  // mapping from client handle strings to actual client connections.
+  private Map<String/* clientHandle */, MqttConnection/* client */> connections = new HashMap<String, MqttConnection>();
 
-  /**
-   * constructor - very simple!
-   * 
-   */
   public MqttService() {
     super();
   }
@@ -268,19 +264,19 @@ public class MqttService extends Service implements MqttTraceHandler {
   // The major API implementation follows :-
 
   /**
-   * Get an MqttServiceClient object to represent a connection to a server
+   * Get an MqttConnection object to represent a connection to a server
    * 
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
    * @return a string to be used by the Activity as a "handle" for this
-   *         MqttServiceClient
+   *         MqttConnection
    */
   public String getClient(String serverURI, String clientId, MqttClientPersistence persistence) {
     String clientHandle = serverURI + ":" + clientId;
-    if (!clients.containsKey(clientHandle)) {
-      MqttServiceClient client = new MqttServiceClient(this, serverURI,
+    if (!connections.containsKey(clientHandle)) {
+      MqttConnection client = new MqttConnection(this, serverURI,
           clientId, persistence, clientHandle);
-      clients.put(clientHandle, client);
+      connections.put(clientHandle, client);
     }
     return clientHandle;
   }
@@ -289,7 +285,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Connect to the MQTT server specified by a particular client
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param connectOptions
    *            the MQTT connection options to be used
    * @param invocationContext
@@ -302,17 +298,34 @@ public class MqttService extends Service implements MqttTraceHandler {
   public void connect(String clientHandle, MqttConnectOptions connectOptions,
       String invocationContext, String activityToken)
       throws MqttSecurityException, MqttException {
-
-    MqttServiceClient client = clientFromHandle(clientHandle);
-
+    MqttConnection client = getConnection(clientHandle);
     client.connect(connectOptions, invocationContext, activityToken);
+  }
+  
+  /**
+   * Connect to the MQTT server specified by a particular client
+   * 
+   * @param clientHandle
+   *            identifies the MqttConnection to use
+   * @param connectOptions
+   *            the MQTT connection options to be used
+   * @param invocationContext
+   *            arbitrary data to be passed back to the application
+   * @param activityToken
+   *            arbitrary identifier to be passed back to the Activity
+   * @throws MqttSecurityException
+   * @throws MqttException
+   */
+  public void close(String clientHandle) {
+    MqttConnection client = getConnection(clientHandle);
+    client.close();
   }
 
   /**
    * Disconnect from the server
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param invocationContext
    *            arbitrary data to be passed back to the application
    * @param activityToken
@@ -320,9 +333,9 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void disconnect(String clientHandle, String invocationContext,
       String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.disconnect(invocationContext, activityToken);
-    clients.remove(clientHandle);
+    connections.remove(clientHandle);
 
     // the activity has finished using us, so we can stop the service
     // the activities are bound with BIND_AUTO_CREATE, so the service will
@@ -334,7 +347,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Disconnect from the server
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param quiesceTimeout
    *            in milliseconds
    * @param invocationContext
@@ -344,9 +357,9 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void disconnect(String clientHandle, long quiesceTimeout,
       String invocationContext, String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.disconnect(quiesceTimeout, invocationContext, activityToken);
-    clients.remove(clientHandle);
+    connections.remove(clientHandle);
 
     // the activity has finished using us, so we can stop the service
     // the activities are bound with BIND_AUTO_CREATE, so the service will
@@ -358,11 +371,11 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Get the status of a specific client
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @return true if the specified client is connected to an MQTT server
    */
   public boolean isConnected(String clientHandle) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     return client.isConnected();
   }
 
@@ -370,7 +383,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Publish a message to a topic
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param topic
    *            the topic to which to publish
    * @param payload
@@ -391,7 +404,7 @@ public class MqttService extends Service implements MqttTraceHandler {
       byte[] payload, int qos, boolean retained,
       String invocationContext, String activityToken)
       throws MqttPersistenceException, MqttException {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     return client.publish(topic, payload, qos, retained, invocationContext,
         activityToken);
   }
@@ -400,7 +413,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Publish a message to a topic
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param topic
    *            the topic to which to publish
    * @param message
@@ -416,7 +429,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   public IMqttDeliveryToken publish(String clientHandle, String topic,
       MqttMessage message, String invocationContext, String activityToken)
       throws MqttPersistenceException, MqttException {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     return client.publish(topic, message, invocationContext, activityToken);
   }
 
@@ -424,7 +437,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Subscribe to a topic
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param topic
    *            a possibly wildcarded topic name
    * @param qos
@@ -436,7 +449,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void subscribe(String clientHandle, String topic, int qos,
       String invocationContext, String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.subscribe(topic, qos, invocationContext, activityToken);
   }
 
@@ -444,7 +457,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Subscribe to one or more topics
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient to use
+   *            identifies the MqttConnection to use
    * @param topic
    *            a list of possibly wildcarded topic names
    * @param qos
@@ -456,7 +469,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void subscribe(String clientHandle, String[] topic, int[] qos,
       String invocationContext, String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.subscribe(topic, qos, invocationContext, activityToken);
   }
 
@@ -464,7 +477,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Unsubscribe from a topic
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient
+   *            identifies the MqttConnection
    * @param topic
    *            a possibly wildcarded topic name
    * @param invocationContext
@@ -474,7 +487,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void unsubscribe(String clientHandle, final String topic,
       String invocationContext, String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.unsubscribe(topic, invocationContext, activityToken);
   }
 
@@ -482,7 +495,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Unsubscribe from one or more topics
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient
+   *            identifies the MqttConnection
    * @param topic
    *            a list of possibly wildcarded topic names
    * @param invocationContext
@@ -492,7 +505,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    */
   public void unsubscribe(String clientHandle, final String[] topic,
       String invocationContext, String activityToken) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     client.unsubscribe(topic, invocationContext, activityToken);
   }
 
@@ -500,22 +513,22 @@ public class MqttService extends Service implements MqttTraceHandler {
    * Get tokens for all outstanding deliveries for a client
    * 
    * @param clientHandle
-   *            identifies the MqttServiceClient
+   *            identifies the MqttConnection
    * @return an array (possibly empty) of tokens
    */
   public IMqttDeliveryToken[] getPendingDeliveryTokens(String clientHandle) {
-    MqttServiceClient client = clientFromHandle(clientHandle);
+    MqttConnection client = getConnection(clientHandle);
     return client.getPendingDeliveryTokens();
   }
 
   /**
-   * Get the MqttServiceClient identified by this client handle
+   * Get the MqttConnection identified by this client handle
    * 
-   * @param clientHandle identifies the MqttServiceClient
-   * @return the MqttServiceClient identified by this handle
+   * @param clientHandle identifies the MqttConnection
+   * @return the MqttConnection identified by this handle
    */
-  private MqttServiceClient clientFromHandle(String clientHandle) {
-    MqttServiceClient client = clients.get(clientHandle);
+  private MqttConnection getConnection(String clientHandle) {
+    MqttConnection client = connections.get(clientHandle);
     if (client == null) {
       throw new IllegalArgumentException("Invalid ClientHandle");
     }
@@ -563,7 +576,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   @Override
   public void onDestroy() {
     // disconnect immediately
-    for (MqttServiceClient client : clients.values()) {
+    for (MqttConnection client : connections.values()) {
       client.disconnect(null, null);
     }
 
@@ -617,6 +630,15 @@ public class MqttService extends Service implements MqttTraceHandler {
   public void setTraceEnabled(boolean traceEnabled) {
     this.traceEnabled = traceEnabled;
   }
+  
+  /**
+   * Check whether trace is on or off.
+   * 
+   * @return the state of trace
+   */
+  public boolean isTraceEnabled(){
+	  return this.traceEnabled;
+  }
 
   /**
    * Trace debugging information
@@ -629,6 +651,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   @Override
   public void traceDebug(String tag, String message) {
     traceCallback(MqttServiceConstants.TRACE_DEBUG, tag, message);
+    Log.d(tag, message);
   }
 
   /**

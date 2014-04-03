@@ -19,7 +19,7 @@ import android.os.IBinder;
 import android.test.ServiceTestCase;
 import android.util.Log;
 
-import org.eclipse.paho.android.service.MqttClientAndroidService;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 /**
  * @author Rhys
@@ -58,7 +58,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
   public void testConnect() throws Throwable {
 
     IMqttAsyncClient mqttClient = null;
-    mqttClient = new MqttClientAndroidService(mContext, serverURI, "testConnect");
+    mqttClient = new MqttAndroidClient(mContext, serverURI, "testConnect");
 
     IMqttToken connectToken = null;
     IMqttToken disconnectToken = null;
@@ -81,7 +81,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     String methodName = "testRemoteConnect";
     IMqttAsyncClient mqttClient = null;
 
-    mqttClient = mqttClient = new MqttClientAndroidService(mContext, serverURI, "testRemoteConnect");
+    mqttClient = mqttClient = new MqttAndroidClient(mContext, serverURI, "testRemoteConnect");
     IMqttToken connectToken = null;
     IMqttToken subToken = null;
     IMqttDeliveryToken pubToken = null;
@@ -129,7 +129,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     String methodName = "testLargeMessage";
     IMqttAsyncClient mqttClient = null;
     try {
-      mqttClient = new MqttClientAndroidService(mContext, serverURI,
+      mqttClient = new MqttAndroidClient(mContext, serverURI,
           "testLargeMessage");
       IMqttToken connectToken;
       IMqttToken subToken;
@@ -204,7 +204,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     int[] topicQos = {0};
 
     for (int i = 0; i < mqttPublisher.length; i++) {
-      mqttPublisher[i] = new MqttClientAndroidService(mContext,
+      mqttPublisher[i] = new MqttAndroidClient(mContext,
           serverURI, "MultiPub" + i);
 
       connectToken = mqttPublisher[i].connect(null, new ActionListener(notifier));
@@ -213,7 +213,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
     MqttV3Receiver[] mqttV3Receiver = new MqttV3Receiver[mqttSubscriber.length];
     for (int i = 0; i < mqttSubscriber.length; i++) {
-      mqttSubscriber[i] = new MqttClientAndroidService(mContext,
+      mqttSubscriber[i] = new MqttAndroidClient(mContext,
           serverURI, "MultiSubscriber" + i);
       mqttV3Receiver[i] = new MqttV3Receiver(mqttSubscriber[i],
           null);
@@ -272,7 +272,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 //    IMqttDeliveryToken pubToken;
 //    IMqttToken disconnectToken;
 //
-//    mqttClient = new MqttClientAndroidService(mContext, serverURI,
+//    mqttClient = new MqttAndroidClient(mContext, serverURI,
 //        "testNonDurableSubs");
 //    MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient,
 //        null);
@@ -346,7 +346,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 //
 //    mqttClient.close();
 //
-//    mqttClient = new MqttClientAndroidService(mContext, serverURI,
+//    mqttClient = new MqttAndroidClient(mContext, serverURI,
 //        "testNonDurableSubs");
 //
 //    mqttV3Receiver = new MqttV3Receiver(mqttClient,
@@ -383,7 +383,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     IMqttToken disconnectToken;
     String methodName = "testQoSPreserved";
 
-    mqttClient = new MqttClientAndroidService(mContext, serverURI, "testQoSPreserved");
+    mqttClient = new MqttAndroidClient(mContext, serverURI, "testQoSPreserved");
     MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient,
         null);
     mqttClient.setCallback(mqttV3Receiver);
@@ -428,7 +428,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 	try {
 	     try {
 	    	 	String junk = "tcp://junk:123";
-	    	 	client = new MqttClientAndroidService(mContext, junk, methodName);
+	    	 	client = new MqttAndroidClient(mContext, junk, methodName);
 
 	    	 	String[] urls = new String[]{"tcp://junk", serverURI};
 
@@ -463,7 +463,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 	  String methodName = "testPubSub";
 	  IMqttAsyncClient mqttClient = null;
 	  try {
-	    mqttClient = new MqttClientAndroidService(mContext, serverURI, methodName);
+	    mqttClient = new MqttAndroidClient(mContext, serverURI, methodName);
 	    IMqttToken connectToken;
 	    IMqttToken subToken;
 	    IMqttDeliveryToken pubToken;
@@ -521,7 +521,7 @@ public void testRetainedMessage() throws Throwable{
 	  IMqttToken disconnectToken = null;
 	  
 	  try {
-	    mqttClient = new MqttClientAndroidService(mContext, serverURI, methodName);
+	    mqttClient = new MqttAndroidClient(mContext, serverURI, methodName);
 	    IMqttToken connectToken;
 	    IMqttToken subToken;
 	    IMqttDeliveryToken pubToken;
@@ -556,9 +556,9 @@ public void testRetainedMessage() throws Throwable{
 	    notifier.waitForCompletion(waitForCompletionTime);
 	    mqttClient.close();
 	    
-	    mqttClientRetained = new MqttClientAndroidService(mContext, serverURI, "Retained");
+	    mqttClientRetained = new MqttAndroidClient(mContext, serverURI, "Retained");
 	   
-	    Log.i(methodName, "New MqttClientAndroidService mqttClientRetained");
+	    Log.i(methodName, "New MqttAndroidClient mqttClientRetained");
 	    
 	    MqttV3Receiver mqttV3ReceiverRetained = new MqttV3Receiver(mqttClientRetained, null);
 	    mqttClientRetained.setCallback(mqttV3ReceiverRetained);

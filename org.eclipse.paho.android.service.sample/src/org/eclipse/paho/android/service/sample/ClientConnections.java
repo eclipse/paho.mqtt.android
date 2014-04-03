@@ -15,9 +15,12 @@ package org.eclipse.paho.android.service.sample;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
-import org.eclipse.paho.android.service.sample.R;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -35,8 +38,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
-import org.eclipse.paho.android.service.MqttClientAndroidService;
 
 /**
  * ClientConnections is the main activity for the sample application, it
@@ -235,7 +236,7 @@ public class ClientConnections extends ListActivity {
 
     uri = uri + server + ":" + port;
 
-    MqttClientAndroidService client;
+    MqttAndroidClient client;
     client = Connections.getInstance(this).createClient(this, uri, clientId);
     // create a client handle
     String clientHandle = uri + clientId;

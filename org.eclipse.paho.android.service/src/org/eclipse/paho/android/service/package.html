@@ -10,7 +10,7 @@
 		interface operations.
 	</p>
 	<p>The Service returns results via the Android Intent mechanism.
-		The MqttClientAndroidService class shows how the interaction is
+		The MqttAndroidClient class shows how the interaction is
 		managed</p>
 	<p>
 		<strong>Note:</strong> An App which uses this service must include the
@@ -26,7 +26,7 @@ The service does not attempt to track network state and automatically reconnect 
 While this is clearly possible, determining appropriate behaviour presents certain challenges. <br>
 Any maintainer adding support for such functionality should look to providing a <i>BroadcastReceiver</i> for 
 <i>ConnectivityManager.CONNECTIVITY_ACTION</i> probably as part of the MqttService object.<br> 
-Changes in network connectivity would then need to be notified to the relevant MqttServiceClient objects.
+Changes in network connectivity would then need to be notified to the relevant MqttConnection objects.
 </p>
 <p> 
 The behaviour in response to changes in network connectivity would need to be considered in some detail - for example :-

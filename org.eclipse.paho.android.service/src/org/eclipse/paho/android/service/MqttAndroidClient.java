@@ -20,7 +20,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +39,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttProtocolVersion;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.MqttToken;
 
@@ -53,7 +53,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -71,7 +70,7 @@ import android.util.SparseArray;
  * </ul>
  * </p>
  */
-public class MqttClientAndroidService extends BroadcastReceiver implements
+public class MqttAndroidClient extends BroadcastReceiver implements
     IMqttAsyncClient {
 
   /**
@@ -88,7 +87,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     /**
      * When {@link MqttCallback#messageArrived(String, MqttMessage)} returns the message
      * will not be acknowledged as received, the application will have to make an acknowledgment call
-     * to {@link MqttClientAndroidService} using {@link MqttClientAndroidService#acknowledgeMessage(String)}
+     * to {@link MqttAndroidClient} using {@link MqttAndroidClient#acknowledgeMessage(String)}
      */
     MANUAL_ACK
   }
@@ -152,7 +151,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   private boolean traceEnabled = false;
 
   /**
-   * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
+   * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
    * 
    * @param context 
    *            object used to pass context to the callback. 
@@ -163,30 +162,30 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
    *            specifies the name by which this connection should be
    *            identified to the server
    */
-  public MqttClientAndroidService(Context context, String serverURI,
+  public MqttAndroidClient(Context context, String serverURI,
       String clientId) {
     this(context, serverURI, clientId, null, Ack.AUTO_ACK);
   }
 
   /**
-   * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
+   * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
    * @param ctx Application's context
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
    * @param ackType how the application wishes to acknowledge a message has been processed
    */
-  public MqttClientAndroidService(Context ctx, String serverURI, String clientId, Ack ackType) {
+  public MqttAndroidClient(Context ctx, String serverURI, String clientId, Ack ackType) {
     this(ctx, serverURI, clientId, null, ackType);
   }
 
   /**
-   * Constructor - create an MqttClientAndroidService that can be used to communicate with an MQTT server on android
+   * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
    * @param ctx Application's context
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
    * @param persistence The object to use to store persisted data
    */
-  public MqttClientAndroidService(Context ctx, String serverURI, String clientId, MqttClientPersistence persistence) {
+  public MqttAndroidClient(Context ctx, String serverURI, String clientId, MqttClientPersistence persistence) {
     this(ctx, serverURI, clientId, null, Ack.AUTO_ACK);
   }
 
@@ -207,7 +206,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
    * @param ackType 
    *            how the application wishes to acknowledge a message has been processed.
    */
-  public MqttClientAndroidService(Context context, String serverURI,
+  public MqttAndroidClient(Context context, String serverURI,
       String clientId, MqttClientPersistence persistence, Ack ackType) {
     myContext = context;
     this.serverURI = serverURI;
@@ -258,7 +257,10 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 	 */
   @Override
   public void close() {
-    // Nothing to do TODO should pass this over to paho
+	 if (clientHandle == null) {
+	   clientHandle = mqttService.getClient(serverURI, clientId, persistence);
+	 }
+	 mqttService.close(clientHandle);
   }
   
    /**
@@ -351,7 +353,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
       throw new MqttException(MqttException.REASON_CODE_BROKER_UNAVAILABLE);
     }
 
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback);
 
     connectOptions = options;
@@ -377,8 +379,9 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 
       // We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
       // until the last time it is stopped by a call to stopService()
+      myContext.startService(serviceStartIntent);
       myContext.bindService(serviceStartIntent, serviceConnection,
-          BIND_SERVICE_FLAG);
+          Context.BIND_AUTO_CREATE);
 
       IntentFilter filter = new IntentFilter();
       filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
@@ -390,7 +393,6 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
         @Override
         public void run() {
           doConnect();
-
         }
 
       });
@@ -438,7 +440,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 	 */
   @Override
   public IMqttToken disconnect() throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, null,
+    IMqttToken token = new MqttTokenAndroid(this, null,
         (IMqttActionListener) null);
     String activityToken = storeToken(token);
     mqttService.disconnect(clientHandle, null, activityToken);
@@ -462,7 +464,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 	 */
   @Override
   public IMqttToken disconnect(long quiesceTimeout) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, null,
+    IMqttToken token = new MqttTokenAndroid(this, null,
         (IMqttActionListener) null);
     String activityToken = storeToken(token);
     mqttService.disconnect(clientHandle, quiesceTimeout, null,
@@ -490,7 +492,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken disconnect(Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback);
     String activityToken = storeToken(token);
     mqttService.disconnect(clientHandle, null, activityToken);
@@ -533,7 +535,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken disconnect(long quiesceTimeout, Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback);
     String activityToken = storeToken(token);
     mqttService.disconnect(clientHandle, quiesceTimeout, null,
@@ -618,7 +620,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     MqttMessage message = new MqttMessage(payload);
     message.setQos(qos);
     message.setRetained(retained);
-    MqttDeliveryTokenAndroidService token = new MqttDeliveryTokenAndroidService(
+    MqttDeliveryTokenAndroid token = new MqttDeliveryTokenAndroid(
         this, userContext, callback, message);
     String activityToken = storeToken(token);
     IMqttDeliveryToken internalToken = mqttService.publish(clientHandle,
@@ -700,7 +702,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   public IMqttDeliveryToken publish(String topic, MqttMessage message,
       Object userContext, IMqttActionListener callback)
       throws MqttException, MqttPersistenceException {
-    MqttDeliveryTokenAndroidService token = new MqttDeliveryTokenAndroidService(
+    MqttDeliveryTokenAndroid token = new MqttDeliveryTokenAndroid(
         this, userContext, callback, message);
     String activityToken = storeToken(token);
     IMqttDeliveryToken internalToken = mqttService.publish(clientHandle,
@@ -775,7 +777,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken subscribe(String topic, int qos, Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback, new String[]{topic});
     String activityToken = storeToken(token);
     mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
@@ -890,7 +892,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken subscribe(String[] topic, int[] qos, Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback, topic);
     String activityToken = storeToken(token);
     mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
@@ -947,7 +949,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken unsubscribe(String topic, Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback);
     String activityToken = storeToken(token);
     mqttService.unsubscribe(clientHandle, topic, null, activityToken);
@@ -986,7 +988,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   @Override
   public IMqttToken unsubscribe(String[] topic, Object userContext,
       IMqttActionListener callback) throws MqttException {
-    IMqttToken token = new MqttTokenAndroidService(this, userContext,
+    IMqttToken token = new MqttTokenAndroid(this, userContext,
         callback);
     String activityToken = storeToken(token);
     mqttService.unsubscribe(clientHandle, topic, null, activityToken);
@@ -1148,7 +1150,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     clientHandle = null; // avoid reuse!
     IMqttToken token = removeMqttToken(data);
     if (token != null) {
-      ((MqttTokenAndroidService) token).notifyComplete();
+      ((MqttTokenAndroid) token).notifyComplete();
     }
     if (callback != null) {
       callback.connectionLost(null);
@@ -1181,12 +1183,12 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
       Status status = (Status) data
           .getSerializable(MqttServiceConstants.CALLBACK_STATUS);
       if (status == Status.OK) {
-        ((MqttTokenAndroidService) token).notifyComplete();
+        ((MqttTokenAndroid) token).notifyComplete();
       }
       else {
 
         Exception exceptionThrown = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
-        ((MqttTokenAndroidService) token)
+        ((MqttTokenAndroid) token)
             .notifyFailure(exceptionThrown);
       }
     }
@@ -1377,4 +1379,30 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
 			throw new MqttSecurityException(e);
 		}
  	}
+
+	@Override
+	public void disconnectForcibly() throws MqttException {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void disconnectForcibly(long disconnectTimeout) throws MqttException {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)
+			throws MqttException {
+		throw new UnsupportedOperationException();	
+	}
+	
+	@Override
+	public MqttProtocolVersion getProtocolVersion() {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void setProtocolVersion(MqttProtocolVersion version) {
+		throw new UnsupportedOperationException();
+	}
 }

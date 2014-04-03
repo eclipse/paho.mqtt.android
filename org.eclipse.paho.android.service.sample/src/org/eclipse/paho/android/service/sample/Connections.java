@@ -18,7 +18,7 @@ import java.util.Map;
 
 import android.content.Context;
 
-import org.eclipse.paho.android.service.MqttClientAndroidService;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 /**
  * <code>Connections</code> is a singleton class which stores all the connection objects
@@ -103,15 +103,15 @@ public class Connections {
   }
 
   /**
-   * Create a fully initialised <code>MqttClientAndroidService</code> for the parameters given
+   * Create a fully initialised <code>MqttAndroidClient</code> for the parameters given
    * @param context The Applications context
    * @param serverURI The ServerURI to connect to
    * @param clientId The clientId for this client
-   * @return new instance of MqttClientAndroidService
+   * @return new instance of MqttAndroidClient
    */
-  public MqttClientAndroidService createClient(Context context, String serverURI, String clientId)
+  public MqttAndroidClient createClient(Context context, String serverURI, String clientId)
   {
-    MqttClientAndroidService client = new MqttClientAndroidService(context, serverURI, clientId);
+    MqttAndroidClient client = new MqttAndroidClient(context, serverURI, clientId);
     return client;
   }
 
