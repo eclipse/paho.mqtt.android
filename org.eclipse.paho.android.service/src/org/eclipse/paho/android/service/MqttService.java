@@ -270,8 +270,8 @@ public class MqttService extends Service implements MqttTraceHandler {
   /**
    * Get an MqttServiceClient object to represent a connection to a server
    * 
-   * @param serverURI
-   * @param clientId
+   * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
+   * @param clientId specifies the name by which this connection should be identified to the server
    * @return a string to be used by the Activity as a "handle" for this
    *         MqttServiceClient
    */

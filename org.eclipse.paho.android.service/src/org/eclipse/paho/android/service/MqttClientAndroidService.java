@@ -88,7 +88,7 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
     /**
      * When {@link MqttCallback#messageArrived(String, MqttMessage)} returns the message
      * will not be acknowledged as received, the application will have to make an acknowledgment call
-     * to {@link MqttClientAndroidService} using {@link MqttClientAndroidService#acknowledgeMessage(MqttMessage)}
+     * to {@link MqttClientAndroidService} using {@link MqttClientAndroidService#acknowledgeMessage(String)}
      */
     MANUAL_ACK
   }
@@ -1050,7 +1050,8 @@ public class MqttClientAndroidService extends BroadcastReceiver implements
   /**
    * turn tracing on and off
    * 
-   * @param traceEnabled
+   * @param traceEnabled set <code>true</code> to enable trace, otherwise, set <code>false</code> to disable trace
+   * 
    */
   public void setTraceEnabled(boolean traceEnabled) {
 	this.traceEnabled = traceEnabled;
