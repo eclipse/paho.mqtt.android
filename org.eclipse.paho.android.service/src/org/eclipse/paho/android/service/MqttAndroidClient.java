@@ -1086,33 +1086,35 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 
     String action = data.getString(MqttServiceConstants.CALLBACK_ACTION);
 
-    if (action.equals(MqttServiceConstants.CONNECT_ACTION)) {
+    if (MqttServiceConstants.CONNECT_ACTION.equals(action)) {
       connectAction(data);
     }
-    else if (action.equals(MqttServiceConstants.MESSAGE_ARRIVED_ACTION)) {
+    else if (MqttServiceConstants.MESSAGE_ARRIVED_ACTION.equals(action)) {
       messageArrivedAction(data);
     }
-    else if (action.equals(MqttServiceConstants.SUBSCRIBE_ACTION)) {
+    else if (MqttServiceConstants.SUBSCRIBE_ACTION.equals(action)) {
       subscribeAction(data);
     }
-    else if (action.equals(MqttServiceConstants.UNSUBSCRIBE_ACTION)) {
+    else if (MqttServiceConstants.UNSUBSCRIBE_ACTION.equals(action)) {
       unSubscribeAction(data);
     }
-    else if (action.equals(MqttServiceConstants.SEND_ACTION)) {
+    else if (MqttServiceConstants.SEND_ACTION.equals(action)) {
       sendAction(data);
     }
-    else if (action.equals(MqttServiceConstants.MESSAGE_DELIVERED_ACTION)) {
+    else if (MqttServiceConstants.MESSAGE_DELIVERED_ACTION.equals(action)) {
       messageDeliveredAction(data);
     }
-    else if (action
-        .equals(MqttServiceConstants.ON_CONNECTION_LOST_ACTION)) {
+    else if (MqttServiceConstants.ON_CONNECTION_LOST_ACTION
+    		.equals(action)) {
       connectionLostAction(data);
     }
-    else if (action.equals(MqttServiceConstants.DISCONNECT_ACTION)) {
+    else if (MqttServiceConstants.DISCONNECT_ACTION.equals(action)) {
       disconnected(data);
     }
-    else if (action.equals(MqttServiceConstants.TRACE_ACTION)) {
+    else if (MqttServiceConstants.TRACE_ACTION.equals(action)) {
       traceAction(data);
+    }else{
+      mqttService.traceError(MqttService.TAG, "Callback action doesn't exist.");	
     }
 
   }
