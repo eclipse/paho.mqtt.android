@@ -261,9 +261,6 @@ class MqttConnection implements MqttCallback {
   /**
    * Close connection from the server
    * 
-   * @param invocationContext
-   * 			arbitrary data to be passed back to the application
-   * @param activityToken
    */
   void close(){
 	service.traceDebug(TAG, "close()");

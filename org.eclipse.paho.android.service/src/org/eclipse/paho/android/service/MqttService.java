@@ -303,18 +303,10 @@ public class MqttService extends Service implements MqttTraceHandler {
   }
   
   /**
-   * Connect to the MQTT server specified by a particular client
+   * Close connection from a particular client
    * 
    * @param clientHandle
    *            identifies the MqttConnection to use
-   * @param connectOptions
-   *            the MQTT connection options to be used
-   * @param invocationContext
-   *            arbitrary data to be passed back to the application
-   * @param activityToken
-   *            arbitrary identifier to be passed back to the Activity
-   * @throws MqttSecurityException
-   * @throws MqttException
    */
   public void close(String clientHandle) {
     MqttConnection client = getConnection(clientHandle);

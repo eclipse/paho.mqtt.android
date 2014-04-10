@@ -19,7 +19,7 @@ import android.util.Log;
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
  *
- * <p>This class implements the {@link IMqttPingSender} pinger interface
+ * <p>This class implements the {@link MqttPingSender} pinger interface
  * allowing applications to send ping packet to server every keep alive interval.
  * </p>
  *
