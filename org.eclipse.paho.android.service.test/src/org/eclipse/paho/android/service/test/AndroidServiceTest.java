@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -46,6 +47,7 @@ public class AndroidServiceTest extends AndroidTestCase {
 
   private String classCanonicalName = this.getClass().getCanonicalName();
   private String mqttServerURI = TestProperties.serverURI;
+  private String mqttSSLServerURI = TestProperties.sslServerURI;
   private int waitForCompletionTime = TestProperties.waitForCompletionTime;
 
   /**
@@ -874,6 +876,114 @@ public class AndroidServiceTest extends AndroidTestCase {
 	    }
 
   }
+  
+  /**
+   * Tests that a client can be constructed and that it can connect to and
+   * disconnect from the service via SSL
+   * 
+   * @throws Exception
+   */
+
+  public void testSSLConnect() throws Exception {
+	
+	MqttAndroidClient mqttClient = null;
+    try {
+      mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI, "testSSLConnect");
+      
+      MqttConnectOptions options = new MqttConnectOptions();
+      options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getResources().openRawResource(R.raw.test),"mqtttest"));
+      
+      
+      IMqttToken connectToken = null;
+      IMqttToken disconnectToken = null;
+
+      connectToken = mqttClient.connect( options);
+      connectToken.waitForCompletion(waitForCompletionTime);
+
+      disconnectToken = mqttClient.disconnect(null, null);
+      disconnectToken.waitForCompletion(waitForCompletionTime);
+
+      connectToken = mqttClient.connect(options);
+      connectToken.waitForCompletion(waitForCompletionTime);
+
+      disconnectToken = mqttClient.disconnect(null, null);
+      disconnectToken.waitForCompletion(waitForCompletionTime);
+    }
+    catch (Exception exception) {
+      Assert.fail("Failed:" + "testSSLConnect" + " exception=" + exception);
+    }
+    finally {
+      if (mqttClient != null) {
+        mqttClient.close();
+      }
+    }
+
+  }
+  
+  
+  /**
+   * An SSL connection with server cert authentication, simple pub/sub of an message
+   * 
+   * @throws Exception
+   */
+
+  public void testSSLPubSub() throws Exception {
+	  
+	MqttAndroidClient mqttClient = null;
+	
+    
+    IMqttToken connectToken = null;
+    IMqttToken disconnectToken = null;
+    IMqttToken subToken = null;
+    IMqttDeliveryToken pubToken = null;
+	
+    try {
+      mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI, "testSSLPubSub");
+      
+      MqttConnectOptions options = new MqttConnectOptions();
+      options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getResources().openRawResource(R.raw.test),"mqtttest"));
+     
+      
+      MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
+      mqttClient.setCallback(mqttV3Receiver);
+
+      connectToken = mqttClient.connect(options);
+      connectToken.waitForCompletion(waitForCompletionTime);
+
+      String[] topicNames = new String[]{"testSSLPubSub"+"/Topic"};
+      int[] topicQos = {0};
+      MqttMessage mqttMessage = new MqttMessage(("message for testSSLPubSub").getBytes());
+      byte[] message = mqttMessage.getPayload();
+      
+      subToken = mqttClient.subscribe(topicNames, topicQos, null, null);
+      subToken.waitForCompletion(waitForCompletionTime);
+      
+      pubToken = mqttClient.publish(topicNames[0], message, 0, false, null, null);
+	  pubToken.waitForCompletion(waitForCompletionTime);
+
+	  TimeUnit.MILLISECONDS.sleep(6000);
+	  
+	  boolean ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, message);
+	  if (!ok) {
+	        Assert.fail("Receive failed");
+	  }
+    
+    }
+    catch (Exception exception) {
+      Assert.fail("Failed:" + "testSSLPubSub" + " exception=" + exception);
+    }
+    finally {
+    	
+    	disconnectToken = mqttClient.disconnect(null, null);
+        disconnectToken.waitForCompletion(waitForCompletionTime);
+        
+      if (mqttClient != null) {
+    	  mqttClient.close();
+      }
+    }
+
+  }
+  
   
 //  public void testBroadcastReceiver(){
 //	  
