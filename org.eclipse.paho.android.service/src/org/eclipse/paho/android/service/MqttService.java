@@ -25,9 +25,16 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 /**
@@ -223,6 +230,16 @@ public class MqttService extends Service implements MqttTraceHandler {
   // that they've reached the application
   MessageStore messageStore;
 
+  // An intent receiver to deal with changes in network connectivity
+  private NetworkConnectionIntentReceiver networkConnectionMonitor;
+
+  //a receiver to recognise when the user changes the "background data" preference
+  // and a flag to track that preference
+  // Only really relevant below android version ICE_CREAM_SANDWICH - see
+  // android docs
+  private BackgroundDataPreferenceReceiver backgroundDataPreferenceMonitor;
+  private volatile boolean backgroundDataEnabled = true;
+  
   // a way to pass ourself back to the activity
   private MqttServiceBinder mqttServiceBinder;
 
@@ -300,6 +317,16 @@ public class MqttService extends Service implements MqttTraceHandler {
       throws MqttSecurityException, MqttException {
     MqttConnection client = getConnection(clientHandle);
     client.connect(connectOptions, invocationContext, activityToken);
+  }
+  
+  /**
+   * Request all clients to reconnect if appropriate
+   */
+  void reconnect() {
+	traceDebug(TAG, "Reconnect to server, client size=" + connections.size());
+	for (MqttConnection client : connections.values()) {
+		client.reconnect();
+	}
   }
   
   /**
@@ -601,6 +628,8 @@ public class MqttService extends Service implements MqttTraceHandler {
   public int onStartCommand(final Intent intent, int flags, final int startId) {
     // run till explicitly stopped, restart when
     // process restarted
+	registerBroadcastReceivers();
+	  
     return START_STICKY;
   }
 
@@ -694,5 +723,104 @@ public class MqttService extends Service implements MqttTraceHandler {
       callbackToActivity(traceCallbackId, Status.ERROR, dataBundle);
     }
   }
+  
+  @SuppressWarnings("deprecation")
+  private void registerBroadcastReceivers() {
+		if (networkConnectionMonitor == null) {
+			networkConnectionMonitor = new NetworkConnectionIntentReceiver();
+			registerReceiver(networkConnectionMonitor, new IntentFilter(
+					ConnectivityManager.CONNECTIVITY_ACTION));
+		}
 
+		if (Build.VERSION.SDK_INT < 14 /**Build.VERSION_CODES.ICE_CREAM_SANDWICH**/) {
+			// Support the old system for background data preferences
+			ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+			backgroundDataEnabled = cm.getBackgroundDataSetting();
+			if (backgroundDataPreferenceMonitor == null) {
+				backgroundDataPreferenceMonitor = new BackgroundDataPreferenceReceiver();
+				registerReceiver(
+						backgroundDataPreferenceMonitor,
+						new IntentFilter(
+								ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
+			}
+		}
+  }
+
+  /*
+   * Called in response to a change in network connection - after losing a
+   * connection to the server, this allows us to wait until we have a usable
+   * data connection again
+   */
+  private class NetworkConnectionIntentReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			traceDebug(TAG, "Internel network status receive.");
+			// we protect against the phone switching off
+			// by requesting a wake lock - we request the minimum possible wake
+			// lock - just enough to keep the CPU running until we've finished
+			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+			WakeLock wl = pm
+					.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT");
+			wl.acquire();
+			
+			if (isOnline()) {
+				// we have an internet connection - have another try at
+				// connecting
+				reconnect();
+			} else {
+				notifyClientsOffline();
+			}
+			
+			wl.release();
+		}
+  }
+	
+	/**
+	 * @return whether the android service can be regarded as online
+	 */
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		if (cm.getActiveNetworkInfo() != null
+				&& cm.getActiveNetworkInfo().isAvailable()
+				&& cm.getActiveNetworkInfo().isConnected()
+				&& backgroundDataEnabled) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Notify clients we're offline
+	 */
+	public void notifyClientsOffline() {
+		for (MqttConnection connection : connections.values()) {
+			connection.offline();
+		}
+	}
+	
+	/**
+	 * Detect changes of the Allow Background Data setting - only used below
+	 * ICE_CREAM_SANDWICH
+	 */
+	private class BackgroundDataPreferenceReceiver extends BroadcastReceiver {
+
+		@SuppressWarnings("deprecation")
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+			if (cm.getBackgroundDataSetting()) {
+				if (!backgroundDataEnabled) {
+					backgroundDataEnabled = true;
+					// we have the Internet connection - have another try at
+					// connecting
+					reconnect();
+				}
+			} else {
+				backgroundDataEnabled = false;
+				notifyClientsOffline();
+			}
+		}
+	}
 }

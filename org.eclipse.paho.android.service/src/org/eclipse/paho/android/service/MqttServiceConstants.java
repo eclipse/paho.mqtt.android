@@ -74,10 +74,12 @@ public interface MqttServiceConstants {
   
   //Intent prefix for Ping sender.
   static final String PING_SENDER = MqttService.TAG + ".pingSender.";
-  static final String PING_WAKELOCK = MqttService.TAG + ".client.";
-
-  //Trace severity levels
   
+  //Constant for wakelock
+  static final String PING_WAKELOCK = MqttService.TAG + ".client.";  
+  static final String WAKELOCK_NETWORK_INTENT = MqttService.TAG + "";  
+
+  //Trace severity levels  
   static final String TRACE_ERROR = "error";
   static final String TRACE_DEBUG = "debug";
   static final String TRACE_EXCEPTION = "exception";

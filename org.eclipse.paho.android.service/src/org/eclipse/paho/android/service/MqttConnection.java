@@ -29,6 +29,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import android.app.Service;
@@ -83,6 +84,13 @@ class MqttConnection implements MqttCallback {
 
   // our (parent) service object
   private MqttService service = null;
+  
+  private volatile boolean disconnected = false;
+  private boolean cleanSession = true;
+  
+  //Indicate this connection is connecting or not.
+  //This variable uses to avoid reconnect multiple times.
+  private volatile boolean isConnecting = false;
 
   // Saved sent messages and their corresponding Topics, activityTokens and
   // invocationContexts, so we can handle "deliveryComplete" callbacks
@@ -142,6 +150,9 @@ class MqttConnection implements MqttCallback {
       String activityToken) {
 
     connectOptions = options;
+    if(options != null){
+    	cleanSession = options.isCleanSession();
+    }
 
     if (connectOptions.isCleanSession()) { // if it's a clean session,
       // discard old data
@@ -197,8 +208,8 @@ class MqttConnection implements MqttCallback {
           acquireWakeLock();
           service.callbackToActivity(clientHandle, Status.OK,
               resultBundle);
-          deliverBacklog();
-          
+          deliverBacklog();          
+          disconnected = false;
           releaseWakeLock();
         }
       };
@@ -287,6 +298,7 @@ class MqttConnection implements MqttCallback {
   void disconnect(long quiesceTimeout, String invocationContext,
       String activityToken) {
     service.traceDebug(TAG, "disconnect()");
+    disconnected = true;
     final Bundle resultBundle = new Bundle();
     resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
         activityToken);
@@ -331,6 +343,7 @@ class MqttConnection implements MqttCallback {
    */
   void disconnect(String invocationContext, String activityToken) {
     service.traceDebug(TAG, "disconnect()");
+    disconnected = true;
     final Bundle resultBundle = new Bundle();
     resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
         activityToken);
@@ -663,7 +676,6 @@ class MqttConnection implements MqttCallback {
    */
   @Override
   public void connectionLost(Throwable why) {
-	  why.printStackTrace();
     service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
 
     try {
@@ -849,5 +861,61 @@ class MqttConnection implements MqttCallback {
       service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
     }
   }
+  
+  /**
+    * Receive notification that we are offline<br>
+	* if cleanSession is true, we need to regard this as a disconnection
+	*/
+  void offline() {
+//		LogUtil.i(TAG, "MqttServiceClient disconnected:"+disconnected+" cleanSession:"+cleanSession);
+	if (!disconnected && !cleanSession) {
+		Exception e = new Exception("Android offline");
+		connectionLost(e);
+	}
+  }
+  
+  /**
+	* Reconnect<br>
+	* Only appropriate if cleanSession is false and we were connected
+	* Declare as synchronized to avoid multiple calls to this method to send connect 
+	* multiple times 
+	*/
+  synchronized void reconnect() {
+	if(isConnecting){
+		//The client is connecting. Return.
+		return ;
+	}
+	  
+	if (!disconnected && !cleanSession) {
+		try {
+			myClient.connect(connectOptions, null, new IMqttActionListener(){
 
+				@Override
+				public void onFailure(IMqttToken token, Throwable throwable) {
+					setConnectingState(false);
+				}
+
+				@Override
+				public void onSuccess(IMqttToken token) {
+					setConnectingState(false);
+					disconnected = true;
+				}
+				
+			});
+			setConnectingState(true);
+		} catch (MqttException e) {
+			Log.e(TAG, "Cannot connect to remote server." + e.getMessage());
+			setConnectingState(false);
+		}
+		deliverBacklog();
+	}
+  }
+  
+  /**
+   * 
+   * @param isConnecting
+   */
+  synchronized void setConnectingState(boolean isConnecting){
+	  this.isConnecting = isConnecting; 
+  }
 }
