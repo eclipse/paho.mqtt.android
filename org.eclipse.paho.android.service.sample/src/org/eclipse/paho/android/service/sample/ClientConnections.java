@@ -298,6 +298,7 @@ public class ClientConnections extends ListActivity {
             retained.booleanValue());
       }
       catch (Exception e) {
+    	Log.e(this.getClass().getCanonicalName(), "Exception Occured", e);
         doConnect = false;
         callback.onFailure(null, e);
       }

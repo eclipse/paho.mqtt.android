@@ -75,7 +75,7 @@ public class LastWill extends Activity {
             qos = 1;
             break;
           case R.id.qos2 :
-            qos = 3;
+            qos = 2;
             break;
         }
 
