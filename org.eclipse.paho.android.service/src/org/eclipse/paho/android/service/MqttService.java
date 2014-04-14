@@ -604,6 +604,8 @@ public class MqttService extends Service implements MqttTraceHandler {
       mqttServiceBinder = null;
     }
 
+    unregisterBroadcastReceivers();
+    
     super.onDestroy();
   }
 
@@ -743,6 +745,19 @@ public class MqttService extends Service implements MqttTraceHandler {
 						new IntentFilter(
 								ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED));
 			}
+		}
+  }
+  
+  private void unregisterBroadcastReceivers(){
+  	if(networkConnectionMonitor != null){
+  		unregisterReceiver(networkConnectionMonitor);
+  		networkConnectionMonitor = null;
+  	}
+  	
+  	if (Build.VERSION.SDK_INT < 14 /**Build.VERSION_CODES.ICE_CREAM_SANDWICH**/) {
+  		if(backgroundDataPreferenceMonitor != null){
+  			unregisterReceiver(backgroundDataPreferenceMonitor);
+  		}
 		}
   }
 

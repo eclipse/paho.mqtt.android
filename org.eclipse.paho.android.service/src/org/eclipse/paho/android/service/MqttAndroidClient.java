@@ -53,6 +53,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -106,7 +107,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
     @Override
     public void onServiceConnected(ComponentName name, IBinder binder) {
       mqttService = ((MqttServiceBinder) binder).getService();
-
+      bindedService = true;
       // now that we have the service available, we can actually
       // connect...
       doConnect();
@@ -149,6 +150,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
   //The acknowledgment that a message has been processed by the application
   private Ack messageAck;
   private boolean traceEnabled = false;
+  
+  private volatile boolean registerReceiver = false;
+  private volatile boolean bindedService = false;
 
   /**
    * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
@@ -381,11 +385,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
       // until the last time it is stopped by a call to stopService()
       myContext.startService(serviceStartIntent);
       myContext.bindService(serviceStartIntent, serviceConnection,
-          Context.BIND_AUTO_CREATE);
-
-      IntentFilter filter = new IntentFilter();
-      filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
-      myContext.registerReceiver(this, filter);
+    		  BIND_SERVICE_FLAG);
+      
+      registerReceiver(this);
     }
     else {
       pool.execute(new Runnable() {
@@ -393,6 +395,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
         @Override
         public void run() {
           doConnect();
+          
+          //Register receiver to show shoulder tap.
+          registerReceiver(MqttAndroidClient.this);
         }
 
       });
@@ -400,6 +405,13 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 
     return token;
   }
+
+	private void registerReceiver(BroadcastReceiver receiver) {
+		IntentFilter filter = new IntentFilter();
+	      filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
+	      myContext.registerReceiver(receiver, filter);
+	      registerReceiver = true;
+	}
 
   /**
    * Actually do the mqtt connect operation
@@ -1406,5 +1418,45 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public void setProtocolVersion(MqttProtocolVersion version) {
 		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * Unregister receiver which receives intent from MqttService avoids IntentReceiver 
+	 * leaks.
+	 */
+	public void unregisterResources(){
+		if(myContext != null && registerReceiver){			
+			synchronized (MqttAndroidClient.this) {
+				myContext.unregisterReceiver(this);
+				registerReceiver = false;
+			}
+			if(bindedService){
+				try{
+      		myContext.unbindService(serviceConnection);
+      		bindedService = false;
+      	}catch(IllegalArgumentException e){
+      		//Ignore unbind issue.
+      	}
+			}
+		}
+	}
+	
+	/**
+	 * Register receiver to receiver intent from MqttService. Call this method when activity
+	 * is hidden and become to show again.
+	 *
+	 * @param context - Current activity context.
+	 */
+	public void registerResources(Context context){
+		if(context != null){
+			this.myContext = context;
+			if(!registerReceiver){
+				registerReceiver(this);
+			}
+//			Intent serviceStartIntent = new Intent();
+//      serviceStartIntent.setClassName(myContext, SERVICE_NAME);
+//      myContext.bindService(serviceStartIntent, serviceConnection,
+//    		  BIND_SERVICE_FLAG);
+		}
 	}
 }

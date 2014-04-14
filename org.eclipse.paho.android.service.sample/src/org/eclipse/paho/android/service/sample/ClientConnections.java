@@ -178,6 +178,14 @@ public class ClientConnections extends ListActivity {
   protected void onResume() {
     super.onResume();
     arrayAdapter.notifyDataSetChanged();
+    
+    //Recover connections.
+    Map<String, Connection> connections = Connections.getInstance(this).getConnections();
+    
+    //Register receivers again
+    for (Connection connection : connections.values()){
+      connection.getClient().registerResources(this);
+    }
   }
 
   /**
@@ -188,9 +196,9 @@ public class ClientConnections extends ListActivity {
 
     Map<String, Connection> connections = Connections.getInstance(this).getConnections();
 
-    for (String s : connections.keySet())
-    {
-      connections.get(s).removeChangeListener(changeListener);
+    for (Connection connection : connections.values()){
+    	connection.registerChangeListener(changeListener);
+    	connection.getClient().unregisterResources();
     }
     super.onDestroy();
   }
