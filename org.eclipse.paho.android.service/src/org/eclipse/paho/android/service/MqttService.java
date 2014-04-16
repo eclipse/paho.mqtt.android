@@ -13,8 +13,8 @@ IBM Corp.
  */
 package org.eclipse.paho.android.service;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
@@ -244,7 +244,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   private MqttServiceBinder mqttServiceBinder;
 
   // mapping from client handle strings to actual client connections.
-  private Map<String/* clientHandle */, MqttConnection/* client */> connections = new HashMap<String, MqttConnection>();
+  private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<String, MqttConnection>();
 
   public MqttService() {
     super();

@@ -385,7 +385,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
       // until the last time it is stopped by a call to stopService()
       myContext.startService(serviceStartIntent);
       myContext.bindService(serviceStartIntent, serviceConnection,
-    		  BIND_SERVICE_FLAG);
+      		Context.BIND_AUTO_CREATE);
       
       registerReceiver(this);
     }
@@ -1202,8 +1202,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
       else {
 
         Exception exceptionThrown = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
-        ((MqttTokenAndroid) token)
-            .notifyFailure(exceptionThrown);
+        ((MqttTokenAndroid) token).notifyFailure(exceptionThrown);
       }
     }
   }
