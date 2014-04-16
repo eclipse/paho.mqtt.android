@@ -737,27 +737,25 @@ class MqttConnection implements MqttCallback {
       String invocationContext = savedInvocationContexts
           .remove(messageToken);
 
-      if (message.getQos() != 0) {
-        Bundle resultBundle = messageToBundle(null, topic, message);
-        if (activityToken != null) {
-          resultBundle.putString(
-              MqttServiceConstants.CALLBACK_ACTION,
-              MqttServiceConstants.SEND_ACTION);
-          resultBundle.putString(
-              MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
-              activityToken);
-          resultBundle.putString(
-              MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT,
-              invocationContext);
-
-          service.callbackToActivity(clientHandle, Status.OK,
-              resultBundle);
-        }
-        resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
-            MqttServiceConstants.MESSAGE_DELIVERED_ACTION);
+      Bundle resultBundle = messageToBundle(null, topic, message);
+      if (activityToken != null) {
+        resultBundle.putString(
+            MqttServiceConstants.CALLBACK_ACTION,
+            MqttServiceConstants.SEND_ACTION);
+        resultBundle.putString(
+            MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
+            activityToken);
+        resultBundle.putString(
+            MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT,
+            invocationContext);
+    
         service.callbackToActivity(clientHandle, Status.OK,
             resultBundle);
       }
+      resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
+          MqttServiceConstants.MESSAGE_DELIVERED_ACTION);
+      service.callbackToActivity(clientHandle, Status.OK,
+          resultBundle);
     }
 
     // this notification will have kept the connection alive but send the previously sechudled ping anyw
