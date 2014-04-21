@@ -19,6 +19,12 @@ package org.eclipse.paho.android.service;
  */
 public interface MqttServiceConstants {
 
+	/*
+	 * Version information
+	 */
+	
+	static final String VERSION = "v0";
+	
   /*
    * Attributes of messages <p> Used for the column names in the database
    */
@@ -43,7 +49,7 @@ public interface MqttServiceConstants {
 
   /* Identifies an Intent which calls back to the Activity */
   static final String CALLBACK_TO_ACTIVITY = MqttService.TAG
-                                             + ".callbackToActivity";
+                                             + ".callbackToActivity"+"."+VERSION;
 
   /* Identifiers for extra data on Intents broadcast to the Activity */
   static final String CALLBACK_ACTION = MqttService.TAG + ".callbackAction";

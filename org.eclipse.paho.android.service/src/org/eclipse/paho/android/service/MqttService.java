@@ -285,11 +285,12 @@ public class MqttService extends Service implements MqttTraceHandler {
    * 
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
+   * @param contextId specifies the app conext info to make a difference between apps
    * @return a string to be used by the Activity as a "handle" for this
    *         MqttConnection
    */
-  public String getClient(String serverURI, String clientId, MqttClientPersistence persistence) {
-    String clientHandle = serverURI + ":" + clientId;
+  public String getClient(String serverURI, String clientId, String contextId,MqttClientPersistence persistence) {
+    String clientHandle = serverURI + ":" + clientId+":"+contextId;
     if (!connections.containsKey(clientHandle)) {
       MqttConnection client = new MqttConnection(this, serverURI,
           clientId, persistence, clientHandle);

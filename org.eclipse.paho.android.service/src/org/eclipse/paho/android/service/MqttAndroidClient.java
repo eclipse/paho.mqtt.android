@@ -262,7 +262,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
   @Override
   public void close() {
 	 if (clientHandle == null) {
-	   clientHandle = mqttService.getClient(serverURI, clientId, persistence);
+	   clientHandle = mqttService.getClient(serverURI, clientId, String.valueOf(myContext.hashCode()),persistence);
 	 }
 	 mqttService.close(clientHandle);
   }
@@ -418,7 +418,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
    */
   private void doConnect() {
     if (clientHandle == null) {
-      clientHandle = mqttService.getClient(serverURI, clientId,
+      clientHandle = mqttService.getClient(serverURI, clientId,String.valueOf(myContext.hashCode()),
           persistence);
     }
     mqttService.setTraceEnabled(traceEnabled);
