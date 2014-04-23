@@ -774,7 +774,7 @@ class MqttConnection implements MqttCallback {
       throws Exception {
 
     service.traceDebug(TAG,
-        "messageArrived(" + topic + ",{" + message.toString() + "}");
+        "messageArrived(" + topic + ",{" + message.toString() + "})");
 
     String messageId = service.messageStore.storeArrived(clientHandle,
         topic, message);
@@ -880,31 +880,40 @@ class MqttConnection implements MqttCallback {
 	*/
   synchronized void reconnect() {
 	if(isConnecting){
-		//The client is connecting. Return.
+		service.traceDebug(TAG, "The client is connecting. Reconnect return directly.");
 		return ;
 	}
 	  
 	if (!disconnected && !cleanSession) {
 		try {
+			service.traceDebug(TAG, myClient.getClientId()+" is reconnecting to " + myClient.getServerURI()); 
+			
 			myClient.connect(connectOptions, null, new IMqttActionListener(){
 
 				@Override
 				public void onFailure(IMqttToken token, Throwable throwable) {
+					
+					service.traceDebug(TAG, "Reconnect failed.");
 					setConnectingState(false);
 				}
 
 				@Override
 				public void onSuccess(IMqttToken token) {
+					
+					service.traceDebug(TAG, "Reconnect successed.");
 					setConnectingState(false);
-					disconnected = true;
+					disconnected = false;
 				}
 				
 			});
 			setConnectingState(true);
 		} catch (MqttException e) {
-			Log.e(TAG, "Cannot connect to remote server." + e.getMessage());
+			
+			service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
 			setConnectingState(false);
 		}
+		
+		service.traceDebug(TAG, "DeliverBacklog when reconnect.");
 		deliverBacklog();
 	}
   }
