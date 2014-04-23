@@ -675,7 +675,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   @Override
   public void traceDebug(String tag, String message) {
     traceCallback(MqttServiceConstants.TRACE_DEBUG, tag, message);
-    Log.d(tag, message);
+//    Log.d(tag, message);
   }
 
   /**
@@ -771,7 +771,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			traceDebug(TAG, "Internel network status receive.");
+			traceDebug(TAG, "Internal network status receive.");
 			// we protect against the phone switching off
 			// by requesting a wake lock - we request the minimum possible wake
 			// lock - just enough to keep the CPU running until we've finished
