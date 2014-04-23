@@ -1,3 +1,16 @@
+/*
+============================================================================ 
+Licensed Materials - Property of IBM
+
+5747-SM3
+ 
+(C) Copyright IBM Corp. 2014 All Rights Reserved.
+ 
+US Government Users Restricted Rights - Use, duplication or
+disclosure restricted by GSA ADP Schedule Contract with
+IBM Corp.
+============================================================================
+ */
 package org.eclipse.paho.android.service;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -138,7 +151,9 @@ public class AlarmPingSender implements MqttPingSender {
 					Log.d(TAG, "Success. Release lock(" + wakeLockTag + "):"
 							+ System.currentTimeMillis());
 					//Release wakelock when it is done.
-					wakelock.release();
+					if(wakelock != null && wakelock.isHeld()){
+						wakelock.release();
+					}
 				}
 
 				@Override
@@ -147,7 +162,9 @@ public class AlarmPingSender implements MqttPingSender {
 					Log.d(TAG, "Failure. Release lock(" + wakeLockTag + "):"
 							+ System.currentTimeMillis());
 					//Release wakelock when it is done.
-					wakelock.release();
+					if(wakelock != null && wakelock.isHeld()){
+						wakelock.release();
+					}
 				}
 			});
 		}
