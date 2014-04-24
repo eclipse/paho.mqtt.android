@@ -185,6 +185,7 @@ public class ClientConnections extends ListActivity {
     //Register receivers again
     for (Connection connection : connections.values()){
       connection.getClient().registerResources(this);
+      connection.getClient().setCallback(new MqttCallbackHandler(this, connection.getClient().getServerURI()+connection.getClient().getClientId()));
     }
   }
 
