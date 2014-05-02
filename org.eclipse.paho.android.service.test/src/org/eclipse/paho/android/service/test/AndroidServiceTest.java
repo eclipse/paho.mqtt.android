@@ -1,27 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2010, 2014 IBM Corp.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ *
+ * The Eclipse Public License is available at 
+ *    http://www.eclipse.org/legal/epl-v10.html
+ * and the Eclipse Distribution License is available at 
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
+ */
 package org.eclipse.paho.android.service.test;
 
-/*
- *   <copyright 
- *   notice="oco-source" 
- *   pids="5724-H72," 
- *   years="2010,2012" 
- *   crc="1033636418" > 
- *  IBM Confidential 
- *   
- *  OCO Source Materials 
- *   
- *  5724-H72, 
- *   
- *  (C) Copyright IBM Corp. 2010, 2012 
- *   
- *  The source code for the program is not published 
- *  or otherwise divested of its trade secrets, 
- *  irrespective of what has been deposited with the 
- *  U.S. Copyright Office. 
- *   </copyright> 
- * 
- * Version: %Z% %W% %I% %E% %U%
- */
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
