@@ -38,7 +38,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.MqttProtocolVersion;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.MqttToken;
 
@@ -1406,16 +1405,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)
 			throws MqttException {
 		throw new UnsupportedOperationException();	
-	}
-	
-	@Override
-	public MqttProtocolVersion getProtocolVersion() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void setProtocolVersion(MqttProtocolVersion version) {
-		throw new UnsupportedOperationException();
 	}
 	
 	/**
