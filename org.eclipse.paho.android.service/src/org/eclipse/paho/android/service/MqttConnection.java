@@ -78,6 +78,9 @@ class MqttConnection implements MqttCallback {
 
   // Client handle, used for callbacks...
   private String clientHandle;
+  
+  //store connect ActivityToken for reconnect
+  private String connectActivityToken = null;
 
   // our client object - instantiated on connect
   private MqttAsyncClient myClient = null;
@@ -135,6 +138,7 @@ class MqttConnection implements MqttCallback {
     wakeLockTag = buff.toString();
   }
 
+
   // The major API implementation follows
   /**
    * Connect to the server specified when we were instantiated
@@ -150,6 +154,8 @@ class MqttConnection implements MqttCallback {
       String activityToken) {
 
     connectOptions = options;
+    connectActivityToken = activityToken;
+    
     if(options != null){
     	cleanSession = options.isCleanSession();
     }
@@ -883,38 +889,59 @@ class MqttConnection implements MqttCallback {
 		service.traceDebug(TAG, "The client is connecting. Reconnect return directly.");
 		return ;
 	}
-	  
+	
 	if (!disconnected && !cleanSession) {
+		// use the activityToke the same with action connect
+		final Bundle resultBundle = new Bundle();
+		resultBundle.putString(
+				MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
+				connectActivityToken);
+		resultBundle.putString(
+				MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, null);
+		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
+				MqttServiceConstants.CONNECT_ACTION);
+		
 		try {
-			service.traceDebug(TAG, myClient.getClientId()+" is reconnecting to " + myClient.getServerURI()); 
 			
-			myClient.connect(connectOptions, null, new IMqttActionListener(){
+				IMqttActionListener listener = new MqttConnectionListener(
+						resultBundle) {
 
-				@Override
-				public void onFailure(IMqttToken token, Throwable throwable) {
+					@Override
+					public void onSuccess(IMqttToken asyncActionToken) {
+						// since the device's cpu can go to sleep, acquire a
+						// wakelock and drop it later.
+						acquireWakeLock();
+						service.callbackToActivity(clientHandle, Status.OK,
+								resultBundle);
+						service.traceDebug(TAG, "DeliverBacklog when reconnect.");
+						deliverBacklog();
+						disconnected = false;
+						releaseWakeLock();
+						setConnectingState(false);
+					}
 					
-					service.traceDebug(TAG, "Reconnect failed.");
-					setConnectingState(false);
-				}
+					@Override
+				  public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
 
-				@Override
-				public void onSuccess(IMqttToken token) {
-					
-					service.traceDebug(TAG, "Reconnect successed.");
-					setConnectingState(false);
-					disconnected = false;
-				}
-				
-			});
+			  		  setConnectingState(false);
+				      resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,
+				          exception.getLocalizedMessage());
+
+				      resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, exception);
+
+				      service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
+				      
+				  }
+				};
+			
+			myClient.connect(connectOptions, null, listener);
 			setConnectingState(true);
 		} catch (MqttException e) {
 			
 			service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
 			setConnectingState(false);
+			handleException(resultBundle, e);
 		}
-		
-		service.traceDebug(TAG, "DeliverBacklog when reconnect.");
-		deliverBacklog();
 	}
   }
   

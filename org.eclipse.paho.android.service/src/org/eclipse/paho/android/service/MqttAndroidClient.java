@@ -1151,8 +1151,11 @@ public class MqttAndroidClient extends BroadcastReceiver implements
    * @param data
    */
   private void connectAction(Bundle data) {
-    IMqttToken token = removeMqttToken(data);
-    simpleAction(token, data);
+	  IMqttToken token = connectToken;
+	  removeMqttToken(data);
+	  
+      simpleAction(token, data);
+	  
   }
 
   /**
@@ -1200,10 +1203,11 @@ public class MqttAndroidClient extends BroadcastReceiver implements
         ((MqttTokenAndroid) token).notifyComplete();
       }
       else {
-
         Exception exceptionThrown = (Exception) data.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
         ((MqttTokenAndroid) token).notifyFailure(exceptionThrown);
       }
+    }else{
+    	mqttService.traceError(MqttService.TAG, "simpleAction : token is null");	
     }
   }
 
