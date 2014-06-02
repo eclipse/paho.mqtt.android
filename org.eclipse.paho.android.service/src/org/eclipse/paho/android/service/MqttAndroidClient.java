@@ -1,15 +1,14 @@
-/*
-============================================================================ 
-Licensed Materials - Property of IBM
-
-5747-SM3
- 
-(C) Copyright IBM Corp. 1999, 2014 All Rights Reserved.
- 
-US Government Users Restricted Rights - Use, duplication or
-disclosure restricted by GSA ADP Schedule Contract with
-IBM Corp.
-============================================================================
+/*******************************************************************************
+ * Copyright (c) 1999, 2014 IBM Corp.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ *
+ * The Eclipse Public License is available at 
+ *    http://www.eclipse.org/legal/epl-v10.html
+ * and the Eclipse Distribution License is available at 
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.eclipse.paho.android.service;
 
@@ -39,7 +38,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.MqttProtocolVersion;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.MqttToken;
 
@@ -1411,16 +1409,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void disconnectForcibly(long quiesceTimeout, long disconnectTimeout)
 			throws MqttException {
 		throw new UnsupportedOperationException();	
-	}
-	
-	@Override
-	public MqttProtocolVersion getProtocolVersion() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void setProtocolVersion(MqttProtocolVersion version) {
-		throw new UnsupportedOperationException();
 	}
 	
 	/**
