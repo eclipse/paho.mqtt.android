@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.eclipse.paho</groupId>
         <artifactId>java-parent</artifactId>
-        <version>{paho.version}</version>
+        <version>${paho.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.eclipse.paho</groupId>
