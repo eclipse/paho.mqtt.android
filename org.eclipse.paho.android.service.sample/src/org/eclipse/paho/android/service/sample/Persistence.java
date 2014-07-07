@@ -236,7 +236,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
       int port = c.getInt(c.getColumnIndexOrThrow(COLUMN_port));
 
       //connect options strings
-      String username = c.getString(c.getColumnIndexOrThrow(COLUMN_client_ID));
+      String username = c.getString(c.getColumnIndexOrThrow(COLUMN_USER_NAME));
       String password = c.getString(c.getColumnIndexOrThrow(COLUMN_PASSWORD));
       String topic = c.getString(c.getColumnIndexOrThrow(COLUMN_TOPIC));
       String message = c.getString(c.getColumnIndexOrThrow(COLUMN_MESSAGE));
