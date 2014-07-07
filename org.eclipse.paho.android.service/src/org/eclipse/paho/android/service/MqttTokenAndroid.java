@@ -17,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
 
 /**
  * <p>
@@ -232,4 +233,19 @@ class MqttTokenAndroid implements IMqttToken {
   public int getMessageId() {
     return (delegate != null) ? delegate.getMessageId() : 0;
   }
+
+@Override
+public int[] getGrantedQos() {
+	return null;
+}
+
+@Override
+public MqttWireMessage getResponse() {
+	return null;
+}
+
+@Override
+public boolean getSessionPresent() {
+	return false;
+}
 }
