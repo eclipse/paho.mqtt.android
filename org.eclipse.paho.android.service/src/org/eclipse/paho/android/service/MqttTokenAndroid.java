@@ -233,19 +233,20 @@ class MqttTokenAndroid implements IMqttToken {
   public int getMessageId() {
     return (delegate != null) ? delegate.getMessageId() : 0;
   }
-
-@Override
-public int[] getGrantedQos() {
-	return null;
-}
-
-@Override
-public MqttWireMessage getResponse() {
-	return null;
-}
-
-@Override
-public boolean getSessionPresent() {
-	return false;
-}
+  
+  @Override
+  public MqttWireMessage getResponse() {
+    return delegate.getResponse();
+  }
+  
+  @Override
+  public boolean getSessionPresent() {
+    return delegate.getSessionPresent();
+  }
+  
+  @Override
+  public int[] getGrantedQos() {
+    return delegate.getGrantedQos();
+  }
+  
 }
