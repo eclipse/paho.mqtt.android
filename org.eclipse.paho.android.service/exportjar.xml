@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.paho.android.service" basedir="." default="exportJar">
+
+    <property name="src" value="src" />  
+    <property name="classes" value="bin/classes" />  
+    <property name="dist" value="dist" />  
+    <property name="app.name" value="org.eclipse.paho.android.service" />  
+    <property name="app.version" value="1.0" />  
+    <property name="classes.encode" value="GBK" />  
+    <property name="lib" value="libs" />
+    <property environment="env" />
+    <condition property="sdk.dir" value="${env.ANDROID_HOME}">
+        <isset property="env.ANDROID_HOME" />
+    </condition>
+    <property name="androidAPILevel" value="19" /> 
+    <property name="androidjar" value="${sdk.dir}/platforms/android-${androidAPILevel}"/>  
+  
+    <path id="classpath">  
+        <fileset dir="${lib}">  
+            <include name="*.jar" />  
+        </fileset>
+        <fileset dir="${androidjar}">
+            <include name="android.jar" />            
+        </fileset>
+
+    </path>  
+    <target name="init">  
+        <!-- Create the time stamp -->  
+        <tstamp />  
+    </target>  
+  
+ 
+    <target name="buildFiles" depends="init">  
+        <echo message="start building ....." />  
+        <delete dir="${classes}" />  
+        <mkdir dir="${classes}" />  
+        <javac deprecation="on" debug="on" encoding="${classes.encode}" srcdir="${src}" destdir="${classes}" classpathref="classpath" />  
+        <copy todir="${classes}">  
+            <!-- copy config files -->  
+            <fileset dir="${src}" includes="**/*.properties,**/*.xml,**/*.bsh,**/*.logic, **/*.hbm" />  
+        </copy>  
+    </target>  
+  
+ 
+    <target name="exportJar" depends="buildFiles">  
+        <delete dir="${dist}" />  
+        <!-- Create the distribution directory -->  
+        <mkdir dir="${dist}" />  
+        <!-- Put everything in ${classes} into the MyProject-${DSTAMP}.jar file -->  
+        <jar jarfile="${dist}/${app.name}.jar" basedir="${classes}" />  
+    </target> 
+    
+</project>
