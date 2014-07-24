@@ -12,6 +12,7 @@
  */
 package org.eclipse.paho.android.service.test;
 
+import java.io.File;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -24,21 +25,34 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import android.content.Intent;
+import android.os.IBinder;
 import android.test.AndroidTestCase;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import android.util.Log;
 
-/**
- *
- */
 public class AndroidServiceTest extends AndroidTestCase {
 
-  private String classCanonicalName = this.getClass().getCanonicalName();
-  private String mqttServerURI = TestProperties.serverURI;
-  private String mqttSSLServerURI = TestProperties.sslServerURI;
-  private int waitForCompletionTime = TestProperties.waitForCompletionTime;
+	private String classCanonicalName = this.getClass().getCanonicalName();
+	
+	private String mqttServerURI;
+	private String mqttSSLServerURI;
+	private int waitForCompletionTime;
+	private String clientKeyStore;
+	private String keyStorePwd;
+
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+		TestProperties properties = new TestProperties(this.getContext());
+		mqttServerURI = properties.getServerURI();
+		mqttSSLServerURI = properties.getServerSSLURI();
+		waitForCompletionTime = properties.getWaitForCompletionTime();
+		clientKeyStore = properties.getClientKeyStore();
+		keyStorePwd = properties.getClientKeyStorePassword();
+	}
 
   /**
    * Tests that a client can be constructed and that it can connect to and
@@ -232,10 +246,11 @@ public class AndroidServiceTest extends AndroidTestCase {
         mqttPublisher[i] = new MqttAndroidClient(mContext,
         		mqttServerURI , "MultiPub" + i);
 
-        connectToken = mqttPublisher[i].connect(null, null);
-    	Log.i(methodName, "publisher connecting url "+ mqttServerURI +"MultiPub" +i);
-        connectToken.waitForCompletion();
-      } // for...
+				connectToken = mqttPublisher[i].connect(null, null);
+				Log.i(methodName, "publisher connecting url " + mqttServerURI
+						+ "MultiPub" + i);
+				connectToken.waitForCompletion(waitForCompletionTime);
+			} // for...
 
       MqttV3Receiver[] mqttV3Receiver = new MqttV3Receiver[mqttSubscriber.length];
       for (int i = 0; i < mqttSubscriber.length; i++) {
@@ -246,61 +261,64 @@ public class AndroidServiceTest extends AndroidTestCase {
         mqttSubscriber[i].setCallback(mqttV3Receiver[i]);
         Log.i(methodName,"Assigning callback...");
 
-        connectToken = mqttSubscriber[i].connect(null, null);
-        Log.i(methodName, "subscriber connecting url "+mqttServerURI +"MultiSubscriber" +i);
-        
-        connectToken.waitForCompletion();
+				connectToken = mqttSubscriber[i].connect(null, null);
+				Log.i(methodName, "subscriber connecting url " + mqttServerURI
+						+ "MultiSubscriber" + i);
 
-        subToken = mqttSubscriber[i].subscribe(topicNames, topicQos, null, null);
-        Log.i(methodName,"subscribe "+topicNames[0].toString() + " QoS is "+topicQos[0]);
-        subToken.waitForCompletion();
-      } // for...
+				connectToken.waitForCompletion(waitForCompletionTime);
 
-      for (int iMessage = 0; iMessage < 2; iMessage++) {
-        byte[] payload = ("Message " + iMessage).getBytes();
-        for (int i = 0; i < mqttPublisher.length; i++) {
-          pubToken = mqttPublisher[i].publish(topicNames[0], payload, 0, false,
-              null, null);
-          Log.i(methodName,"publish to "+topicNames[0]+" payload is "+payload.toString());
-          
-          pubToken.waitForCompletion();
-        }
-        
-        TimeUnit.MILLISECONDS.sleep(30000);
-        
-        for (int i = 0; i < mqttSubscriber.length; i++) {
-          for (int ii = 0; ii < mqttPublisher.length; ii++) {
-        	Log.i(methodName, "validate time = "+new Date().toString());
-            boolean ok = mqttV3Receiver[i].validateReceipt(
-                topicNames[0], 0, payload);
-            
-            if (!ok) {
-              Assert.fail("Receive failed");
-            }
-          } // for publishers...
-        } // for subscribers...
-      } // for messages...
+				subToken = mqttSubscriber[i].subscribe(topicNames, topicQos,
+						null, null);
+				Log.i(methodName, "subscribe " + topicNames[0].toString()
+						+ " QoS is " + topicQos[0]);
+				subToken.waitForCompletion(waitForCompletionTime);
+			} // for...
+
+			for (int iMessage = 0; iMessage < 2; iMessage++) {
+				byte[] payload = ("Message " + iMessage).getBytes();
+				for (int i = 0; i < mqttPublisher.length; i++) {
+					pubToken = mqttPublisher[i].publish(topicNames[0], payload,
+							0, false, null, null);
+					Log.i(methodName, "publish to " + topicNames[0]
+							+ " payload is " + payload.toString());
+
+					pubToken.waitForCompletion(waitForCompletionTime);
+				}
+
+				TimeUnit.MILLISECONDS.sleep(30000);
+
+				for (int i = 0; i < mqttSubscriber.length; i++) {
+					for (int ii = 0; ii < mqttPublisher.length; ii++) {
+						Log.i(methodName,
+								"validate time = " + new Date().toString());
+						boolean ok = mqttV3Receiver[i].validateReceipt(
+								topicNames[0], 0, payload);
+
+						if (!ok) {
+							Assert.fail("Receive failed");
+						}
+					} // for publishers...
+				} // for subscribers...
+			} // for messages...
 
     }
     catch (Exception exception) {
 
-      Assert.fail("Failed to instantiate:" + methodName + " exception="
-                  + exception);
-    }
-    finally {
-      try {
-        for (int i = 0; i < mqttPublisher.length; i++) {
-          disconnectToken = mqttPublisher[i].disconnect(null, null);
-          disconnectToken.waitForCompletion();
-          mqttPublisher[i].close();
-        }
-        for (int i = 0; i < mqttSubscriber.length; i++) {
-          disconnectToken = mqttSubscriber[i].disconnect(null, null);
-          disconnectToken.waitForCompletion();
-          mqttSubscriber[i].close();
-        }
-      }
-      catch (Exception exception) {
+			Assert.fail("Failed to instantiate:" + methodName + " exception="
+					+ exception);
+		} finally {
+			try {
+				for (int i = 0; i < mqttPublisher.length; i++) {
+					disconnectToken = mqttPublisher[i].disconnect(null, null);
+					disconnectToken.waitForCompletion(waitForCompletionTime);
+					mqttPublisher[i].close();
+				}
+				for (int i = 0; i < mqttSubscriber.length; i++) {
+					disconnectToken = mqttSubscriber[i].disconnect(null, null);
+					disconnectToken.waitForCompletion(waitForCompletionTime);
+					mqttSubscriber[i].close();
+				}
+			} catch (Exception exception) {
 
       }
     }
@@ -761,17 +779,16 @@ public class AndroidServiceTest extends AndroidTestCase {
 	    	 	MqttConnectOptions options = new MqttConnectOptions();
 	    	 	options.setServerURIs(urls);
 
-	    	 	Log.i(methodName,"HA connect");
-	    	 	IMqttToken connectToken = client.connect(options);
-	    	 	connectToken.waitForCompletion();
+				Log.i(methodName, "HA connect");
+				IMqttToken connectToken = client.connect(options);
+				connectToken.waitForCompletion(waitForCompletionTime);
 
-	    	 	Log.i(methodName,"HA diconnect");
-	    	 	IMqttToken disconnectToken = client.disconnect(null, null);
-	    	 	disconnectToken.waitForCompletion();
-	    	 	
-	    	 	Log.i(methodName,"HA success");
-	      }
-	      catch (Exception e) {
+				Log.i(methodName, "HA disconnect");
+				IMqttToken disconnectToken = client.disconnect(null, null);
+				disconnectToken.waitForCompletion(waitForCompletionTime);
+
+				Log.i(methodName, "HA success");
+			} catch (Exception e) {
 
 	    	  	e.printStackTrace();
 	    	  	throw e;
@@ -814,27 +831,30 @@ public class AndroidServiceTest extends AndroidTestCase {
 	    pubToken = mqttClient.publish(topicNames[0], message, 0, true, null, null);
 	    pubToken.waitForCompletion(waitForCompletionTime);
 
-	    TimeUnit.MILLISECONDS.sleep(3000);
-	    
-	    boolean ok = mqttV3Receiver.validateReceipt(topicNames[0], 0, message);
-	    if (!ok) {
-	        Assert.fail("Receive failed");
-	      }
-	    
-	    Log.i(methodName, "First client received message successfully");
-	    
-	    disconnectToken = mqttClient.disconnect(null, null);
-	    disconnectToken.waitForCompletion();
-	    mqttClient.close();
-	    
-	    mqttClientRetained = new MqttAndroidClient(mContext, mqttServerURI, "Retained");
-	   
-	    Log.i(methodName, "New MqttAndroidClient mqttClientRetained");
-	    
-	    MqttV3Receiver mqttV3ReceiverRetained = new MqttV3Receiver(mqttClientRetained, null);
-	    mqttClientRetained.setCallback(mqttV3ReceiverRetained);
-	    
-	    Log.i(methodName, "Assigning callback...");
+			TimeUnit.MILLISECONDS.sleep(3000);
+
+			boolean ok = mqttV3Receiver.validateReceipt(topicNames[0], 0,
+					message);
+			if (!ok) {
+				Assert.fail("Receive failed");
+			}
+
+			Log.i(methodName, "First client received message successfully");
+
+			disconnectToken = mqttClient.disconnect(null, null);
+			disconnectToken.waitForCompletion(waitForCompletionTime);
+			mqttClient.close();
+
+			mqttClientRetained = new MqttAndroidClient(mContext, mqttServerURI,
+					"Retained");
+
+			Log.i(methodName, "New MqttAndroidClient mqttClientRetained");
+
+			MqttV3Receiver mqttV3ReceiverRetained = new MqttV3Receiver(
+					mqttClientRetained, null);
+			mqttClientRetained.setCallback(mqttV3ReceiverRetained);
+
+			Log.i(methodName, "Assigning callback...");
 
 	    connectToken = mqttClientRetained.connect(null, null);
 	    connectToken.waitForCompletion();
@@ -853,17 +873,16 @@ public class AndroidServiceTest extends AndroidTestCase {
 	        Assert.fail("Receive retained message failed");
 	      }
 
-	    Log.i(methodName, "Second client received message successfully");
-	    
-	    disconnectToken = mqttClientRetained.disconnect(null, null);
-	    disconnectToken.waitForCompletion();
-	    mqttClientRetained.close();
-	    
-	    }
-	    catch (Exception exception) {
-	      Assert.fail("Failed to instantiate:" + methodName + " exception="
-	                  + exception);
-	    }
+			Log.i(methodName, "Second client received message successfully");
+
+			disconnectToken = mqttClientRetained.disconnect(null, null);
+			disconnectToken.waitForCompletion(waitForCompletionTime);
+			mqttClientRetained.close();
+
+		} catch (Exception exception) {
+			Assert.fail("Failed to instantiate:" + methodName + " exception="
+					+ exception);
+		}
 
   }
   
@@ -874,18 +893,20 @@ public class AndroidServiceTest extends AndroidTestCase {
    * @throws Exception
    */
 
-  public void testSSLConnect() throws Exception {
-	
-	MqttAndroidClient mqttClient = null;
-    try {
-      mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI, "testSSLConnect");
-      
-      MqttConnectOptions options = new MqttConnectOptions();
-      options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getResources().openRawResource(R.raw.test),"mqtttest"));
-      
-      
-      IMqttToken connectToken = null;
-      IMqttToken disconnectToken = null;
+	public void testSSLConnect() throws Exception {
+
+		MqttAndroidClient mqttClient = null;
+		try {
+			mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI,
+					"testSSLConnect");
+
+			MqttConnectOptions options = new MqttConnectOptions();
+			options.setSocketFactory(mqttClient.getSSLSocketFactory(this
+					.getContext().getResources().openRawResource(R.raw.test),
+					keyStorePwd));
+
+			IMqttToken connectToken = null;
+			IMqttToken disconnectToken = null;
 
       connectToken = mqttClient.connect( options);
       connectToken.waitForCompletion(waitForCompletionTime);
@@ -917,25 +938,26 @@ public class AndroidServiceTest extends AndroidTestCase {
    * @throws Exception
    */
 
-  public void testSSLPubSub() throws Exception {
-	  
-	MqttAndroidClient mqttClient = null;
-	
-    
-    IMqttToken connectToken = null;
-    IMqttToken disconnectToken = null;
-    IMqttToken subToken = null;
-    IMqttDeliveryToken pubToken = null;
-	
-    try {
-      mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI, "testSSLPubSub");
-      
-      MqttConnectOptions options = new MqttConnectOptions();
-      options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getResources().openRawResource(R.raw.test),"mqtttest"));
-     
-      
-      MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
-      mqttClient.setCallback(mqttV3Receiver);
+	public void testSSLPubSub() throws Exception {
+
+		MqttAndroidClient mqttClient = null;
+
+		IMqttToken connectToken = null;
+		IMqttToken disconnectToken = null;
+		IMqttToken subToken = null;
+		IMqttDeliveryToken pubToken = null;
+
+		try {
+			mqttClient = new MqttAndroidClient(mContext, mqttSSLServerURI,
+					"testSSLPubSub");
+
+			MqttConnectOptions options = new MqttConnectOptions();
+			options.setSocketFactory(mqttClient.getSSLSocketFactory(this
+					.getContext().getResources().openRawResource(R.raw.test),
+					keyStorePwd));
+
+			MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
+			mqttClient.setCallback(mqttV3Receiver);
 
       connectToken = mqttClient.connect(options);
       connectToken.waitForCompletion(waitForCompletionTime);
