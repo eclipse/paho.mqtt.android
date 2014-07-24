@@ -608,8 +608,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 		
 		if (this.messageStore !=null )
 			this.messageStore.close();
-		if (this.serviceNTFCallbackStore != null)
-			this.serviceNTFCallbackStore.close();
 
 		super.onDestroy();
 	}
