@@ -99,4 +99,5 @@ public interface MessageStore {
 	 */
 	public void clearArrivedMessages(String clientHandle);
 
+	public void close();
 }

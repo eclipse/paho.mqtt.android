@@ -604,10 +604,15 @@ public class MqttService extends Service implements MqttTraceHandler {
       mqttServiceBinder = null;
     }
 
-    unregisterBroadcastReceivers();
-    
-    super.onDestroy();
-  }
+		unregisterBroadcastReceivers();
+		
+		if (this.messageStore !=null )
+			this.messageStore.close();
+		if (this.serviceNTFCallbackStore != null)
+			this.serviceNTFCallbackStore.close();
+
+		super.onDestroy();
+	}
 
   /**
    * @see android.app.Service#onBind(Intent)

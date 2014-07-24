@@ -410,4 +410,10 @@ public class DatabaseMessageStore implements MessageStore {
 		}
 	}
 
+	@Override
+	public void close() {
+		this.db.close();
+		
+	}
+
 }
