@@ -1300,9 +1300,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			String severity = data.getString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY);
 			String message =  data.getString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE);
 			String tag = data.getString(MqttServiceConstants.CALLBACK_TRACE_TAG);
-			if (severity == MqttServiceConstants.TRACE_DEBUG) 
+			if (MqttServiceConstants.TRACE_DEBUG.equals(severity)) 
 				traceCallback.traceDebug(tag, message);
-			else if (severity == MqttServiceConstants.TRACE_ERROR) 
+			else if (MqttServiceConstants.TRACE_ERROR.equals(severity)) 
 				traceCallback.traceError(tag, message);
 			else
 			{
