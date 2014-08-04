@@ -146,7 +146,7 @@ public class DatabaseMessageStore implements MessageStore {
 		// Android documentation suggests that this perhaps
 		// could/should be done in another thread, but as the
 		// database is only one table, I doubt it matters...
-		db = mqttDb.getWritableDatabase();
+		
 		traceHandler.traceDebug(TAG, "DatabaseMessageStore<init> complete");
 	}
 
@@ -164,6 +164,9 @@ public class DatabaseMessageStore implements MessageStore {
 	@Override
 	public String storeArrived(String clientHandle, String topic,
 			MqttMessage message) {
+		
+		db = mqttDb.getWritableDatabase();
+		
 		traceHandler.traceDebug(TAG, "storeArrived{" + clientHandle + "}, {"
 				+ message.toString() + "}");
 
@@ -225,6 +228,9 @@ public class DatabaseMessageStore implements MessageStore {
 	 */
 	@Override
 	public boolean discardArrived(String clientHandle, String id) {
+		
+		db = mqttDb.getWritableDatabase();
+		
 		traceHandler.traceDebug(TAG, "discardArrived{" + clientHandle + "}, {"
 				+ id + "}");
 		int rows;
@@ -268,6 +274,7 @@ public class DatabaseMessageStore implements MessageStore {
 			private boolean hasNext;
 
 			{
+				db = mqttDb.getWritableDatabase();
 				// anonymous initialiser to start a suitable query
 				// and position at the first row, if one exists
 				if (clientHandle == null) {
