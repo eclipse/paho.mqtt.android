@@ -228,6 +228,12 @@ class MqttConnection implements MqttCallback {
 									+ exception.getMessage());
 
 					doAfterConnectFail(resultBundle);
+
+					// if connect fail ,try reconnect.
+					if(service.isOnline()){
+						connect(connectOptions, internel_invocationContext,connectActivityToken);
+					}
+
 				}
 			};
 			service.traceDebug(TAG, "Do Real connect!");
