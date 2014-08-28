@@ -12,6 +12,7 @@
  */
 package org.eclipse.paho.android.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -216,14 +219,14 @@ import android.util.Log;
  */
 public class MqttService extends Service implements MqttTraceHandler {
 
-  // Identifier for Intents, log messages, etc..
-  static final String TAG = "MqttService";
+	// Identifier for Intents, log messages, etc..
+	static final String TAG = "MqttService";
 
-  // callback id for making trace callbacks to the Activity
-  // needs to be set by the activity as appropriate
-  private String traceCallbackId;
-  // state of tracing
-  private boolean traceEnabled = false;
+	// callback id for making trace callbacks to the Activity
+	// needs to be set by the activity as appropriate
+	private String traceCallbackId;
+	// state of tracing
+	private boolean traceEnabled = false;
 
   // somewhere to persist received messages until we're sure
   // that they've reached the application
@@ -325,7 +328,9 @@ public class MqttService extends Service implements MqttTraceHandler {
   void reconnect() {
 	traceDebug(TAG, "Reconnect to server, client size=" + connections.size());
 	for (MqttConnection client : connections.values()) {
-		client.reconnect();
+		if(this.isOnline()){
+			client.reconnect();
+		}
 	}
   }
   
@@ -781,8 +786,9 @@ public class MqttService extends Service implements MqttTraceHandler {
 			WakeLock wl = pm
 					.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT");
 			wl.acquire();
-			
+			traceDebug(TAG,"Reconnect for Network recovery.");
 			if (isOnline()) {
+				traceDebug(TAG,"Online,reconnect.");
 				// we have an internet connection - have another try at
 				// connecting
 				reconnect();
@@ -828,6 +834,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+			traceDebug(TAG,"Reconnect since BroadcastReceiver.");
 			if (cm.getBackgroundDataSetting()) {
 				if (!backgroundDataEnabled) {
 					backgroundDataEnabled = true;
