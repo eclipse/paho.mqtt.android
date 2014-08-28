@@ -735,7 +735,8 @@ class MqttConnection implements MqttCallback {
 					Log.getStackTraceString(why));
 		}
 		service.callbackToActivity(clientHandle, Status.OK, resultBundle);
-		
+		service.traceDebug(TAG,"Reconnect for connection lost");
+		reconnect();
 		// client has lost connection no need for wake lock
 		releaseWakeLock();
 	}
