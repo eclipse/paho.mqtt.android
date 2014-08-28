@@ -955,7 +955,11 @@ class MqttConnection implements MqttCallback {
 								resultBundle);
 
 						doAfterConnectFail(resultBundle);
-											
+						
+						//reconnect fail , try reconnect . check network in reconnect function;
+						service.traceDebug(TAG,"Reconnect Fail,Reconnect!");
+						reconnect();
+						
 					}
 				};
 				
