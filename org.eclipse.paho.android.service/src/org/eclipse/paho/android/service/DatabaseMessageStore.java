@@ -350,6 +350,9 @@ public class DatabaseMessageStore implements MessageStore {
 	 */
 	@Override
 	public void clearArrivedMessages(String clientHandle) {
+		
+		db = mqttDb.getWritableDatabase();
+		
 		int rows = 0;
 		if (clientHandle == null) {
 			traceHandler.traceDebug(TAG,
