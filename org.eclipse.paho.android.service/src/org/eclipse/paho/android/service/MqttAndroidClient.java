@@ -347,14 +347,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public IMqttToken connect(MqttConnectOptions options, Object userContext,
 			IMqttActionListener callback) throws MqttException {
 
-		//check to see if there is a network connection where we can send data before attempting the connect
-		ConnectivityManager conManager = (ConnectivityManager) myContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-		NetworkInfo netInf = conManager.getActiveNetworkInfo();
-		if ((netInf == null) || !netInf.isConnected()) {
-			throw new MqttException(MqttException.REASON_CODE_BROKER_UNAVAILABLE);
-		}
-
 		IMqttToken token = new MqttTokenAndroid(this, userContext,
 				callback);
 
