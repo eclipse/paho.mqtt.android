@@ -71,12 +71,44 @@ class MqttConnection implements MqttCallback {
 
 	// fields for the connection definition
 	private String serverURI;
+	public String getServerURI() {
+		return serverURI;
+	}
+
+	public void setServerURI(String serverURI) {
+		this.serverURI = serverURI;
+	}
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
 	private String clientId;
 	private MqttClientPersistence persistence = null;
 	private MqttConnectOptions connectOptions;
 
+	public MqttConnectOptions getConnectOptions() {
+		return connectOptions;
+	}
+
+	public void setConnectOptions(MqttConnectOptions connectOptions) {
+		this.connectOptions = connectOptions;
+	}
+
 	// Client handle, used for callbacks...
 	private String clientHandle;
+
+	public String getClientHandle() {
+		return clientHandle;
+	}
+
+	public void setClientHandle(String clientHandle) {
+		this.clientHandle = clientHandle;
+	}
 
 	//store connect ActivityToken for reconnect
 	private String connectActivityToken = null;
