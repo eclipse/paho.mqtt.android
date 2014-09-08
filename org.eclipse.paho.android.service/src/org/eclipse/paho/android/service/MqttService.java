@@ -228,12 +228,18 @@ public class MqttService extends Service implements MqttTraceHandler {
 	// state of tracing
 	private boolean traceEnabled = false;
 
-  // somewhere to persist received messages until we're sure
-  // that they've reached the application
-  MessageStore messageStore;
+	// state of app
+	private boolean isAppRunning = false;
 
-  // An intent receiver to deal with changes in network connectivity
-  private NetworkConnectionIntentReceiver networkConnectionMonitor;
+	// somewhere to persist received messages until we're sure
+	// that they've reached the application
+	MessageStore messageStore;
+
+	// For recover connection
+	DatabaseConnectionPersistence persistence;
+
+	// An intent receiver to deal with changes in network connectivity
+	private NetworkConnectionIntentReceiver networkConnectionMonitor;
 
   //a receiver to recognise when the user changes the "background data" preference
   // and a flag to track that preference
@@ -245,8 +251,11 @@ public class MqttService extends Service implements MqttTraceHandler {
   // a way to pass ourself back to the activity
   private MqttServiceBinder mqttServiceBinder;
 
-  // mapping from client handle strings to actual client connections.
-  private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<String, MqttConnection>();
+	// mapping from client handle strings to actual client connections.
+	private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<String, MqttConnection>();
+	// mapping from client handle strings to store ModelConnections to delete
+	// persist connection info.
+	private Map<String/* clientHandle */, ModelConnectionPersistence/* connection */> modelConnections = new ConcurrentHashMap<String, ModelConnectionPersistence>();
 
   public MqttService() {
     super();
@@ -318,8 +327,25 @@ public class MqttService extends Service implements MqttTraceHandler {
   public void connect(String clientHandle, MqttConnectOptions connectOptions,
       String invocationContext, String activityToken)
       throws MqttSecurityException, MqttException {
-    MqttConnection client = getConnection(clientHandle);
-    client.connect(connectOptions, invocationContext, activityToken);
+	  	MqttConnection client = getConnection(clientHandle);
+	  	client.connect(connectOptions, invocationContext, activityToken);
+		String[] connectionsurl = client.getServerURI().split(":");
+		String[] handles = client.getClientHandle().split(":");
+		boolean issll = connectionsurl[0].startsWith("ssl") ? true : false;
+
+		ModelConnectionPersistence con = ModelConnectionPersistence
+				.createConnection(client.getClientId(),
+						connectionsurl[1].substring(2),
+						Integer.valueOf(connectionsurl[2]),
+						this.getApplicationContext(), issll, null);
+		con.addConnectionOptions(connectOptions);
+		con.setCtxId(handles[handles.length - 1]);
+		try {
+			persistence.persistConnection(con);
+			modelConnections.put(clientHandle, con);
+		} catch (ConnectionPersistenceException e) {
+			e.printStackTrace();
+		}
   }
   
   /**
@@ -361,6 +387,9 @@ public class MqttService extends Service implements MqttTraceHandler {
     client.disconnect(invocationContext, activityToken);
     connections.remove(clientHandle);
 
+		// delete connection persistence if disconnect by user.
+		persistence.deleteConnection(modelConnections.get(clientHandle));
+		modelConnections.remove(clientHandle);
     // the activity has finished using us, so we can stop the service
     // the activities are bound with BIND_AUTO_CREATE, so the service will
     // remain around until the last activity disconnects
@@ -591,6 +620,8 @@ public class MqttService extends Service implements MqttTraceHandler {
     // create somewhere to buffer received messages until
     // we know that they have been passed to the application
     messageStore = new DatabaseMessageStore(this, this);
+	//create database persistence instance for connections;
+	persistence = new DatabaseConnectionPersistence(this);
 
   }
 
