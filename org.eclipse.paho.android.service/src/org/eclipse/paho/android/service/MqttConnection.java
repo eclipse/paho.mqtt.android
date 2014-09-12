@@ -234,10 +234,7 @@ class MqttConnection implements MqttCallback {
 				persistence = new MqttDefaultFilePersistence(
 						myDir.getAbsolutePath());
 			}
-
-			myClient = new MqttAsyncClient(serverURI, clientId, persistence, 
-					new AlarmPingSender(service));
-			myClient.setCallback(this);
+			
 			IMqttActionListener listener = new MqttConnectionListener(
 					resultBundle) {
 
@@ -268,10 +265,35 @@ class MqttConnection implements MqttCallback {
 
 				}
 			};
-			service.traceDebug(TAG, "Do Real connect!");
-			setConnectingState(true);
-			myClient.connect(connectOptions, invocationContext, listener);
 			
+			if (myClient != null) {
+				if (isConnecting ) {
+					service.traceDebug(TAG,
+							"myClient != null and the client is connecting. Connect return directly.");
+					service.traceDebug(TAG,"Connect return:isConnecting:"+isConnecting+".disconnected:"+disconnected);
+					return;
+				}else if(!disconnected){
+					service.traceDebug(TAG,"myClient != null and the client is connected and notify!");
+					doAfterConnectSuccess(resultBundle);
+				}
+				else {					
+					service.traceDebug(TAG, "myClient != null and the client is not connected");
+					service.traceDebug(TAG,"Do Real connect!");
+					setConnectingState(true);
+					myClient.connect(connectOptions, invocationContext, listener);
+				}
+			}
+			
+			// if myClient is null, then create a new connection
+			else {
+				myClient = new MqttAsyncClient(serverURI, clientId,
+						persistence, new AlarmPingSender(service));
+				myClient.setCallback(this);
+
+				service.traceDebug(TAG,"Do Real connect!");
+				setConnectingState(true);
+				myClient.connect(connectOptions, invocationContext, listener);
+			}
 		} catch (Exception e) {
 			handleException(resultBundle, e);
 		}
