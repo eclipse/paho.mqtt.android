@@ -231,6 +231,12 @@ public class MqttService extends Service implements MqttTraceHandler {
 	// state of app
 	private boolean isAppRunning = false;
 
+	// service notification store
+	private ServiceNotificationCallbackStore serviceNTFCallbackStore = null;
+
+	// service notification call back
+	private MqttServiceNotificationCallback serviceNTFCallback = null;
+
 	// somewhere to persist received messages until we're sure
 	// that they've reached the application
 	MessageStore messageStore;
@@ -635,40 +641,106 @@ public class MqttService extends Service implements MqttTraceHandler {
 	//create database persistence instance for connections;
 	persistence = new DatabaseConnectionPersistence(this);
 
-	try {
-		List<ModelConnectionPersistence> l = persistence
-				.restoreConnections(this.getApplicationContext());
-		for (ModelConnectionPersistence c : l) {
-			String handle = getClient(c.getServerURI(), c.getId(),
-					c.getCtxId(), null);
-			connections.get(handle).setConnectOptions(
-					c.getConnectionOptions());
-			if (isOnline()) {
-				// we have an internet connection - have another try
-				// at
-				// connecting
-				connect(handle, c.getConnectionOptions(), null, "0");
+		/**
+		 * when Mqtt service is onCreate read the application package name check
+		 * if there is a data of MqttServiceNotificationCallback for this app. if
+		 * no, let's happy. if yes,then check if the app is still running, if yes,
+		 * let's happy. if no, god, start to do the service level's notification
+		 * callback
+		 */
+		serviceNTFCallbackStore = new DatabaseServiceNotificationCallbackStore(
+				this, this);
+		String appPackageName = this.getApplicationInfo().packageName;
+		
+		// then check if the app is still running
+		ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+		List<RunningTaskInfo> list = am.getRunningTasks(200);
+		for (RunningTaskInfo info : list) {
+			if (info.topActivity.getPackageName().equals(appPackageName)
+					&& info.baseActivity.getPackageName().equals(
+							appPackageName)) {
+				isAppRunning = true;
+				break;
 			}
 		}
 
-	} catch (ConnectionPersistenceException e) {
-		Log.e("MqttService", e.toString());
-	} catch (MqttSecurityException e) {
-		Log.e("MqttService", e.toString());
-	} catch (MqttException e) {
-		Log.e("MqttService", e.toString());
-	}
-  }
+		String serviceNTFCallbackCls = null;
+		// read app package name from sqllite
+		serviceNTFCallbackCls = serviceNTFCallbackStore.getAppServiceNTFCallbackClass(appPackageName);
 
-  /**
-   * @see android.app.Service#onDestroy()
-   */
-  @Override
-  public void onDestroy() {
-    // disconnect immediately
-    for (MqttConnection client : connections.values()) {
-      client.disconnect(null, null);
-    }
+		if (serviceNTFCallbackCls != null) {
+
+        if (isAppRunning == false) {
+			//new serviceNTFCallback instance
+			    makeNTFCallBackInstance(serviceNTFCallbackCls);
+			   }
+			   //try to reconnect
+				try {
+					List<ModelConnectionPersistence> l = persistence
+							.restoreConnections(this.getApplicationContext());
+					for (ModelConnectionPersistence c : l) {
+						String handle = getClient(c.getServerURI(), c.getId(),
+								c.getCtxId(), null);
+						connections.get(handle).setConnectOptions(
+								c.getConnectionOptions());
+						if (isOnline()) {
+							// we have an internet connection - have another try
+							// at
+							// connecting
+							connect(handle, c.getConnectionOptions(), null, "0");
+						}
+					}
+
+				} catch (ConnectionPersistenceException e) {
+					Log.e("MqttService", e.toString());
+				} catch (MqttSecurityException e) {
+					Log.e("MqttService", e.toString());
+				} catch (MqttException e) {
+					Log.e("MqttService", e.toString());
+				}
+			
+		}
+	}
+
+	/**
+	 * get NTF callback instance
+	 * @param serviceNTFCallbackCls
+	 */
+	protected boolean makeNTFCallBackInstance(String serviceNTFCallbackCls) {
+		try {
+			Class cls = this.getClassLoader().loadClass(
+					serviceNTFCallbackCls);
+			this.serviceNTFCallback = (MqttServiceNotificationCallback) cls
+					.newInstance();
+			Log.i("MqttService",
+					"MqttService Notification Callback is init="
+							+ serviceNTFCallback);
+			
+			return true;
+		} catch (ClassNotFoundException e) {
+			Log.e("MqttService", e.toString());
+		} catch (InstantiationException e) {
+			Log.e("MqttService", e.toString());
+		} catch (IllegalAccessException e) {
+			Log.e("MqttService", e.toString());
+		}
+		
+		return false;
+	}
+
+	public ServiceNotificationCallbackStore getServiceNTFCallbackStore() {
+		return serviceNTFCallbackStore;
+	}
+
+	/**
+	 * @see android.app.Service#onDestroy()
+	 */
+	@Override
+	public void onDestroy() {
+		// disconnect immediately
+		for (MqttConnection client : connections.values()) {
+			client.disconnect(null, null);
+		}
 
     // clear down
     if (mqttServiceBinder != null) {
@@ -679,6 +751,8 @@ public class MqttService extends Service implements MqttTraceHandler {
 		
 		if (this.messageStore !=null )
 			this.messageStore.close();
+		if (this.serviceNTFCallbackStore != null)
+			this.serviceNTFCallbackStore.close();
 
 		super.onDestroy();
 	}
@@ -889,7 +963,15 @@ public class MqttService extends Service implements MqttTraceHandler {
 			connection.offline();
 		}
 	}
-	
+
+	public boolean isAppRunning() {
+		return isAppRunning;
+	}
+
+	public void setAppRunning(boolean isAppRunning) {
+		this.isAppRunning = isAppRunning;
+	}
+
 	/**
 	 * Detect changes of the Allow Background Data setting - only used below
 	 * ICE_CREAM_SANDWICH
@@ -914,4 +996,14 @@ public class MqttService extends Service implements MqttTraceHandler {
 			}
 		}
 	}
+
+	/**
+	 * notify to android notification bar
+	 */
+	public void callbackToNotification(String topic, MqttMessage message) {
+		if (this.serviceNTFCallback != null) {
+			this.serviceNTFCallback.notify(this, topic, message);
+		}
+	}
+
 }

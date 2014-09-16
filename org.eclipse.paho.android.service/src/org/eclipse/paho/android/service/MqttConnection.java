@@ -840,7 +840,7 @@ class MqttConnection implements MqttCallback {
 			service.callbackToActivity(clientHandle, Status.OK, resultBundle);
 		}
 
-		// this notification will have kept the connection alive but send the previously sechudled ping anyw
+		// this notification will have kept the connection alive but send the previously sechudled ping anyway
 	}
 
 	/**
@@ -860,13 +860,28 @@ class MqttConnection implements MqttCallback {
 
 		String messageId = service.messageStore.storeArrived(clientHandle,
 				topic, message);
+
+		/**
+		 * if app is running, let's callback to activity if app is dead, let's
+		 * use service callback
+		 */
+		Log.i("MqttConnection","Get a message="+new String(message.getPayload()));
+		//only if app running, call back to Activity
+		if (service.isAppRunning()) {		
 		Bundle resultBundle = messageToBundle(messageId, topic, message);
 		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
 				MqttServiceConstants.MESSAGE_ARRIVED_ACTION);
 		resultBundle.putString(MqttServiceConstants.CALLBACK_MESSAGE_ID,
 				messageId);
 		service.callbackToActivity(clientHandle, Status.OK, resultBundle);
-
+		} 
+		else {
+		//otherwise, service will callback the service NTF callback
+		Log.i("MqttConnection",
+				"Notify message=" + new String(message.getPayload()));
+		service.callbackToNotification(topic, message);
+		}
+		
 	}
 
 	/**
