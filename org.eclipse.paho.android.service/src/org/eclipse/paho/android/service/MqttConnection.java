@@ -963,7 +963,7 @@ class MqttConnection implements MqttCallback {
 	 * if cleanSession is true, we need to regard this as a disconnection
 	 */
 	void offline() {
-//		LogUtil.i(TAG, "MqttServiceClient disconnected:"+disconnected+" cleanSession:"+cleanSession);
+		
 		if (!disconnected && !cleanSession) {
 			Exception e = new Exception("Android offline");
 			connectionLost(e);
@@ -988,7 +988,7 @@ class MqttConnection implements MqttCallback {
 			return;
 		}
 
-		if (disconnected && !cleanSession) {
+		if (disconnected) {
 			// use the activityToke the same with action connect
 			service.traceDebug(TAG,"Do Real Reconnect!");
 			final Bundle resultBundle = new Bundle();
