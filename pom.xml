@@ -1,27 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.eclipse.paho</groupId>
+		<artifactId>java-parent</artifactId>
+		<version>1.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>android-service-parent</artifactId>
+	<packaging>pom</packaging>
+	
+	<name>Eclipse Paho - MQTT Android Service</name>
+	
+	<properties>
+		<android.version>4.1.1.4</android.version>
+	</properties>
+
+   <dependencyManagement>
+  		<dependencies>
+    		<dependency>
+      			<groupId>com.google.android</groupId>
+      			<artifactId>android</artifactId>
+      			<version>${android.version}</version>
+      			<scope>provided</scope>
+    		</dependency>
+        	<dependency>
+      			<groupId>com.google.android</groupId>
+      			<artifactId>android-test</artifactId>
+      			<version>${android.version}</version>
+       		</dependency>
+       		<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+	   		</dependency>
+  		</dependencies>
+	</dependencyManagement>
     
-    <parent>
-    	<groupId>org.eclipse.paho</groupId>
-	<artifactId>java-parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>	
-    <artifactId>android-service-parent</artifactId>
-    <packaging>pom</packaging>
-    <version>0.1</version>
-    <build>
-        <plugins></plugins>
-    </build>
-    <dependencies>
-		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-    </dependencies>
+    <modules>
+		<module>org.eclipse.paho.android.service</module>
+	</modules>
 </project>
