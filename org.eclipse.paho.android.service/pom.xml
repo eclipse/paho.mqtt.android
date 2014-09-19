@@ -23,33 +23,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.4.2</version>
-				<executions>
-					<execution>
-						<id>default-copy-resources</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<overwrite>true</overwrite>
-							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-							<resources>
-								<resource>
-									<!-- used in modules which relative to its parent -->
-									<directory>../../</directory>
-									<includes>
-										<include>about.html</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
        		 	<artifactId>maven-source-plugin</artifactId>
         		<version>2.3</version>
         		<executions>
@@ -73,7 +46,10 @@
 						</goals>
 						<configuration>
 						    <!-- http://stackoverflow.com/questions/15886209/maven-is-not-working-in-java-8-when-javadoc-tags-are-incomplete -->
+						    <!-- for java 8 -->
+						    <!-- 
                 			<additionalparam>-Xdoclint:none</additionalparam>
+                			 -->
             			</configuration>
 					</execution>
 				</executions>
