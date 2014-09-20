@@ -225,7 +225,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	@Override
 	public boolean isConnected() {
-		return mqttService.isConnected(clientHandle);
+		if (mqttService != null)
+			return mqttService.isConnected(clientHandle);
+		else 
+			return false;
 	}
 
 	 /**
