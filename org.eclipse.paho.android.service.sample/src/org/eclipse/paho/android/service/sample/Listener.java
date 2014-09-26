@@ -14,10 +14,16 @@ package org.eclipse.paho.android.service.sample;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.LogManager;
+
 import org.eclipse.paho.android.service.sample.R;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -26,6 +32,7 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+
 import org.eclipse.paho.android.service.sample.ActionListener.Action;
 import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -274,7 +281,18 @@ public class Listener implements OnMenuItemClickListener {
       InputStream logPropStream = context.getResources().openRawResource(R.raw.jsr47android);
       LogManager.getLogManager().readConfiguration(logPropStream);
       logging = true;
-      clientConnections.invalidateOptionsMenu();
+         
+      HashMap<String, Connection> connections = (HashMap<String,Connection>)Connections.getInstance(context).getConnections();
+      if(!connections.isEmpty()){
+    	  Entry<String, Connection> entry = connections.entrySet().iterator().next();
+    	  Connection connection = (Connection)entry.getValue();
+    	  connection.getClient().setTraceEnabled(true);
+    	  //change menu state.
+    	  clientConnections.invalidateOptionsMenu();
+    	  //Connections.getInstance(context).getConnection(clientHandle).getClient().setTraceEnabled(true);
+      }else{
+    	  Log.i("SampleListener","No connection to enable log in service");
+      }
     }
     catch (IOException e) {
       Log.e("MqttAndroidClient",
@@ -289,6 +307,17 @@ public class Listener implements OnMenuItemClickListener {
   private void disablePahoLogging() {
     LogManager.getLogManager().reset();
     logging = false;
+    
+    HashMap<String, Connection> connections = (HashMap<String,Connection>)Connections.getInstance(context).getConnections();
+    if(!connections.isEmpty()){
+  	  Entry<String, Connection> entry = connections.entrySet().iterator().next();
+  	  Connection connection = (Connection)entry.getValue();
+  	  connection.getClient().setTraceEnabled(false);
+  	  //change menu state.
+  	  clientConnections.invalidateOptionsMenu();
+    }else{
+  	  Log.i("SampleListener","No connection to disable log in service");
+    }
     clientConnections.invalidateOptionsMenu();
   }
 
