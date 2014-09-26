@@ -362,16 +362,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 	for (MqttConnection client : connections.values()) {
 			traceDebug("Reconnect Client:",
 					client.getClientId() + '/' + client.getServerURI());
-			// persist model connection data to retrieve persistId with
-			// clientHandle;
-			String[] connectionsurl = client.getServerURI().split(":");
-			boolean issll = connectionsurl[0].startsWith("ssl") ? true : false;
-			ModelConnectionPersistence con = ModelConnectionPersistence
-					.createConnection(client.getClientId(),
-							connectionsurl[1].substring(2),
-							Integer.valueOf(connectionsurl[2]),
-							this.getApplicationContext(), issll, null);
-			modelConnections.put(client.getClientHandle(), con);
 		if(this.isOnline()){
 			client.reconnect();
 		}
@@ -674,30 +664,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 			//new serviceNTFCallback instance
 			    makeNTFCallBackInstance(serviceNTFCallbackCls);
 			   }
-			   //try to reconnect
-				try {
-					List<ModelConnectionPersistence> l = persistence
-							.restoreConnections(this.getApplicationContext());
-					for (ModelConnectionPersistence c : l) {
-						String handle = getClient(c.getServerURI(), c.getId(),
-								c.getCtxId(), null);
-						connections.get(handle).setConnectOptions(
-								c.getConnectionOptions());
-						if (isOnline()) {
-							// we have an internet connection - have another try
-							// at
-							// connecting
-							connect(handle, c.getConnectionOptions(), null, "0");
-						}
-					}
-
-				} catch (ConnectionPersistenceException e) {
-					Log.e("MqttService", e.toString());
-				} catch (MqttSecurityException e) {
-					Log.e("MqttService", e.toString());
-				} catch (MqttException e) {
-					Log.e("MqttService", e.toString());
-				}
 			
 		}
 	}
