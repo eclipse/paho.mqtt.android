@@ -144,7 +144,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	// The MqttCallback provided by the application
 	private MqttCallback callback;
 	private MqttTraceHandler traceCallback;
-	private String serviceNTFCallbackCls;
 
 	//The acknowledgment that a message has been processed by the application
 	private Ack messageAck;
@@ -417,15 +416,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		}
 		mqttService.setTraceEnabled(traceEnabled);
 		mqttService.setTraceCallbackId(clientHandle);
-		mqttService.setAppRunning(true);
-		//store the app package name and service notification callback class
-		if (this.serviceNTFCallbackCls!=null) {
-			ServiceNotificationCallbackStore store=mqttService.getServiceNTFCallbackStore();
-			if(store!=null) {
-				store.setAppServiceNTFCallbackClass(mqttService.getApplicationInfo().packageName, serviceNTFCallbackCls);
-			}
-		}
-
+		
 		String activityToken = storeToken(connectToken);
 		try {
 			mqttService.connect(clientHandle, connectOptions, null,
@@ -1052,16 +1043,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 
 	}
 	
-	/**
-	 * Using this API, the end user can setup customized notification callback for MqttService
-	 * This callback is only used when the applications is dead and the service is restarted
-	 * @param callback is the Class which implements org.eclipse.paho.android.service.MqttServiceNotificationCallback
-	 */
-	public <T extends MqttServiceNotificationCallback> void setServiceNotificationCallback(Class<T> callback) {
-		this.serviceNTFCallbackCls=callback.getName();
-		Log.i("MqttAndroidClient","MqttService Notification Callback Class="+this.serviceNTFCallbackCls);
-	}
-
 	/**
 	 * identify the callback to be invoked when making tracing calls back into
 	 * the Activity

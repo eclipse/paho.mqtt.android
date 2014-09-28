@@ -306,9 +306,7 @@ public class ClientConnections extends ListActivity {
     }
     client.setCallback(new MqttCallbackHandler(this, clientHandle));
     
-    //setServiceNotificationCallback
-    client.setServiceNotificationCallback(MyMqttServiceNtfCallback.class);
-    
+   
     //set traceCallback
     client.setTraceCallback(new MqttTraceCallback());
     

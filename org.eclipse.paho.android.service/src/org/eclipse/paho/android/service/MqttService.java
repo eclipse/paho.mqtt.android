@@ -228,15 +228,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 	// state of tracing
 	private boolean traceEnabled = false;
 
-	// state of app
-	private boolean isAppRunning = false;
-
-	// service notification store
-	private ServiceNotificationCallbackStore serviceNTFCallbackStore = null;
-
-	// service notification call back
-	private MqttServiceNotificationCallback serviceNTFCallback = null;
-
 	// somewhere to persist received messages until we're sure
 	// that they've reached the application
 	MessageStore messageStore;
@@ -604,73 +595,9 @@ public class MqttService extends Service implements MqttTraceHandler {
     // create somewhere to buffer received messages until
     // we know that they have been passed to the application
     messageStore = new DatabaseMessageStore(this, this);
-
-		/**
-		 * when Mqtt service is onCreate read the application package name check
-		 * if there is a data of MqttServiceNotificationCallback for this app. if
-		 * no, let's happy. if yes,then check if the app is still running, if yes,
-		 * let's happy. if no, god, start to do the service level's notification
-		 * callback
-		 */
-		serviceNTFCallbackStore = new DatabaseServiceNotificationCallbackStore(
-				this, this);
-		String appPackageName = this.getApplicationInfo().packageName;
-		
-		// then check if the app is still running
-		ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
-		List<RunningTaskInfo> list = am.getRunningTasks(200);
-		for (RunningTaskInfo info : list) {
-			if (info.topActivity.getPackageName().equals(appPackageName)
-					&& info.baseActivity.getPackageName().equals(
-							appPackageName)) {
-				isAppRunning = true;
-				break;
-			}
-		}
-
-		String serviceNTFCallbackCls = null;
-		// read app package name from sqllite
-		serviceNTFCallbackCls = serviceNTFCallbackStore.getAppServiceNTFCallbackClass(appPackageName);
-
-		if (serviceNTFCallbackCls != null) {
-
-        if (isAppRunning == false) {
-			//new serviceNTFCallback instance
-			    makeNTFCallBackInstance(serviceNTFCallbackCls);
-			   }
-			
-		}
 	}
 
-	/**
-	 * get NTF callback instance
-	 * @param serviceNTFCallbackCls
-	 */
-	protected boolean makeNTFCallBackInstance(String serviceNTFCallbackCls) {
-		try {
-			Class cls = this.getClassLoader().loadClass(
-					serviceNTFCallbackCls);
-			this.serviceNTFCallback = (MqttServiceNotificationCallback) cls
-					.newInstance();
-			Log.i("MqttService",
-					"MqttService Notification Callback is init="
-							+ serviceNTFCallback);
-			
-			return true;
-		} catch (ClassNotFoundException e) {
-			Log.e("MqttService", e.toString());
-		} catch (InstantiationException e) {
-			Log.e("MqttService", e.toString());
-		} catch (IllegalAccessException e) {
-			Log.e("MqttService", e.toString());
-		}
-		
-		return false;
-	}
 
-	public ServiceNotificationCallbackStore getServiceNTFCallbackStore() {
-		return serviceNTFCallbackStore;
-	}
 
 	/**
 	 * @see android.app.Service#onDestroy()
@@ -691,8 +618,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 		
 		if (this.messageStore !=null )
 			this.messageStore.close();
-		if (this.serviceNTFCallbackStore != null)
-			this.serviceNTFCallbackStore.close();
 
 		super.onDestroy();
 	}
@@ -904,14 +829,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 		}
 	}
 
-	public boolean isAppRunning() {
-		return isAppRunning;
-	}
-
-	public void setAppRunning(boolean isAppRunning) {
-		this.isAppRunning = isAppRunning;
-	}
-
 	/**
 	 * Detect changes of the Allow Background Data setting - only used below
 	 * ICE_CREAM_SANDWICH
@@ -934,15 +851,6 @@ public class MqttService extends Service implements MqttTraceHandler {
 				backgroundDataEnabled = false;
 				notifyClientsOffline();
 			}
-		}
-	}
-
-	/**
-	 * notify to android notification bar
-	 */
-	public void callbackToNotification(String topic, MqttMessage message) {
-		if (this.serviceNTFCallback != null) {
-			this.serviceNTFCallback.notify(this, topic, message);
 		}
 	}
 
