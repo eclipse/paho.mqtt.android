@@ -118,7 +118,7 @@ class MqttConnection implements MqttCallback {
 	// our (parent) service object
 	private MqttService service = null;
 
-	private volatile boolean disconnected = false;
+	private volatile boolean disconnected = true;
 	private boolean cleanSession = true;
 
 	// Indicate this connection is connecting or not.
