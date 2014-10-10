@@ -15,7 +15,7 @@ package org.eclipse.paho.android.service;
 /**
  * Enumeration representing the success or failure of an operation
  */
-public enum Status {
+enum Status {
 	/**
 	 * Indicates that the operation succeeded
 	 */

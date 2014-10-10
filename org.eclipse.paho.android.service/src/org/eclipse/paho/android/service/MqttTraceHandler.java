@@ -13,15 +13,44 @@
 package org.eclipse.paho.android.service;
 
 /**
- * Interface for simple trace handling
- *
+ * Interface for simple trace handling, pass the trace message to trace
+ * callback.
+ * 
  */
+
 public interface MqttTraceHandler {
 
+	/**
+	 * Trace debugging information
+	 * 
+	 * @param tag
+	 *            identifier for the source of the trace
+	 * @param message
+	 *            the text to be traced
+	 */
 	public abstract void traceDebug(String source, String message);
 
+	/**
+	 * Trace error information
+	 * 
+	 * @param tag
+	 *            identifier for the source of the trace
+	 * @param message
+	 *            the text to be traced
+	 */
 	public abstract void traceError(String source, String message);
-	
-	public abstract void traceException(String source, String message, Exception e);
+
+	/**
+	 * trace exceptions
+	 * 
+	 * @param tag
+	 *            identifier for the source of the trace
+	 * @param message
+	 *            the text to be traced
+	 * @param e
+	 *            the exception
+	 */
+	public abstract void traceException(String source, String message,
+			Exception e);
 
 }

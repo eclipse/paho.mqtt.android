@@ -31,7 +31,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  * used.
  * </ul>
  */
-public interface MessageStore {
+interface MessageStore {
 
 	/**
 	 * External representation of a stored message

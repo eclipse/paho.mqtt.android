@@ -37,7 +37,7 @@ import android.util.Log;
  *
  * @see MqttPingSender
  */
-public class AlarmPingSender implements MqttPingSender {
+class AlarmPingSender implements MqttPingSender {
 	// Identifier for Intents, log messages, etc..
 	static final String TAG = "AlarmPingSender";
 

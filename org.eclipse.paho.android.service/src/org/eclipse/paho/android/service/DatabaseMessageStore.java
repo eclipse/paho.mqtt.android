@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Implementation of the {@link MessageStore} interface, using a SQLite database
  * 
  */
-public class DatabaseMessageStore implements MessageStore {
+class DatabaseMessageStore implements MessageStore {
 
 	// TAG used for indentify trace data etc.
 	private static String TAG = "DatabaseMessageStore";
