@@ -240,7 +240,7 @@ public class Listener implements OnMenuItemClickListener {
 
     String[] args = new String[2];
     args[0] = message;
-    args[1] = topic;
+    args[1] = topic+";qos:"+qos+";retained:"+retained;
 
     try {
       Connections.getInstance(context).getConnection(clientHandle).getClient()

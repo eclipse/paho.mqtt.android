@@ -82,7 +82,7 @@ public class MqttCallbackHandler implements MqttCallback {
     //create arguments to format message arrived notifcation string
     String[] args = new String[2];
     args[0] = new String(message.getPayload());
-    args[1] = topic;
+    args[1] = topic+";qos:"+message.getQos()+";retained:"+message.isRetained();
 
     //get the string from strings.xml and format
     String messageString = context.getString(R.string.messageRecieved, (Object[]) args);
