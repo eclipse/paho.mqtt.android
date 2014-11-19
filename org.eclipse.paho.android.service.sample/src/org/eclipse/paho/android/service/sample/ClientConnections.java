@@ -14,12 +14,15 @@ package org.eclipse.paho.android.service.sample;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Map;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.android.service.sample.Connection.ConnectionStatus;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -233,6 +236,7 @@ public class ClientConnections extends ListActivity {
     boolean cleanSession = (Boolean) data.get(ActivityConstants.cleanSession);
 
     boolean ssl = (Boolean) data.get(ActivityConstants.ssl);
+    String ssl_key = (String) data.get(ActivityConstants.ssl_key);
     String uri = null;
     if (ssl) {
       Log.e("SSLConnection", "Doing an SSL Connect");
@@ -247,6 +251,25 @@ public class ClientConnections extends ListActivity {
 
     MqttAndroidClient client;
     client = Connections.getInstance(this).createClient(this, uri, clientId);
+    
+    if (ssl){
+        try {
+        	if(ssl_key != null && !ssl_key.equalsIgnoreCase(""))
+        	{
+        		FileInputStream key = new FileInputStream(ssl_key);
+        		conOpt.setSocketFactory(client.getSSLSocketFactory(key,
+    					"mqtttest"));
+        	}
+			
+		} catch (MqttSecurityException e) {
+			Log.e(this.getClass().getCanonicalName(),
+		            "MqttException Occured: ", e);
+		} catch (FileNotFoundException e) {
+			Log.e(this.getClass().getCanonicalName(),
+		            "MqttException Occured: SSL Key file not found", e);
+		}
+    }
+    
     // create a client handle
     String clientHandle = uri + clientId;
 

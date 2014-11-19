@@ -12,13 +12,20 @@
  */
 package org.eclipse.paho.android.service.sample;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import org.eclipse.paho.android.service.sample.R;
@@ -37,6 +44,8 @@ public class Advanced extends Activity {
    * Holds the result data from activities launched from this activity
    */
   private Bundle resultData = null;
+  
+  private int openfileDialogId = 0;
 
   /**
    * @see Activity#onCreate(Bundle)
@@ -45,7 +54,30 @@ public class Advanced extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_advanced);
+    
+    ((Button) findViewById(R.id.sslKeyBut)).setOnClickListener(new OnClickListener(){
 
+		@Override
+		public void onClick(View v) {
+			//showFileChooser();
+			showDialog(openfileDialogId);
+		}});
+    
+    ((CheckBox) findViewById(R.id.sslCheckBox)).setOnClickListener(new OnClickListener(){
+
+		@Override
+		public void onClick(View v) {
+			if(((CheckBox)v).isChecked())
+			{
+				((Button)findViewById(R.id.sslKeyBut)).setClickable(true);
+			}else
+			{
+				((Button)findViewById(R.id.sslKeyBut)).setClickable(false);
+			}
+			
+		}});
+    
+    ((Button)findViewById(R.id.sslKeyBut)).setClickable(false);
   }
 
   /**
@@ -88,6 +120,33 @@ public class Advanced extends Activity {
     resultData = intent.getExtras();
 
   }
+
+  	/**
+  	 * @see android.app.Activity#onCreateDialog(int)
+  	 */
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		if (id == openfileDialogId) {
+			Map<String, Integer> images = new HashMap<String, Integer>();
+			images.put(OpenFileDialog.sRoot, R.drawable.ic_launcher);
+			images.put(OpenFileDialog.sParent, R.drawable.ic_launcher);
+			images.put(OpenFileDialog.sFolder, R.drawable.ic_launcher);
+			images.put("bks", R.drawable.ic_launcher);
+			images.put(OpenFileDialog.sEmpty, R.drawable.ic_launcher);
+			Dialog dialog = OpenFileDialog.createDialog(id, this, "openfile",
+					new CallbackBundle() {
+						@Override
+						public void callback(Bundle bundle) {
+							String filepath = bundle.getString("path");
+							// setTitle(filepath);
+							((EditText) findViewById(R.id.sslKeyLocaltion))
+									.setText(filepath);
+						}
+					}, ".bks;", images);
+			return dialog;
+		}
+		return null;
+	}
 
   /**
    * Deals with button clicks for the advanced options page
@@ -175,7 +234,13 @@ public class Advanced extends Activity {
           .toString();
       String password = ((EditText) findViewById(R.id.password))
           .getText().toString();
+      String sslkey = null;
       boolean ssl = ((CheckBox) findViewById(R.id.sslCheckBox)).isChecked();
+      if(ssl)
+      {
+    	  sslkey = ((EditText) findViewById(R.id.sslKeyLocaltion))
+    	          .getText().toString();
+      }
       try {
         timeout = Integer
             .parseInt(((EditText) findViewById(R.id.timeout))
@@ -200,6 +265,7 @@ public class Advanced extends Activity {
       intent.putExtra(ActivityConstants.timeout, timeout);
       intent.putExtra(ActivityConstants.keepalive, keepalive);
       intent.putExtra(ActivityConstants.ssl, ssl);
+      intent.putExtra(ActivityConstants.ssl_key, sslkey);
       //set the result as okay, with the data, and finish
       advanced.setResult(RESULT_OK, intent);
       advanced.finish();

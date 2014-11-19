@@ -77,6 +77,8 @@ public class ActivityConstants {
   static final String timeout = "timeout";
   /** SSL Enabled Flag Bundle Key **/
   static final String ssl = "ssl";
+  /** SSL Key File Bundle Key **/
+  static final String ssl_key = "ssl_key";
   /** Connections Bundle Key **/
   static final String connections = "connections";
   /** Clean Session Flag Bundle Key **/
