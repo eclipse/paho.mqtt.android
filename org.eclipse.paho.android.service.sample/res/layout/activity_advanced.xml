@@ -81,6 +81,27 @@ IBM Corp.
                         android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/empty" />
+
+        <EditText
+            android:id="@+id/sslKeyLocaltion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:enabled="false"
+            android:hint="@string/sslKeyLocaltion"
+            android:inputType="text" > 
+
+        </EditText>
+
+        <Button
+            android:id="@+id/sslKeyBut"
+            style="?android:attr/buttonStyleSmall"
+            android:clickable="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select" />
+
     </LinearLayout>
 
     <LinearLayout

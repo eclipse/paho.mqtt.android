@@ -103,6 +103,8 @@ IBM Corp.
     <string name="passwordHint">password</string>
     <string name="timeoutHint">60</string>
     <string name="keepaliveHint">200</string>
+    <string name="sslKeyLocaltion">file://</string>
+    <string name="select">select</string>
     
 
 </resources>
