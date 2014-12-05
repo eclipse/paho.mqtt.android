@@ -49,6 +49,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
 
 /**
@@ -441,7 +442,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private void registerReceiver(BroadcastReceiver receiver) {
 		IntentFilter filter = new IntentFilter();
 				filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
-				myContext.registerReceiver(receiver, filter);
+				LocalBroadcastManager.getInstance(myContext).registerReceiver(receiver, filter);
 				registerReceiver = true;
 	}
 
@@ -1595,7 +1596,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void unregisterResources(){
 		if(myContext != null && registerReceiver){			
 			synchronized (MqttAndroidClient.this) {
-				myContext.unregisterReceiver(this);
+				LocalBroadcastManager.getInstance(myContext).unregisterReceiver(this);
 				registerReceiver = false;
 			}
 			if(bindedService){
