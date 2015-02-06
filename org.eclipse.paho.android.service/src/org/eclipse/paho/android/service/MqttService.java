@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 /**
@@ -277,7 +278,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     if (dataBundle != null) {
       callbackIntent.putExtras(dataBundle);
     }
-    sendBroadcast(callbackIntent);
+    LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent);
   }
 
   // The major API implementation follows :-

@@ -58,15 +58,19 @@
 	</build>
 	
 	<dependencies>
-		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-        
-        <dependency>
-         	<groupId>com.google.android</groupId>
-    		<artifactId>android</artifactId>
-     	</dependency>
+	<dependency>
+		<groupId>org.eclipse.paho</groupId>
+		<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+		<version>1.0.1</version>
+	</dependency>
+	<dependency>
+		<groupId>com.google.android</groupId>
+		<artifactId>android</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>com.google.android</groupId>
+		<artifactId>support-v4</artifactId>
+		<version>r7</version>
+	</dependency> 
     </dependencies>
 </project>
