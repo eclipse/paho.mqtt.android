@@ -1069,6 +1069,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String topicFilter, int qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
 		
+		return null;
 	}
 
 	/**
@@ -1088,6 +1089,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String topicFilter, int qos, IMqttMessageListener messageListener) throws MqttException {
 		
+		return null;
 	}
 
 	
@@ -1111,6 +1113,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String[] topicFilters, int[] qos, IMqttMessageListener messageListener) throws MqttException {
 		
+		return null;
 	}
 
 
@@ -1138,6 +1141,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
 		
+		return null;
 	}
 
 
