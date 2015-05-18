@@ -31,6 +31,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
@@ -1046,6 +1047,99 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		mqttService.subscribe(clientHandle, topic, qos, null, activityToken);
 		return token;
 	}
+	
+	/**
+	 * Subscribe to a topic, which may include wildcards.
+	 *
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 *
+	 * @param topicFilter the topic to subscribe to, which can include wildcards.
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when subscribe
+	 * has completed
+	 * @param messageListener 
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 */
+	public IMqttToken subscribe(String topicFilter, int qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
+		
+	}
+
+	/**
+	 * Subscribe to a topic, which may include wildcards.
+	 *
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 *
+	 * @param topicFilter the topic to subscribe to, which can include wildcards.
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param messageListener
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 */
+	public IMqttToken subscribe(String topicFilter, int qos, IMqttMessageListener messageListener) throws MqttException {
+		
+	}
+
+	
+	/**
+	 * Subscribe to multiple topics, each of which may include wildcards.
+	 *
+	 * <p>Provides an optimized way to subscribe to multiple topics compared to
+	 * subscribing to each one individually.</p>
+	 *
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 *
+	 * @param topicFilters one or more topics to subscribe to, which can include wildcards
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param messageListener
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 */
+	public IMqttToken subscribe(String[] topicFilters, int[] qos, IMqttMessageListener messageListener) throws MqttException {
+		
+	}
+
+
+	/**
+	 * Subscribe to multiple topics, each of which may include wildcards.
+	 *
+	 * <p>Provides an optimized way to subscribe to multiple topics compared to
+	 * subscribing to each one individually.</p>
+	 *
+	 * @see #subscribe(String[], int[], Object, IMqttActionListener)
+	 *
+	 * @param topicFilters one or more topics to subscribe to, which can include wildcards
+	 * @param qos the maximum quality of service at which to subscribe. Messages
+	 * published at a lower quality of service will be received at the published
+	 * QoS.  Messages published at a higher quality of service will be received using
+	 * the QoS specified on the subscribe.
+	 * @param userContext optional object used to pass context to the callback. Use
+	 * null if not required.
+	 * @param callback optional listener that will be notified when subscribe
+	 * has completed
+	 * @param messageListener
+	 * @return token used to track and wait for the subscribe to complete. The token
+	 * will be passed to callback methods if set.
+	 * @throws MqttException if there was an error registering the subscription.
+	 */
+	public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
+		
+	}
+
 
 	/**
 	 * Requests the server unsubscribe the client from a topic.
