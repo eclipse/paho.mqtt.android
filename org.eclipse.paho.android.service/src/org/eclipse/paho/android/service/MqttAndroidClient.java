@@ -1111,7 +1111,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * will be passed to callback methods if set.
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
-	public IMqttToken subscribe(String[] topicFilters, int[] qos, IMqttMessageListener messageListener) throws MqttException {
+	public IMqttToken subscribe(String[] topicFilters, int[] qos, IMqttMessageListener[] messageListeners) throws MqttException {
 		
 		return null;
 	}
@@ -1139,7 +1139,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * will be passed to callback methods if set.
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
-	public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
+	public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener[] messageListeners) throws MqttException {
 		
 		return null;
 	}
