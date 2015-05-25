@@ -90,6 +90,36 @@ public class AndroidServiceTest extends AndroidTestCase {
     }
 
   }
+  
+  /**
+   * Tests isConnected() returns false after a disconnect() call.
+   * @throws Exception
+   */
+  public void testIsConnected() throws Exception {
+	  IMqttAsyncClient mqttClient = null;
+	    try {
+	      mqttClient = new MqttAndroidClient(mContext, mqttServerURI, "testConnect");
+	      IMqttToken connectToken = null;
+	      IMqttToken disconnectToken = null;
+
+	      assertFalse(mqttClient.isConnected());
+
+	      connectToken = mqttClient.connect(null, null);
+	      connectToken.waitForCompletion(waitForCompletionTime);
+	      
+	      assertTrue(mqttClient.isConnected());
+	      
+	      disconnectToken = mqttClient.disconnect(null, null);
+	      disconnectToken.waitForCompletion(waitForCompletionTime);
+	      
+	      assertFalse(mqttClient.isConnected());
+	    }
+	    finally {
+	      if (mqttClient != null) {
+	        mqttClient.close();
+	      }
+	    }
+  }
 
   /**
    * Test connection using a remote host name for the local host.
