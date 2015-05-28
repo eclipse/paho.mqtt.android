@@ -425,7 +425,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			myContext.bindService(serviceStartIntent, serviceConnection,
 					Context.BIND_AUTO_CREATE);
 			
-			registerReceiver(this);
+			if (!registerReceiver) registerReceiver(this);
 		}
 		else {
 			pool.execute(new Runnable() {
@@ -435,7 +435,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 					doConnect();
 					
 					//Register receiver to show shoulder tap.
-					registerReceiver(MqttAndroidClient.this);
+					if (!registerReceiver) registerReceiver(MqttAndroidClient.this);
 				}
 
 			});
