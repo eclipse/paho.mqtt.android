@@ -11,6 +11,7 @@
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  *   
  *   Ian Craggs - Per subscription message handlers bug 466579
+ *   Ian Craggs - ack control (bug 472172)
  *   
  */
 package org.eclipse.paho.android.service;
@@ -1412,6 +1413,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		}
 		return false;
 
+	}
+	
+	public void messageArrivedComplete(int messageId, int qos) throws MqttException {
+		throw new UnsupportedOperationException();	
 	}
 
 	/**
