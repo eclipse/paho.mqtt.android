@@ -1418,6 +1418,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void messageArrivedComplete(int messageId, int qos) throws MqttException {
 		throw new UnsupportedOperationException();	
 	}
+	
+	public void setManualAcks(boolean manualAcks) {
+		throw new UnsupportedOperationException();	
+	}
 
 	/**
 	 * Process the results of a connection
