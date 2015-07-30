@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corp.
+ * Copyright (c) 2014, 2015 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,6 +9,9 @@
  *    http://www.eclipse.org/legal/epl-v10.html
  * and the Eclipse Distribution License is available at 
  *   http://www.eclipse.org/org/documents/edl-v10.php.
+ *   
+ * Contributors:
+ *   James Sutton - Ping Callback (bug 473928)
  */
 package org.eclipse.paho.android.service;
 
@@ -126,24 +129,7 @@ class AlarmPingSender implements MqttPingSender {
 			Log.d(TAG, "Ping " + count + " times.");
 
 			Log.d(TAG, "Check time :" + System.currentTimeMillis());
-			IMqttToken token = comms.checkForActivity();
-
-			// No ping has been sent.
-			if (token == null) {
-				return;
-			}
-
-			// Assign new callback to token to execute code after PingResq
-			// arrives. Get another wakelock even receiver already has one,
-			// release it until ping response returns.
-			if (wakelock == null) {
-				PowerManager pm = (PowerManager) service
-						.getSystemService(Service.POWER_SERVICE);
-				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-						wakeLockTag);
-			}
-			wakelock.acquire();
-			token.setActionCallback(new IMqttActionListener() {
+			IMqttActionListener pingCallback = new IMqttActionListener() {
 
 				@Override
 				public void onSuccess(IMqttToken asyncActionToken) {
@@ -165,7 +151,26 @@ class AlarmPingSender implements MqttPingSender {
 						wakelock.release();
 					}
 				}
-			});
+			};
+			
+			
+			IMqttToken token = comms.checkForActivity(pingCallback);
+
+			// No ping has been sent.
+			if (token == null) {
+				return;
+			}
+
+			// Assign new callback to token to execute code after PingResq
+			// arrives. Get another wakelock even receiver already has one,
+			// release it until ping response returns.
+			if (wakelock == null) {
+				PowerManager pm = (PowerManager) service
+						.getSystemService(Service.POWER_SERVICE);
+				wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+						wakeLockTag);
+			}
+			wakelock.acquire();
 		}
 	}
 }
