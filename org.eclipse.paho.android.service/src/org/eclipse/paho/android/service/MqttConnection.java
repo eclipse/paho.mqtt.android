@@ -414,7 +414,7 @@ class MqttConnection implements MqttCallback {
 			service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
 		}
 
-		if (connectOptions.isCleanSession()) {
+		if (connectOptions != null && connectOptions.isCleanSession()) {
 			// assume we'll clear the stored messages at this point
 			service.messageStore.clearArrivedMessages(clientHandle);
 		}
@@ -457,7 +457,7 @@ class MqttConnection implements MqttCallback {
 			service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
 		}
 
-		if (connectOptions.isCleanSession()) {
+		if (connectOptions != null && connectOptions.isCleanSession()) {
 			// assume we'll clear the stored messages at this point
 			service.messageStore.clearArrivedMessages(clientHandle);
 		}
