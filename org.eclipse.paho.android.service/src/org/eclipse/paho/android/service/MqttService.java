@@ -3,12 +3,15 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ * Contributors:
+ *   James Sutton - isOnline Null Pointer (bug 473775)
  */
 package org.eclipse.paho.android.service;
 
@@ -32,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -242,13 +246,13 @@ public class MqttService extends Service implements MqttTraceHandler {
   // android docs
   private BackgroundDataPreferenceReceiver backgroundDataPreferenceMonitor;
   private volatile boolean backgroundDataEnabled = true;
-  
+
   // a way to pass ourself back to the activity
   private MqttServiceBinder mqttServiceBinder;
 
 	// mapping from client handle strings to actual client connections.
 	private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<String, MqttConnection>();
-	
+
   public MqttService() {
     super();
   }
@@ -256,7 +260,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   /**
    * pass data back to the Activity, by building a suitable Intent object and
    * broadcasting it
-   * 
+   *
    * @param clientHandle
    *            source of the data
    * @param status
@@ -285,7 +289,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Get an MqttConnection object to represent a connection to a server
-   * 
+   *
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
    * @param contextId specifies the app conext info to make a difference between apps
@@ -304,7 +308,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Connect to the MQTT server specified by a particular client
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param connectOptions
@@ -321,9 +325,9 @@ public class MqttService extends Service implements MqttTraceHandler {
       throws MqttSecurityException, MqttException {
 	  	MqttConnection client = getConnection(clientHandle);
 	  	client.connect(connectOptions, invocationContext, activityToken);
-		
+
   }
-  
+
   /**
    * Request all clients to reconnect if appropriate
    */
@@ -337,10 +341,10 @@ public class MqttService extends Service implements MqttTraceHandler {
 		}
 	}
   }
-  
+
   /**
    * Close connection from a particular client
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    */
@@ -351,7 +355,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Disconnect from the server
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param invocationContext
@@ -365,7 +369,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     client.disconnect(invocationContext, activityToken);
     connections.remove(clientHandle);
 
-		
+
     // the activity has finished using us, so we can stop the service
     // the activities are bound with BIND_AUTO_CREATE, so the service will
     // remain around until the last activity disconnects
@@ -374,7 +378,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Disconnect from the server
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param quiesceTimeout
@@ -398,7 +402,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Get the status of a specific client
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @return true if the specified client is connected to an MQTT server
@@ -410,7 +414,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Publish a message to a topic
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param topic
@@ -440,7 +444,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Publish a message to a topic
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param topic
@@ -464,7 +468,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Subscribe to a topic
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param topic
@@ -484,7 +488,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Subscribe to one or more topics
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection to use
    * @param topic
@@ -504,7 +508,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Unsubscribe from a topic
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection
    * @param topic
@@ -522,7 +526,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Unsubscribe from one or more topics
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection
    * @param topic
@@ -540,7 +544,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Get tokens for all outstanding deliveries for a client
-   * 
+   *
    * @param clientHandle
    *            identifies the MqttConnection
    * @return an array (possibly empty) of tokens
@@ -552,7 +556,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Get the MqttConnection identified by this client handle
-   * 
+   *
    * @param clientHandle identifies the MqttConnection
    * @return the MqttConnection identified by this handle
    */
@@ -567,7 +571,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   /**
    * Called by the Activity when a message has been passed back to the
    * application
-   * 
+   *
    * @param clientHandle identifier for the client which received the message
    * @param id identifier for the MQTT message
    */
@@ -616,7 +620,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     }
 
 		unregisterBroadcastReceivers();
-		
+
 		if (this.messageStore !=null )
 			this.messageStore.close();
 
@@ -645,14 +649,14 @@ public class MqttService extends Service implements MqttTraceHandler {
     // run till explicitly stopped, restart when
     // process restarted
 	registerBroadcastReceivers();
-	  
+
     return START_STICKY;
   }
 
   /**
    * Identify the callbackId to be passed when making tracing calls back into
    * the Activity
-   * 
+   *
    * @param traceCallbackId identifier to the callback into the Activity
    */
   public void setTraceCallbackId(String traceCallbackId) {
@@ -661,16 +665,16 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Turn tracing on and off
-   * 
+   *
    * @param traceEnabled set <code>true</code> to turn on tracing, <code>false</code> to turn off tracing
    */
   public void setTraceEnabled(boolean traceEnabled) {
     this.traceEnabled = traceEnabled;
   }
-  
+
   /**
    * Check whether trace is on or off.
-   * 
+   *
    * @return the state of trace
    */
   public boolean isTraceEnabled(){
@@ -679,7 +683,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Trace debugging information
-   * 
+   *
    * @param tag
    *            identifier for the source of the trace
    * @param message
@@ -693,7 +697,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Trace error information
-   * 
+   *
    * @param tag
    *            identifier for the source of the trace
    * @param message
@@ -718,7 +722,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * trace exceptions
-   * 
+   *
    * @param tag
    *            identifier for the source of the trace
    * @param message
@@ -733,13 +737,13 @@ public class MqttService extends Service implements MqttTraceHandler {
       dataBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.TRACE_ACTION);
       dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_SEVERITY, MqttServiceConstants.TRACE_EXCEPTION);
       dataBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,  message);
-      dataBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, e); //TODO: Check 
+      dataBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, e); //TODO: Check
       dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_TAG, tag);
       //dataBundle.putString(MqttServiceConstants.CALLBACK_TRACE_ID, traceCallbackId);
       callbackToActivity(traceCallbackId, Status.ERROR, dataBundle);
     }
   }
-  
+
   @SuppressWarnings("deprecation")
   private void registerBroadcastReceivers() {
 		if (networkConnectionMonitor == null) {
@@ -761,13 +765,13 @@ public class MqttService extends Service implements MqttTraceHandler {
 			}
 		}
   }
-  
+
   private void unregisterBroadcastReceivers(){
   	if(networkConnectionMonitor != null){
   		unregisterReceiver(networkConnectionMonitor);
   		networkConnectionMonitor = null;
   	}
-  	
+
   	if (Build.VERSION.SDK_INT < 14 /**Build.VERSION_CODES.ICE_CREAM_SANDWICH**/) {
   		if(backgroundDataPreferenceMonitor != null){
   			unregisterReceiver(backgroundDataPreferenceMonitor);
@@ -801,26 +805,27 @@ public class MqttService extends Service implements MqttTraceHandler {
 			} else {
 				notifyClientsOffline();
 			}
-			
+
 			wl.release();
 		}
   }
-	
+
 	/**
 	 * @return whether the android service can be regarded as online
 	 */
 	public boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-		if (cm.getActiveNetworkInfo() != null
-				&& cm.getActiveNetworkInfo().isAvailable()
-				&& cm.getActiveNetworkInfo().isConnected()
-				&& backgroundDataEnabled) {
+		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+      if (networkInfo != null
+              && networkInfo.isAvailable()
+              && networkInfo.isConnected()
+              && backgroundDataEnabled) {
 			return true;
 		}
 
 		return false;
 	}
-	
+
 	/**
 	 * Notify clients we're offline
 	 */
