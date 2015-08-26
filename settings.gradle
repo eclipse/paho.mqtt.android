@@ -1,0 +1,2 @@
+include ':org.eclipse.paho.android.service', ':org.eclipse.paho.android.sample'
+project(':org.eclipse.paho.android.sample').projectDir = new File('org.eclipse.paho.android.sample')
