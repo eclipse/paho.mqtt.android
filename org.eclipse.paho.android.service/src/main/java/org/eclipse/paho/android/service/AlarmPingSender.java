@@ -24,6 +24,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -103,8 +104,13 @@ class AlarmPingSender implements MqttPingSender {
 		Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
 		AlarmManager alarmManager = (AlarmManager) service
 				.getSystemService(Service.ALARM_SERVICE);
-		alarmManager.set(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
-				pendingIntent);
+		if (Build.VERSION.SDK_INT >= 19) {
+			alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
+					pendingIntent);
+		} else {
+			alarmManager.set(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
+					pendingIntent);
+		}
 	}
 
 	/*
