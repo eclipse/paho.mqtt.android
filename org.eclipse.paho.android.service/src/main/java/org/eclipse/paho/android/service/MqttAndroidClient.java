@@ -152,7 +152,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private Ack messageAck;
 	private boolean traceEnabled = false;
 	
-	private volatile boolean registerReceiver = false;
+	private volatile boolean receiverRegistered = false;
 	private volatile boolean bindedService = false;
 
 	/**
@@ -430,8 +430,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			myContext.startService(serviceStartIntent);
 			myContext.bindService(serviceStartIntent, serviceConnection,
 					Context.BIND_AUTO_CREATE);
-			
-			registerReceiver(this);
+
+			if (!receiverRegistered) registerReceiver(this);
 		}
 		else {
 			pool.execute(new Runnable() {
@@ -441,7 +441,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 					doConnect();
 					
 					//Register receiver to show shoulder tap.
-					registerReceiver(MqttAndroidClient.this);
+					if (!receiverRegistered) registerReceiver(MqttAndroidClient.this);
 				}
 
 			});
@@ -454,7 +454,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		IntentFilter filter = new IntentFilter();
 				filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
 				LocalBroadcastManager.getInstance(myContext).registerReceiver(receiver, filter);
-				registerReceiver = true;
+				receiverRegistered = true;
 	}
 
 	/**
@@ -1710,10 +1710,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * IntentReceiver leaks.
 	 */
 	public void unregisterResources(){
-		if(myContext != null && registerReceiver){			
+		if(myContext != null && receiverRegistered){
 			synchronized (MqttAndroidClient.this) {
 				LocalBroadcastManager.getInstance(myContext).unregisterReceiver(this);
-				registerReceiver = false;
+				receiverRegistered = false;
 			}
 			if(bindedService){
 				try{
@@ -1736,7 +1736,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void registerResources(Context context){
 		if(context != null){
 			this.myContext = context;
-			if(!registerReceiver){
+			if(!receiverRegistered){
 				registerReceiver(this);
 			}
 		}
