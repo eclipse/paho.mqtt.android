@@ -210,7 +210,7 @@ class DatabaseMessageStore implements MessageStore {
         String[] projection = {
                 MqttServiceConstants.MESSAGE_ID,
         };
-  		String selection =  MqttServiceConstants.CLIENT_HANDLE;
+  		String selection =  MqttServiceConstants.CLIENT_HANDLE + "=?";
         String[] selectionArgs = new String[1];
         selectionArgs[0] = clientHandle;
 		Cursor c = db.query(
