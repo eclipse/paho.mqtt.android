@@ -81,7 +81,7 @@ task ("generateLibraryJar", type: Jar, dependsOn: "renameLibraryJar") {
 
 publishing {
     publications {
-        eclipsePublication(MavenPublication) {
+        paho(MavenPublication) {
             groupId 'org.eclipse.paho'
             artifact generateSourcesJar
             artifact generateLibraryJar
@@ -95,8 +95,15 @@ publishing {
     }
 
     repositories {
-        maven {
-            url "file:/${project.projectDir}/artifacts"
+        if (project.hasProperty('eclipseRepoUsername')) {
+          maven {
+            name 'eclipse'
+            url 'https://repo.eclipse.org/content/repositories/paho-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+            credentials {
+              username eclipseRepoUsername
+              password eclipseRepoPassword
+            }
+          }
         }
     }
 }
