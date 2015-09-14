@@ -86,11 +86,6 @@ publishing {
             artifact generateSourcesJar
             artifact generateLibraryJar
             artifact generateDebugJavaDocJar
-            pom.withXml {
-                asNode().appendNode('parent').appendNode('groupId', 'org.eclipse.paho').parent()
-                        .appendNode('artifactId', 'android-service-parent').parent()
-                        .appendNode('version', version)
-            }
         }
     }
 
