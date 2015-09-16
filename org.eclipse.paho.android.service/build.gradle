@@ -75,8 +75,8 @@ task("renameLibraryJar", type: Copy, dependsOn: "clearLibraryJar") {
     rename('classes.jar', archivesBaseName + '-' + version + '.jar')
 }
 
-task ("generateLibraryJar", type: Jar, dependsOn: "renameLibraryJar") {
-    from('build/libs/' + archivesBaseName + '-' + version + '.jar')
+task ("generateLibraryJar", type: Jar) {
+     from('build/intermediates/classes/release')
 }
 
 publishing {
@@ -98,6 +98,10 @@ publishing {
               username eclipseRepoUsername
               password eclipseRepoPassword
             }
+          }
+        } else {
+          maven {
+            url "$buildDir/repo"
           }
         }
     }
