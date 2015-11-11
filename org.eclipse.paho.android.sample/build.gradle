@@ -2,11 +2,15 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
-        // min and target SDK is not set in Gradle to use the version defined in the android manifest
+        applicationId "org.eclipse.paho.android.sample"
+        minSdkVersion 22
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
     }
     buildTypes {
         release {
@@ -14,7 +18,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     lintOptions {
         abortOnError false
     }
@@ -22,14 +25,25 @@ android {
 
 repositories {
     maven {
-        url "https://repo.eclipse.org/content/repositories/paho-releases/"
+        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.2.1'
-    compile (group: 'org.eclipse.paho', name: 'org.eclipse.paho.android.service', version: '1.0.2') {
+    compile 'com.android.support:appcompat-v7:22+'
+    compile('com.android.support:recyclerview-v7:22.2.+') {
         exclude module: 'support-v4'
     }
 
+    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.3-SNAPSHOT') {
+        //    exclude module: 'support-v4'
+    }
+
+    compile('org.eclipse.paho:org.eclipse.paho.android.service:1.0.3-SNAPSHOT') {
+        exclude module: 'support-v4'
+    }
 }
+
+
+
+
