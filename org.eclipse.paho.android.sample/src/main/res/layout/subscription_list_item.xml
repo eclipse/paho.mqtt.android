@@ -45,7 +45,7 @@
         android:layout_marginRight="6dip"
         android:contentDescription="TODO"
         android:src="@drawable/ic_delete"
-        android:layout_alignTop="@+id/icon"
-        android:layout_alignEnd="@+id/message_text" />
+        android:layout_alignEnd="@+id/message_text"
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>

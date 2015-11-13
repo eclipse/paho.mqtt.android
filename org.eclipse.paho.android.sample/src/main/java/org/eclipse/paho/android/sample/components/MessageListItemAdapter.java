@@ -41,7 +41,7 @@ public class MessageListItemAdapter extends ArrayAdapter<ReceivedMessage>{
         topicTextView.setText(new String("Topic: " + messages.get(position).getTopic()));
         SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
         String shortDateStamp = format.format(messages.get(position).getTimestamp());
-        dateTextView.setText("Date: " + shortDateStamp);
+        dateTextView.setText("Time: " + shortDateStamp);
         return rowView;
     }
 }

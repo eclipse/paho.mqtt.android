@@ -7,13 +7,13 @@
         android:id="@+id/message_topic_text"
         android:layout_width="fill_parent"
         android:layout_height="26dip"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:ellipsize="marquee"
         android:singleLine="true"
         android:text="Topic: "
         android:textSize="12sp"
-        android:layout_toEndOf="@+id/message_date_text" />
+        android:layout_below="@+id/message_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/message_text"
@@ -31,9 +31,10 @@
         android:layout_height="26dip"
         android:text="Time:"
         android:id="@+id/message_date_text"
-        android:layout_alignTop="@+id/message_topic_text"
-        android:layout_alignParentStart="true"
-        android:textSize="12dip" />
+        android:textSize="12dip"
+        android:layout_below="@+id/message_text"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>
