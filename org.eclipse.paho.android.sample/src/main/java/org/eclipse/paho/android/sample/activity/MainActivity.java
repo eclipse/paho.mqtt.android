@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             fragment.setArguments(bundle);
             Map<String, Connection> connections = Connections.getInstance(this)
                     .getConnections();
-            Connection connection = (Connection) connections.get(connectionMap.get(position));
+            Connection connection = connections.get(connectionMap.get(position));
             String title = connection.getId();
             displayFragment(fragment, "");
         }
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             fragment.setArguments(bundle);
             Map<String, Connection> connections = Connections.getInstance(this)
                     .getConnections();
-            Connection connection = (Connection) connections.get(connectionMap.get(position));
+            Connection connection = connections.get(connectionMap.get(position));
             String title = connection.getId();
             displayFragment(fragment, title);
         }

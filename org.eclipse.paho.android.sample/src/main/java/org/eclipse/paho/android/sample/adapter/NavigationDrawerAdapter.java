@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,8 +36,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     }
 
     private void setConnected(ImageView image){
-        Drawable doneCloud = context.getDrawable(R.drawable.ic_cloud_done_dark);
-        Drawable offCloud = context.getDrawable(R.drawable.ic_cloud_off_dark);
+        Drawable doneCloud = ContextCompat.getDrawable(context, R.drawable.ic_cloud_done_dark);
+        Drawable offCloud = ContextCompat.getDrawable(context, R.drawable.ic_cloud_off_dark);
         image.setImageDrawable(doneCloud);
     }
 
@@ -51,8 +52,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     public void onBindViewHolder(MyViewHolder holder, int position) {
         NavDrawerItem current = data.get(position);
         holder.title.setText(current.getTitle());
-        Drawable doneCloud = context.getDrawable(R.drawable.ic_cloud_done_dark);
-        Drawable offCloud = context.getDrawable(R.drawable.ic_cloud_off_dark);
+        Drawable doneCloud = ContextCompat.getDrawable(context, R.drawable.ic_cloud_done_dark);
+        Drawable offCloud = ContextCompat.getDrawable(context, R.drawable.ic_cloud_off_dark);
         holder.icon.setImageDrawable(doneCloud);
     }
 

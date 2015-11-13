@@ -93,7 +93,7 @@ public class HelpFragment extends Fragment {
                         .getConnections();
                 if(!connections.isEmpty()){
                     Map.Entry<String, Connection> entry = connections.entrySet().iterator().next();
-                    Connection connection = (Connection) entry.getValue();
+                    Connection connection = entry.getValue();
                     connection.getClient().setTraceEnabled(isChecked);
                     if(isChecked){
                         connection.getClient().setTraceCallback(new MqttTraceCallback());
