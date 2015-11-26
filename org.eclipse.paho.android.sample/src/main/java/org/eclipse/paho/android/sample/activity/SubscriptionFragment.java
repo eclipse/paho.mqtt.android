@@ -15,9 +15,11 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Switch;
 
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.model.Subscription;
@@ -110,14 +112,18 @@ public class SubscriptionFragment extends Fragment {
             }
         });
 
+        final Switch notifySwitch = (Switch) promptView.findViewById(R.id.show_notifications_switch);
+
+
+
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext());
         alertDialogBuilder.setView(promptView);
-        alertDialogBuilder.setCancelable(true).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        alertDialogBuilder.setCancelable(true).setPositiveButton(R.string.subscribe_ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 String topic = topicText.getText().toString();
 
-                System.out.println("OK clicked! " + topic + " : " + temp_qos_value);
-                Subscription subscription = new Subscription(topic, temp_qos_value, connection.handle());
+                Subscription subscription = new Subscription(topic, temp_qos_value, connection.handle(), notifySwitch.isChecked());
                 subscriptions.add(subscription);
                 try {
                     connection.addNewSubscription(subscription);
@@ -129,7 +135,7 @@ public class SubscriptionFragment extends Fragment {
             }
 
             ;
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(R.string.subscribe_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
             }

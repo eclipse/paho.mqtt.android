@@ -10,11 +10,13 @@ public class Subscription {
     private String lastMessage;
     private String clientHandle;
     private long persistenceId;
+    private boolean enableNotifications;
 
-    public Subscription(String topic, int qos, String clientHandle){
+    public Subscription(String topic, int qos, String clientHandle, boolean enableNotifications){
         this.topic = topic;
         this.qos = qos;
         this.clientHandle = clientHandle;
+        this.enableNotifications = enableNotifications;
     }
 
     public String getTopic() {
@@ -57,6 +59,14 @@ public class Subscription {
         this.persistenceId = persistenceId;
     }
 
+    public boolean isEnableNotifications() {
+        return enableNotifications;
+    }
+
+    public void setEnableNotifications(boolean enableNotifications) {
+        this.enableNotifications = enableNotifications;
+    }
+
     @Override
     public String toString() {
         return "Subscription{" +
@@ -64,6 +74,7 @@ public class Subscription {
                 ", qos=" + qos +
                 ", clientHandle='" + clientHandle + '\'' +
                 ", persistenceId='" + persistenceId + '\'' +
+                ", enableNotifications='" + enableNotifications + '\''+
                 '}';
     }
 }

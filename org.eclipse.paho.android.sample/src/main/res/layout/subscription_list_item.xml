@@ -10,20 +10,27 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="6dip"
-        android:contentDescription="TODO"
         android:src="@drawable/ic_topic" />
 
     <TextView
         android:id="@+id/qos_label"
-        android:layout_width="fill_parent"
+        android:layout_width="100dip"
         android:layout_height="26dip"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:layout_toRightOf="@id/icon"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:text="QoS:"
+        android:text="@string/qos_text"
         android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/show_notifications_label"
+        android:layout_width="fill_parent"
+        android:layout_height="26dip"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/qos_label"
+        android:text="@string/notify_text"
+         />
 
     <TextView
         android:id="@+id/message_text"
@@ -34,7 +41,7 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_toRightOf="@id/icon"
         android:gravity="center_vertical"
-        android:text="Example application"
+        android:text="@string/topic_label"
         android:textSize="16sp" />
 
 
@@ -43,7 +50,6 @@
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_marginRight="6dip"
-        android:contentDescription="TODO"
         android:src="@drawable/ic_delete"
         android:layout_alignEnd="@+id/message_text"
         android:layout_alignParentRight="true" />

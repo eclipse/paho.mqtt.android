@@ -33,4 +33,13 @@
         android:id="@+id/subscription_qos_spinner" />
 
 
+    <Switch
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorSecondary"
+        android:text="@string/notify_label"
+        android:id="@+id/show_notifications_switch" />
+
+
 </LinearLayout>

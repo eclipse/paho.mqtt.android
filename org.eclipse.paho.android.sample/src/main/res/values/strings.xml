@@ -108,6 +108,16 @@
     <string name="failure_connect">Client failed to connect.&lt;br/&gt; &lt;small&gt;Reason: %s&lt;/small&gt;</string>
     <string name="client_connected">Client connected successfully</string>
 
+    <!-- Strings for Subscriptions Fragment -->
+    <string name="topic_label">Topic</string>
+    <string name="qos_label">QoS</string>
+    <string name="notify_label">Show Notifications</string>
+    <string name="subscribe_ok">Ok</string>
+    <string name="subscribe_cancel">Cancel</string>
+    <string name="qos_text" >QoS: %1$s</string>
+    <string name="notify_text">Notifications: %1$s</string>
+
+
 
     <!-- Strings for Help Fragment -->
     <string name="help_and_feedback">Help &amp; Feedback</string>
@@ -116,4 +126,9 @@
     <string name="help_email_button">Get Help or send Feedback</string>
     <string name="help_paho_website">Go to the Paho Website</string>
     <string name="help_enable_logging">Enable Paho Logging</string>
+
+
+
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
 </resources>

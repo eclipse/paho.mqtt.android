@@ -2,6 +2,7 @@ package org.eclipse.paho.android.sample.activity;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -33,6 +34,8 @@ public class Connection {
     /**
      * Basic information about the client
      */
+
+    private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
 
     /** ClientHandle for this Connection object **/
     private String clientHandle = null;
@@ -135,6 +138,7 @@ public class Connection {
         this.tlsConnection = tlsConnection;
         MqttAndroidClient client = new MqttAndroidClient(context, uri, clientId);
         this.client = client;
+
     }
 
 
@@ -471,6 +475,22 @@ public class Connection {
         messageHistory.add(0, msg);
         if(subscriptions.containsKey(topic)){
             subscriptions.get(topic).setLastMessage(new String(message.getPayload()));
+            if(subscriptions.get(topic).isEnableNotifications()){
+                //create intent to start activity
+                Intent intent = new Intent();
+                intent.setClassName(context, activityClass);
+                intent.putExtra("handle", clientHandle);
+
+                //format string args
+                Object[] notifyArgs = new String[3];
+                notifyArgs[0] = this.getId();
+                notifyArgs[1] = new String(message.getPayload());
+                notifyArgs[2] = topic;
+
+                //notify the user
+                Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, R.string.notifyTitle);
+
+            }
         }
 
         for(IReceivedMessageListener listener : receivedMessageListeners){

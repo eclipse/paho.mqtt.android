@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import org.eclipse.paho.android.sample.activity.Connection;
 import org.eclipse.paho.android.sample.model.Subscription;
@@ -23,6 +24,8 @@ import java.util.List;
  *
  */
 public class Persistence extends SQLiteOpenHelper implements BaseColumns {
+
+    public static final String TAG = "Persistence";
 
     /** The version of the database **/
     public static final int DATABASE_VERSION = 1;
@@ -78,6 +81,8 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
     public static final String SUBSCRIPTIONS_COLUMN_TOPIC = "topic";
     /** Table column for the subscription qos **/
     public static final String SUBSCRIPTIONS_COLUMN_QOS = "qos";
+    /** Table column for the subscription enable notification setting **/
+    public static final String SUBSCRIPTIONS_COLUMN_NOTIFY = "notify";
 
 
     //sql lite data types
@@ -115,6 +120,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                     COLUMN_CLIENT_HANDLE + TEXT_TYPE + COMMA_SEP +
                     COLUMN_HOST + TEXT_TYPE + COMMA_SEP +
                     SUBSCRIPTIONS_COLUMN_TOPIC + TEXT_TYPE + COMMA_SEP +
+                    SUBSCRIPTIONS_COLUMN_NOTIFY + INT_TYPE + COMMA_SEP +
                     SUBSCRIPTIONS_COLUMN_QOS + INT_TYPE + ");";
 
     /** Delete tables entry **/
@@ -191,9 +197,6 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         String[] whereArgs = new String[1];
         whereArgs[0] = String.valueOf(connection.persistenceId());
         int rowsUpdated = db.update(TABLE_CONNECTIONS, getValues(connection), whereClause, whereArgs);
-        if(rowsUpdated == 0){
-            System.out.println("No rows updated for some reason...");
-        }
     }
 
     ContentValues getValues(Connection connection){
@@ -239,6 +242,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         ContentValues values = new ContentValues();
         values.put(COLUMN_CLIENT_HANDLE, subscription.getClientHandle());
         values.put(SUBSCRIPTIONS_COLUMN_TOPIC, subscription.getTopic());
+        values.put(SUBSCRIPTIONS_COLUMN_NOTIFY, subscription.isEnableNotifications() ? 1 : 0); //convert boolean to int and then put in values
         values.put(SUBSCRIPTIONS_COLUMN_QOS, subscription.getQos());
 
         long newRowId = db.insert(TABLE_SUBSCRIPTIONS, null, values);
@@ -257,8 +261,8 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
      * @param subscription The subscription to delete from the database
      */
     public void deleteSubscription(Subscription subscription) {
+        Log.d(TAG, "Deleting Subscription: " + subscription.toString());
         SQLiteDatabase db = getWritableDatabase();
-        System.out.println("Persistence- deleteSubscription: " + subscription.getPersistenceId());
         db.delete(TABLE_SUBSCRIPTIONS, _ID + "=?", new String[]{String.valueOf(subscription.getPersistenceId())});
         db.close();
         //don't care if it failed, means it's not in the db therefore no need to delete
@@ -300,6 +304,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         String[] subscriptionColumns = {
                 COLUMN_CLIENT_HANDLE,
                 SUBSCRIPTIONS_COLUMN_TOPIC,
+                SUBSCRIPTIONS_COLUMN_NOTIFY,
                 SUBSCRIPTIONS_COLUMN_QOS,
                 _ID
         };
@@ -338,9 +343,9 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
             int timeout = c.getInt(c.getColumnIndexOrThrow(COLUMN_TIME_OUT));
 
             //get all values that need converting and convert integers to booleans in line using "condition ? trueValue : falseValue"
-            boolean cleanSession = c.getInt(c.getColumnIndexOrThrow(COLUMN_CLEAN_SESSION)) == 1 ? true : false;
-            boolean retained = c.getInt(c.getColumnIndexOrThrow(COLUMN_RETAINED)) == 1 ? true : false;
-            boolean ssl = c.getInt(c.getColumnIndexOrThrow(COLUMN_ssl)) == 1 ? true : false;
+            boolean cleanSession = c.getInt(c.getColumnIndexOrThrow(COLUMN_CLEAN_SESSION)) == 1 ;
+            boolean retained = c.getInt(c.getColumnIndexOrThrow(COLUMN_RETAINED)) == 1;
+            boolean ssl = c.getInt(c.getColumnIndexOrThrow(COLUMN_ssl)) == 1;
 
             //rebuild objects starting with the connect options
             MqttConnectOptions opts = new MqttConnectOptions();
@@ -373,10 +378,11 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                 Long sub_id =  sub_c.getLong(sub_c.getColumnIndexOrThrow(_ID));
                 String sub_clientHandle = sub_c.getString(sub_c.getColumnIndexOrThrow(COLUMN_CLIENT_HANDLE));
                 String sub_topic = sub_c.getString(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_TOPIC));
+                boolean sub_notify = sub_c.getInt(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_NOTIFY)) == 1;
                 int sub_qos = sub_c.getInt(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_QOS));
-                Subscription sub = new Subscription(sub_topic, sub_qos, sub_clientHandle);
+                Subscription sub = new Subscription(sub_topic, sub_qos, sub_clientHandle, sub_notify);
                 sub.setPersistenceId(sub_id);
-                System.out.println("Restoring Subscription: " + sub.toString());
+                Log.d(TAG, "Restoring Subscription: " + sub.toString());
                 subscriptions.add(sub);
             }
 
