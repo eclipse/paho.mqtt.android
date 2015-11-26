@@ -1667,7 +1667,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		 TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
 		 tmf.init(ts);
 		 TrustManager[] tm = tmf.getTrustManagers();
-		 ctx = SSLContext.getInstance("SSL");
+		 ctx = SSLContext.getInstance("TLSv1");
 		 ctx.init(null, tm, null);
 		 
 		 sslSockFactory=ctx.getSocketFactory();
