@@ -161,7 +161,7 @@ class AlarmPingSender implements MqttPingSender {
 				}
 			});
 
-			if (token == null) {
+			if (token == null && wakelock.isHeld()) {
 				wakelock.release();
 			}
 		}
