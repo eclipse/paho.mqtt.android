@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">Paho Client</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+
+    <string name="nav_item_home">Home</string>
+    <string name="nav_item_friends">Friends</string>
+    <string name="nav_item_notifications">Messages</string>
+
+    <!-- navigation drawer item labels  -->
+    <string-array name="nav_drawer_labels">
+        <item>@string/nav_item_home</item>
+        <item>@string/nav_item_friends</item>
+        <item>@string/nav_item_notifications</item>
+    </string-array>
+
+    <string-array name="qos_options">
+        <item name="qos_0">0</item>
+        <item name="qos_1">1</item>
+        <item name="qos_2">2</item>
+    </string-array>
+
+    <string name="title_messages">Messages</string>
+    <string name="title_friends">Friends</string>
+    <string name="title_home">Home</string>
+
+    <string name="action_add_connection">Add Connection</string>
+    <string name="action_cancel_connection">Cancel</string>
+    <string name="action_edit_connection">Edit </string>
+    <string name="add_connection_general_label">General</string>
+    <string name="add_connection_client_id_label">Client ID</string>
+    <string name="add_connection_client_id_default">AndroidClient</string>
+    <string name="add_connection_client_id_title">Enter Client ID</string>
+    <string name="add_connection_server_label">Server</string>
+    <string name="add_connection_server_default">iot.eclipse.org</string>
+    <string name="add_connection_server_title">Enter Server hostname</string>
+    <string name="add_connection_port_label">Port</string>
+    <string name="add_connection_port_default">1883</string>
+    <string name="add_connection_port_title">Enter Server port</string>
+    <string name="add_connection_clean_session_label">Clean Session</string>
+    <string name="add_connection_advanced_label">Advanced</string>
+    <string name="add_connection_username_label">Username</string>
+    <string name="add_connection_username_title">Enter Username</string>
+    <string name="add_connection_password_label">Password</string>
+    <string name="add_connection_password_title">Enter Password</string>
+    <string name="add_connection_timeout_label">Timeout</string>
+    <string name="add_connection_timeout_default">60</string>
+    <string name="add_connection_timeout_title">Enter Timeout (seconds)</string>
+    <string name="add_connection_keepalive_label">Keepalive</string>
+    <string name="add_connection_keepalive_default">200</string>
+    <string name="add_connection_keepalive_title">Enter Keep Alive (seconds)</string>
+    <string name="add_connection_tls_switch_label">Transport Layer Security (TLS)</string>
+    <string name="add_connection_tls_server_key_label">Server TLS Key</string>
+    <string name="add_connection_tls_server_key_title">Select the Sever Public Key</string>
+    <string name="add_connection_tls_client_key_label">Client TLS Key</string>
+    <string name="add_connection_tls_client_key_title">Select the Client Private Key</string>
+
+    <string name="add_connection_lwt_label">Last Will &amp; Testament</string>
+    <string name="add_connection_lwt_topic_label">Topic</string>
+    <string name="add_connection_lwt_topic_title">Enter Last-Will Topic</string>
+    <string name="add_connection_lwt_message_label">Message</string>
+    <string name="add_connection_lwt_message_title">Enter Last-Will Message</string>
+    <string name="add_connection_lwt_retain_label">Retain</string>
+    <string name="add_connection_lwt_qos_label">QoS</string>
+    <string name="add_connection_lwt_qos_title">Select Last-Will QoS</string>
+
+
+    <string name="settings_general">General</string>
+    <string name="settings_enable_trace">Enable MQTT Trace</string>
+    <string name="settings_default_id">Default Client ID</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="hello_world">Hello world!</string>
+
+
+
+    <string name='connection_dateFormat'>dd/MM/yy \'at\' HH:mm:ss</string>
+    <string name="connection_connected_to">Connected to</string>
+    <string name="connection_disconnected_from">Disconnected from</string>
+    <string name="connection_unknown_status">Unknown connection status to</string>
+    <string name="connection_connecting_to">Connecting to</string>
+    <string name="connection_disconnecting_from">Disconnecting from</string>
+    <string name="connection_error_connecting_to">An error occured connecting to</string>
+
+    <string name="subscription_new">New Subscription</string>
+
+
+    <string name="manage_title">Manage Connection</string>
+    <string name="manage_delete">Delete Connection</string>
+    <string name="manage_edit">Edit Connection</string>
+
+    <string name="notifyTitle">MQTT Message Received</string>
+    <string name="notifyTitle_connectionLost">MQTT Client Has Lost Connection</string>
+
+    <!-- Strings that need formatting  -->
+    <string name="messageRecieved">Received message %1$s &lt;br/&gt; &lt;small&gt;Topic: %2$s &lt;/small&gt; </string>
+    <string name="timestamp">&lt;br/&gt; &lt;small&gt; %1$s &lt;/small&gt;</string>
+    <string name="notification">%1$s has received %2$s on topic %3$s</string>
+    <string name="toast_pub_success">Published message: %1$s to topic: %2$s</string>
+    <string name="toast_sub_success">Subscribed to %1$s</string>
+    <string name="toast_disconnected">Disconnected</string>
+    <string name="toast_pub_failed">Failed to publish message: %1$s to topic: %2$s</string>
+    <string name="toast_sub_failed">Failed to subscribe to %1$s</string>
+    <string name="connection_lost">%1$s has lost connection to %2$s</string>
+    <string name="failure_disconnect">Disconnect failed.&lt;br/&gt; &lt;small&gt;Reason: %s&lt;/small&gt; </string>
+    <string name="failure_connect">Client failed to connect.&lt;br/&gt; &lt;small&gt;Reason: %s&lt;/small&gt;</string>
+    <string name="client_connected">Client connected successfully</string>
+
+    <!-- Strings for Subscriptions Fragment -->
+    <string name="topic_label">Topic</string>
+    <string name="qos_label">QoS</string>
+    <string name="notify_label">Show Notifications</string>
+    <string name="subscribe_ok">Ok</string>
+    <string name="subscribe_cancel">Cancel</string>
+    <string name="qos_text" >QoS: %1$s</string>
+    <string name="notify_text">Notifications: %1$s</string>
+
+
+
+    <!-- Strings for Help Fragment -->
+    <string name="help_and_feedback">Help &amp; Feedback</string>
+    <string name="help_paho">Paho</string>
+    <string name="help_title">Eclipse Paho Android Example Utility</string>
+    <string name="help_email_button">Get Help or send Feedback</string>
+    <string name="help_paho_website">Go to the Paho Website</string>
+    <string name="help_enable_logging">Enable Paho Logging</string>
+
+
+
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+</resources>

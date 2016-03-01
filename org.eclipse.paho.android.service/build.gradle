@@ -1,0 +1,108 @@
+apply plugin: 'android-sdk-manager'
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+
+archivesBaseName = "org.eclipse.paho.android.service"
+version = "1.0.3-SNAPSHOT"
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 19
+       }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        preDexLibraries = false
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    maven {
+        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+    }
+}
+dependencies {
+    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.3-SNAPSHOT') {
+
+    }
+    compile 'com.android.support:support-v4:22.2.1'
+}
+
+
+android.libraryVariants.all { variant ->
+    task("generate${variant.name.capitalize()}JavaDoc", type: Javadoc) {
+        description "Generates Javadoc for $variant.name."
+        source = variant.javaCompile.source
+        ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+    }
+}
+
+android.libraryVariants.all { variant ->
+    task("generate${variant.name.capitalize()}JavaDocJar", type: Jar, dependsOn: "generate${variant.name.capitalize()}JavaDoc") {
+        classifier = 'javadoc'
+        from tasks."generate${variant.name.capitalize()}JavaDoc".destinationDir
+    }
+}
+
+task("generateSourcesJar", type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task ("clearLibraryJar", type: Delete) {
+    delete('build/libs/' + archivesBaseName + '-' + version + '.jar')
+}
+
+task("renameLibraryJar", type: Copy, dependsOn: "clearLibraryJar") {
+    from('build/intermediates/bundles/release/')
+    into('build/libs/')
+    include('classes.jar')
+    rename('classes.jar', archivesBaseName + '-' + version + '.jar')
+}
+
+task ("generateLibraryJar", type: Jar) {
+     from('build/intermediates/classes/release')
+}
+
+publishing {
+    publications {
+        paho(MavenPublication) {
+            groupId 'org.eclipse.paho'
+            artifact generateSourcesJar
+            artifact generateLibraryJar
+            artifact generateDebugJavaDocJar
+        }
+    }
+
+    repositories {
+        if (project.hasProperty('eclipseRepoUsername')) {
+          maven {
+            name 'eclipse'
+            url 'https://repo.eclipse.org/content/repositories/paho-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+            credentials {
+              username eclipseRepoUsername
+              password eclipseRepoPassword
+            }
+          }
+        } else {
+          maven {
+            url "$buildDir/repo"
+          }
+        }
+    }
+}

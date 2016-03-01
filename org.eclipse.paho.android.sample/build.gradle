@@ -1,0 +1,53 @@
+apply plugin: 'android-sdk-manager'
+apply plugin: 'com.android.application'
+
+archivesBaseName = "org.eclipse.paho.android.sample"
+version = "1.0.3"
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "org.eclipse.paho.android.sample"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "0.1"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    maven {
+        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+    }
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:22+'
+    compile('com.android.support:recyclerview-v7:22.2.+') {
+        exclude module: 'support-v4'
+    }
+    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.3-SNAPSHOT') {
+        //    exclude module: 'support-v4'
+    }
+    compile('org.eclipse.paho:org.eclipse.paho.android.service:1.0.3-SNAPSHOT') {
+        exclude module: 'support-v4'
+    }
+}
+
+task publishAPK(type:Copy) {
+    from file("${project.buildDir}/outputs/apk/" + archivesBaseName + "-debug.apk");
+    into '/shared/technology/paho/Android/' + version + '/debug/';
+}
+
+

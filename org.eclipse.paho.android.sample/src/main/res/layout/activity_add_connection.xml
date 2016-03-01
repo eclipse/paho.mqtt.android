@@ -1,0 +1,295 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:paho="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/container_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/toolbar"
+                layout="@layout/toolbar" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/container_body"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/scrollView"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <!--                    General Settings                     -->
+
+                    <TextView
+                        android:text="@string/add_connection_general_label"
+                        style="@style/HeaderText"
+                        android:id="@+id/generalTextView" />
+
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/client_id_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/generalTextView"
+                        paho:main_label="@string/add_connection_client_id_label"
+                        paho:input_title="@string/add_connection_client_id_title"
+                        paho:default_value="@string/add_connection_client_id_default"/>
+
+                    <View
+                        android:id="@+id/divider1"
+                        style="@style/Divider"
+                        android:layout_below="@+id/client_id_group" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/server_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider1"
+                        paho:main_label="@string/add_connection_server_label"
+                        paho:input_title="@string/add_connection_server_title"
+                        paho:default_value="@string/add_connection_server_default"/>
+
+                    <View
+                        android:id="@+id/divider2"
+                        style="@style/Divider"
+                        android:layout_below="@+id/server_group" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/port_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider2"
+                        paho:main_label="@string/add_connection_port_label"
+                        paho:input_title="@string/add_connection_port_title"
+                        paho:default_value="@string/add_connection_port_default"
+                        paho:number="true"/>
+
+                    <View
+                        android:id="@+id/divider3"
+                        style="@style/Divider"
+                        android:layout_below="@+id/port_group" />
+
+
+                    <Switch
+                        android:text="@string/add_connection_clean_session_label"
+                        android:id="@+id/clean_session_switch"
+                        android:layout_below="@+id/divider3"
+                        style="@style/Switch" />
+
+                    <!--                    Advanced Settings                    -->
+                    <!--                    General Settings                     -->
+
+
+                    <TextView
+                        android:text="@string/add_connection_advanced_label"
+                        style="@style/HeaderText"
+                        android:layout_below="@+id/clean_session_switch"
+                        android:id="@+id/advancedTextView" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/username_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/advancedTextView"
+                        paho:main_label="@string/add_connection_username_label"
+                        paho:input_title="@string/add_connection_username_title"/>
+
+                    <View
+                        android:id="@+id/divider4"
+                        style="@style/Divider"
+                        android:layout_below="@+id/username_group" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/password_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider4"
+                        paho:main_label="@string/add_connection_password_label"
+                        paho:input_title="@string/add_connection_password_title"/>
+
+                    <View
+                        android:id="@+id/divider5"
+                        style="@style/Divider"
+                        android:layout_below="@+id/password_group" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/tls_server_key"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider5"
+                        paho:main_label="@string/add_connection_tls_server_key_label"
+                        paho:input_title="@string/add_connection_tls_server_key_title"
+                        paho:default_value=""
+                        paho:number="true"/>
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/tls_client_key"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tls_server_key"
+                        paho:main_label="@string/add_connection_tls_client_key_label"
+                        paho:input_title="@string/add_connection_tls_client_key_title"
+                        paho:default_value=""
+                        paho:number="true"/>
+
+                    <View
+                        android:id="@+id/divider6"
+                        style="@style/Divider"
+                        android:layout_below="@+id/tls_client_key" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/timeout_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider6"
+                        paho:main_label="@string/add_connection_timeout_label"
+                        paho:input_title="@string/add_connection_timeout_title"
+                        paho:default_value="@string/add_connection_timeout_default"
+                        paho:number="true"/>
+
+                    <View
+                        android:id="@+id/divider7"
+                        style="@style/Divider"
+                        android:layout_below="@+id/timeout_group" />
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/keep_alive_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/divider7"
+                        paho:main_label="@string/add_connection_keepalive_label"
+                        paho:input_title="@string/add_connection_keepalive_title"
+                        paho:default_value="@string/add_connection_keepalive_default"
+                        paho:number="true"/>
+
+
+
+
+                    <!--                  Last Will & Testament                  -->
+
+                    <TextView
+                        android:text="@string/add_connection_lwt_label"
+                        style="@style/HeaderText"
+                        android:layout_below="@+id/keep_alive_group"
+                        android:id="@+id/lwtTextView" />
+
+
+                    <org.eclipse.paho.android.sample.components.TextSelectComponent
+                        android:id="@+id/topic_group"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/lwtTextView"
+                        paho:main_label="@string/add_connection_lwt_topic_label"
+                        paho:input_title="@string/add_connection_lwt_topic_title"/>
+
+                    <View
+                        android:id="@+id/divider8"
+                        style="@style/Divider"
+                        android:layout_below="@+id/topic_group" />
+
+
+
+                    <LinearLayout
+                        android:id="@+id/lwt_message_group"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/divider8">
+
+                        <TextView
+                            android:id="@+id/lwt_message_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/spinnerTextFieldLabel"
+                            android:text="@string/add_connection_lwt_message_label"/>
+
+                        <EditText
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="30dp"
+                            android:inputType="textMultiLine"
+                            android:ems="10"
+                            android:lines="4"
+                            android:id="@+id/lwt_message"/>
+                    </LinearLayout>
+
+
+
+
+                    <View
+                        android:id="@+id/divider9"
+                        style="@style/Divider"
+                        android:layout_below="@+id/lwt_message_group" />
+
+
+
+                    <LinearLayout
+                        android:id="@+id/lwt_qos_group"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/divider9">
+
+                        <TextView
+                            android:id="@+id/lwt_qos_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/spinnerTextFieldLabel"
+                            android:text="@string/add_connection_lwt_qos_label"/>
+
+                        <Spinner
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/lwt_qos_spinner"
+
+                            android:layout_centerHorizontal="true" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/divider10"
+                        style="@style/Divider"
+                        android:layout_below="@+id/lwt_qos_group" />
+
+                    <Switch
+                        android:text="@string/add_connection_lwt_retain_label"
+                        android:id="@+id/retain_switch"
+                        android:layout_below="@+id/divider10"
+                        style="@style/Switch" />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"/>
+
+
+                </RelativeLayout>
+            </ScrollView>
+
+
+
+
+        </FrameLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>
