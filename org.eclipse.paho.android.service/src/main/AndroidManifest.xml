@@ -1,9 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.eclipse.paho.android.service">
+<manifest
+    package="org.eclipse.paho.android.service"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application android:allowBackup="true" android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme">
+    <uses-permission android:name="android.permission.INTERNET" />
 
+    <application>
+        <!-- Mqtt Service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService">
+        </service>
     </application>
 
 </manifest>

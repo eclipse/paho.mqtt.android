@@ -1,15 +1,12 @@
 apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
-archivesBaseName = "org.eclipse.paho.android.sample"
-version = "1.0.3"
-
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "org.eclipse.paho.android.sample"
+        applicationId rootProject.ext.sampleArchivesBaseName
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
@@ -27,27 +24,20 @@ android {
 }
 
 repositories {
-    maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-    }
+    maven { url rootProject.ext.mavenUrl }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22+'
-    compile('com.android.support:recyclerview-v7:22.2.+') {
-        exclude module: 'support-v4'
-    }
-    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.3-SNAPSHOT') {
-        //    exclude module: 'support-v4'
-    }
-    compile('org.eclipse.paho:org.eclipse.paho.android.service:1.0.3-SNAPSHOT') {
-        exclude module: 'support-v4'
-    }
+    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
+
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    compile "org.eclipse.paho:org.eclipse.paho.android.service:${rootProject.ext.serviceVersion}"
 }
 
-task publishAPK(type:Copy) {
-    from file("${project.buildDir}/outputs/apk/" + archivesBaseName + "-debug.apk");
-    into '/shared/technology/paho/Android/' + version + '/debug/';
+task publishAPK(type: Copy) {
+    from file("${project.buildDir}/outputs/apk/" + rootProject.ext.sampleArchivesBaseName + "-debug.apk");
+    into '/shared/technology/paho/Android/' + rootProject.ext.sampleVersion + '/debug/';
 }
 
 
