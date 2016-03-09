@@ -2,18 +2,14 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
-
-archivesBaseName = "org.eclipse.paho.android.service"
-version = "1.0.3-SNAPSHOT"
-
 android {
-    compileSdkVersion 19
-    buildToolsVersion "22.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 19
-       }
+        targetSdkVersion 22
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -31,32 +27,27 @@ android {
 }
 
 repositories {
-    maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-    }
+    maven { url rootProject.ext.mavenUrl }
 }
 dependencies {
-    compile('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.3-SNAPSHOT') {
-
-    }
-    compile 'com.android.support:support-v4:22.2.1'
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
 }
 
-
 android.libraryVariants.all { variant ->
-    task("generate${variant.name.capitalize()}JavaDoc", type: Javadoc) {
+    task("generate${variant.name}Javadoc", type: Javadoc) {
+        title = "$name $version API"
         description "Generates Javadoc for $variant.name."
         source = variant.javaCompile.source
-        ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        ext.androidJar =
+                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
         classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        options.links("http://docs.oracle.com/javase/7/docs/api/");
+        options.links("http://d.android.com/reference/");
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
     }
-}
 
-android.libraryVariants.all { variant ->
-    task("generate${variant.name.capitalize()}JavaDocJar", type: Jar, dependsOn: "generate${variant.name.capitalize()}JavaDoc") {
-        classifier = 'javadoc'
-        from tasks."generate${variant.name.capitalize()}JavaDoc".destinationDir
-    }
 }
 
 task("generateSourcesJar", type: Jar) {
@@ -64,19 +55,19 @@ task("generateSourcesJar", type: Jar) {
     classifier = 'sources'
 }
 
-task ("clearLibraryJar", type: Delete) {
-    delete('build/libs/' + archivesBaseName + '-' + version + '.jar')
+task("clearLibraryJar", type: Delete) {
+    delete('build/libs/' + rootProject.ext.serviceArchivesBaseName + '-' + rootProject.ext.serviceVersion + '.jar')
 }
 
 task("renameLibraryJar", type: Copy, dependsOn: "clearLibraryJar") {
     from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
-    rename('classes.jar', archivesBaseName + '-' + version + '.jar')
+    rename('classes.jar', rootProject.ext.serviceArchivesBaseName + '-' + rootProject.ext.serviceVersion + '.jar')
 }
 
-task ("generateLibraryJar", type: Jar) {
-     from('build/intermediates/classes/release')
+task("generateLibraryJar", type: Jar) {
+    from('build/intermediates/classes/release')
 }
 
 publishing {
@@ -85,24 +76,24 @@ publishing {
             groupId 'org.eclipse.paho'
             artifact generateSourcesJar
             artifact generateLibraryJar
-            artifact generateDebugJavaDocJar
-        }
-    }
-
-    repositories {
-        if (project.hasProperty('eclipseRepoUsername')) {
-          maven {
-            name 'eclipse'
-            url 'https://repo.eclipse.org/content/repositories/paho-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
-            credentials {
-              username eclipseRepoUsername
-              password eclipseRepoPassword
-            }
-          }
-        } else {
-          maven {
-            url "$buildDir/repo"
-          }
         }
     }
 }
+
+repositories {
+    if (project.hasProperty('eclipseRepoUsername')) {
+        maven {
+            name 'eclipse'
+            url 'https://repo.eclipse.org/content/repositories/paho-' + (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+            credentials {
+                username eclipseRepoUsername
+                password eclipseRepoPassword
+            }
+        }
+    } else {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+
