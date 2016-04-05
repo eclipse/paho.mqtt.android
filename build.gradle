@@ -13,16 +13,12 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
-
 ext{
 
     compileSdkVersion = 23
     buildToolsVersion = '23.0.2'
+
+    group = 'org.eclipse.paho'
 
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
     sampleVersion = '1.0.3'
@@ -37,3 +33,12 @@ ext{
     supportLibVersion = '23.1.1'
 
 }
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+    version = rootProject.ext.serviceVersion
+    group = rootProject.ext.group
+}
+
