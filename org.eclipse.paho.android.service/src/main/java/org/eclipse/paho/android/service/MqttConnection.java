@@ -18,16 +18,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.paho.android.service.MessageStore.StoredMessage;
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.internal.DisconnectedMessageBuffer;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import android.app.Service;
@@ -61,7 +64,7 @@ import android.util.Log;
  * Activity via the MqttService.callbackToActivity() method.
  * </p>
  */
-class MqttConnection implements MqttCallback {
+class MqttConnection implements MqttCallbackExtended {
 
 	// Strings for Intents etc..
 	private static final String TAG = "MqttConnection";
@@ -136,6 +139,8 @@ class MqttConnection implements MqttCallback {
 	private WakeLock wakelock = null;
 	private String wakeLockTag = null;
 
+	private DisconnectedBufferOptions bufferOpts = null;
+
 	/**
 	 * Constructor - create an MqttConnection to communicate with MQTT server
 	 * 
@@ -195,7 +200,7 @@ class MqttConnection implements MqttCallback {
 			service.messageStore.clearArrivedMessages(clientHandle);
 		}
 
-		service.traceDebug(TAG, "Connecting {" + serverURI + "} as {"+ clientId + "}");
+		service.traceDebug(TAG, "Connecting {" + serverURI + "} as {" + clientId + "}");
 		final Bundle resultBundle = new Bundle();
 		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
 				activityToken);
@@ -302,12 +307,22 @@ class MqttConnection implements MqttCallback {
 		releaseWakeLock();
 	}
 
+	@Override
+	public void connectComplete(boolean reconnect, String serverURI) {
+		Bundle resultBundle = new Bundle();
+		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
+				MqttServiceConstants.CONNECT_EXTENDED_ACTION);
+		resultBundle.putBoolean(MqttServiceConstants.CALLBACK_RECONNECT, reconnect);
+		resultBundle.putString(MqttServiceConstants.CALLBACK_SERVER_URI, serverURI);
+		service.callbackToActivity(clientHandle, Status.OK, resultBundle);
+	}
+
 	private void doAfterConnectFail(final Bundle resultBundle){
 		//
 		acquireWakeLock();
 		disconnected = true;
 		setConnectingState(false);
-		service.callbackToActivity(clientHandle, Status.ERROR,resultBundle);
+		service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
 		releaseWakeLock();
 	}
 	
@@ -566,7 +581,20 @@ class MqttConnection implements MqttCallback {
 			} catch (Exception e) {
 				handleException(resultBundle, e);
 			}
-		} else {
+		} else if ((myClient !=null) && (this.bufferOpts != null) && (this.bufferOpts.isBufferEnabled())){
+			// Client is not connected, but buffer is enabled, so sending message
+			IMqttActionListener listener = new MqttConnectionListener(
+					resultBundle);
+			try {
+				sendToken = myClient.publish(topic, message, invocationContext,
+						listener);
+				storeSendDetails(topic, message, sendToken, invocationContext,
+						activityToken);
+			} catch (Exception e) {
+				handleException(resultBundle, e);
+			}
+		}  else {
+			Log.i(TAG, "Client is not connected, so not sending message");
 			resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE,
 					NOT_CONNECTED);
 			service.traceError(MqttServiceConstants.SEND_ACTION, NOT_CONNECTED);
@@ -861,6 +889,8 @@ class MqttConnection implements MqttCallback {
 				
 	}
 
+
+
 	/**
 	 * Store details of sent messages so we can handle "deliveryComplete"
 	 * callbacks from the mqttClient
@@ -902,6 +932,8 @@ class MqttConnection implements MqttCallback {
 			wakelock.release();
 		}
 	}
+
+
 
 	/**
 	 * General-purpose IMqttActionListener for the Client context
@@ -1021,5 +1053,26 @@ class MqttConnection implements MqttCallback {
 	 */
 	synchronized void setConnectingState(boolean isConnecting){
 		this.isConnecting = isConnecting; 
+	}
+
+	/**
+	 * Sets the DisconnectedBufferOptions for this client
+	 * @param bufferOpts
+	 */
+	public void setBufferOpts(DisconnectedBufferOptions bufferOpts) {
+		this.bufferOpts = bufferOpts;
+		myClient.setBufferOpts(bufferOpts);
+	}
+
+	public int getBufferedMessageCount(){
+		return myClient.getBufferedMessageCount();
+	}
+
+	public MqttMessage getBufferedMessage(int bufferIndex){
+		return myClient.getBufferedMessage(bufferIndex);
+	}
+
+	public void deleteBufferedMessage(int bufferIndex){
+		myClient.deleteBufferedMessage(bufferIndex);
 	}
 }

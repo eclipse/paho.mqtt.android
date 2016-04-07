@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -26,6 +27,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+import org.eclipse.paho.client.mqttv3.internal.DisconnectedMessageBuffer;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -692,7 +694,6 @@ public class MqttService extends Service implements MqttTraceHandler {
   @Override
   public void traceDebug(String tag, String message) {
     traceCallback(MqttServiceConstants.TRACE_DEBUG, tag, message);
-//    Log.d(tag, message);
   }
 
   /**
@@ -859,5 +860,29 @@ public class MqttService extends Service implements MqttTraceHandler {
 			}
 		}
 	}
+
+  /**
+   * Sets the DisconnectedBufferOptions for this client
+   * @param bufferOpts
+   */
+  public void setBufferOpts(String clientHandle, DisconnectedBufferOptions bufferOpts) {
+    MqttConnection client = getConnection(clientHandle);
+    client.setBufferOpts(bufferOpts);
+  }
+
+  public int getBufferedMessageCount(String clientHandle){
+    MqttConnection client = getConnection(clientHandle);
+    return client.getBufferedMessageCount();
+  }
+
+  public MqttMessage getBufferedMessage(String clientHandle, int bufferIndex){
+    MqttConnection client = getConnection(clientHandle);
+    return client.getBufferedMessage(bufferIndex);
+  }
+
+  public void deleteBufferedMessage(String clientHandle, int bufferIndex){
+    MqttConnection client = getConnection(clientHandle);
+    client.deleteBufferedMessage(bufferIndex);
+  }
 
 }
