@@ -6,6 +6,7 @@ android:
     - build-tools-23.0.2
     - android-23
     - extra-android-support
+    - extra
 
 before_script:
   - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a
