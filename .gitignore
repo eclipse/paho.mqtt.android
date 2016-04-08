@@ -91,3 +91,6 @@ hs_err_pid*
 /captures
 **/*.iml
 *.class
+
+
+org.eclipse.paho.android.sample/libs/

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 1999, 2015 IBM Corp.
+ * Copyright (c) 1999, 2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,12 +32,14 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -1115,7 +1117,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * published at a lower quality of service will be received at the published
 	 * QoS.  Messages published at a higher quality of service will be received using
 	 * the QoS specified on the subscribe.
-	 * @param messageListener
+	 * @param messageListeners
 	 * @return token used to track and wait for the subscribe to complete. The token
 	 * will be passed to callback methods if set.
 	 * @throws MqttException if there was an error registering the subscription.
@@ -1143,7 +1145,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * null if not required.
 	 * @param callback optional listener that will be notified when subscribe
 	 * has completed
-	 * @param messageListener
+	 * @param messageListeners
 	 * @return token used to track and wait for the subscribe to complete. The token
 	 * will be passed to callback methods if set.
 	 * @throws MqttException if there was an error registering the subscription.
@@ -1371,6 +1373,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		if (MqttServiceConstants.CONNECT_ACTION.equals(action)) {
 			connectAction(data);
 		}
+		else if (MqttServiceConstants.CONNECT_EXTENDED_ACTION.equals(action)){
+			connectExtendedAction(data);
+		}
 		else if (MqttServiceConstants.MESSAGE_ARRIVED_ACTION.equals(action)) {
 			messageArrivedAction(data);
 		}
@@ -1440,6 +1445,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		simpleAction(token, data);
 	}
 
+
+
 	/**
 	 * Process a notification that we have disconnected
 	 * 
@@ -1467,6 +1474,17 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 					.getSerializable(MqttServiceConstants.CALLBACK_EXCEPTION);
 			callback.connectionLost(reason);
 		}
+	}
+
+	private void connectExtendedAction(Bundle data){
+		// This is called differently from a normal connect
+
+		if(callback instanceof MqttCallbackExtended){
+			boolean reconnect = data.getBoolean(MqttServiceConstants.CALLBACK_RECONNECT, false);
+			String serverURI = data.getString(MqttServiceConstants.CALLBACK_SERVER_URI);
+			((MqttCallbackExtended) callback).connectComplete(reconnect, serverURI);
+		}
+
 	}
 
 	/**
@@ -1637,6 +1655,26 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 				.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN);
 		IMqttToken token = tokenMap.get(Integer.parseInt(activityToken));
 		return token;
+	}
+
+	/**
+	 * Sets the DisconnectedBufferOptions for this client
+	 * @param bufferOpts
+	 */
+	public void setBufferOpts(DisconnectedBufferOptions bufferOpts) {
+		mqttService.setBufferOpts(clientHandle, bufferOpts);
+	}
+
+	public int getBufferedMessageCount(){
+		return mqttService.getBufferedMessageCount(clientHandle);
+	}
+
+	public MqttMessage getBufferedMessage(int bufferIndex){
+		return mqttService.getBufferedMessage(clientHandle, bufferIndex);
+	}
+
+	public void deleteBufferedMessage(int bufferIndex){
+		mqttService.deleteBufferedMessage(clientHandle, bufferIndex);
 	}
 	
 	/**

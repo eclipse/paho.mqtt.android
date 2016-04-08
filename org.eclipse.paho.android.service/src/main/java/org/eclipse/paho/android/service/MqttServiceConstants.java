@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 1999, 2014 IBM Corp.
+ * Copyright (c) 1999, 2016 IBM Corp.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -41,6 +41,7 @@ interface MqttServiceConstants {
   static final String SUBSCRIBE_ACTION = "subscribe";
   static final String DISCONNECT_ACTION = "disconnect";
   static final String CONNECT_ACTION = "connect";
+  static final String CONNECT_EXTENDED_ACTION = "connectExtended";
   static final String MESSAGE_ARRIVED_ACTION = "messageArrived";
   static final String MESSAGE_DELIVERED_ACTION = "messageDelivered";
   static final String ON_CONNECTION_LOST_ACTION = "onConnectionLost";
@@ -67,6 +68,8 @@ interface MqttServiceConstants {
                                                   + DESTINATION_NAME;
   static final String CALLBACK_MESSAGE_ID = MqttService.TAG + '.'
                                             + MESSAGE_ID;
+  static final String CALLBACK_RECONNECT = MqttService.TAG + ".reconnect";
+  static final String CALLBACK_SERVER_URI = MqttService.TAG + ".serverURI";
   static final String CALLBACK_MESSAGE_PARCEL = MqttService.TAG + ".PARCEL";
   static final String CALLBACK_TRACE_SEVERITY = MqttService.TAG
                                                 + ".traceSeverity";
