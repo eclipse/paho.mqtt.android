@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         //classpath 'com.android.tools.build:gradle:2.0.0'
-	classpath 'com.android.tools.build:gradle:1.5.0'
+	classpath 'com.android.tools.build:gradle:2.0.0'
         //classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
         // Work around to fix build
         classpath 'com.github.JakeWharton:sdk-manager-plugin:1d29782dd6'
@@ -44,5 +44,11 @@ allprojects {
     }
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
+
+    task hello << { task -> println "I'm $task.project.name" }
+}
+
+subprojects {
+    hello << {println "- I depend on service"}
 }
 
