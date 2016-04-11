@@ -44,11 +44,5 @@ allprojects {
     }
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
-
-    task hello << { task -> println "I'm $task.project.name" }
-}
-
-subprojects {
-    hello << {println "- I depend on service"}
 }
 
