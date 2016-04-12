@@ -9,6 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 22
+        testApplicationId "org.eclipse.paho.android.service.test"
     }
     buildTypes {
         release {
@@ -29,6 +30,11 @@ android {
 repositories {
     maven { url rootProject.ext.mavenUrl }
 }
+
+configurations {
+   androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
+}
+
 dependencies {
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
