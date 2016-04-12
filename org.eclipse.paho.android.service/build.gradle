@@ -32,7 +32,7 @@ repositories {
 }
 
 configurations {
-   androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
+   //androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
 }
 
 dependencies {
@@ -120,4 +120,8 @@ repositories {
 // Required to bundle Java library Jar in AAR
 assemble.dependsOn copyLibs
 publish.dependsOn renameReleaseAAR
+
+clean.doFirst {
+    delete 'libs'
+}
 
