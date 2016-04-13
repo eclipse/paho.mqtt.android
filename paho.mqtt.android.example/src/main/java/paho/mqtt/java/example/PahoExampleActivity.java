@@ -193,6 +193,7 @@ public class PahoExampleActivity extends AppCompatActivity{
                     System.out.println("Message: " + topic + " : " + new String(message.getPayload()));
                 }
             });
+
         } catch (MqttException ex){
             System.err.println("Exception whilst subscribing");
             ex.printStackTrace();
