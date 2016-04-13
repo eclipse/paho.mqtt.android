@@ -1,5 +1,7 @@
 # Eclipse Paho Android Service
 
+[![Build Status](https://travis-ci.org/jpwsutton/paho.mqtt.android.svg?branch=automatic-reconnect)](https://travis-ci.org/jpwsutton/paho.mqtt.android)
+
 The Paho Android Service is an MQTT client library written in Java for developing applications on Android.
 
 To get started, download [Android Studio](http://developer.android.com/tools/studio/index.html). You will also need to download the [Android SDK](https://developer.android.com/sdk/installing/adding-packages.html). Currently you will need the SDK for 19,21 and 22, This will hopefully be simplified soon.
