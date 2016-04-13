@@ -1553,7 +1553,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			if (callback != null) {
 				Status status = (Status) data
 						.getSerializable(MqttServiceConstants.CALLBACK_STATUS);
-				if (status == Status.OK) {
+				if (status == Status.OK && token instanceof IMqttDeliveryToken) {
 					callback.deliveryComplete((IMqttDeliveryToken) token);
 				}
 			}
