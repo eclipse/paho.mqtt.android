@@ -19,15 +19,17 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
-    compile (project(':org.eclipse.paho.android.service')){
-        exclude module: "org.eclipse.paho.client.mqttv3"
-    }
+repositories {
+    maven { url rootProject.ext.mavenUrl }
+}
 
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    compile "com.android.support:design:${rootProject.ext.supportLibVersion}"
+    compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    compile project(':org.eclipse.paho.android.service')
 
 }

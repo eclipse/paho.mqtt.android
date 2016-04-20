@@ -27,12 +27,13 @@ repositories {
     maven { url rootProject.ext.mavenUrl }
 }
 
+
+
 dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
-    compile (project(':org.eclipse.paho.android.service')){
-        exclude module: "org.eclipse.paho.client.mqttv3"
-    }
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    compile project(':org.eclipse.paho.android.service')
 }
 
 task publishAPK(type: Copy) {
