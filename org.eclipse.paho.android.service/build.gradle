@@ -120,9 +120,10 @@ publishing {
 
 // Required to bundle Java library Jar in AAR
 assemble.dependsOn copyLibs
-publish.dependsOn renameReleaseAAR
+assemble.doLast {
+    renameReleaseAAR.execute()
+}
 
 clean.doFirst {
     delete 'libs'
 }
-
