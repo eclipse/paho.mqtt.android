@@ -98,24 +98,25 @@ publishing {
             artifact "$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar"
         }
     }
-}
-
-repositories {
-    if (project.hasProperty('eclipseRepoUsername')) {
-        maven {
-            name 'eclipse'
-            url 'https://repo.eclipse.org/content/repositories/paho-' + (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
-            credentials {
-                username eclipseRepoUsername
-                password eclipseRepoPassword
+    repositories {
+        if (project.hasProperty('eclipseRepoUsername')) {
+            maven {
+                name 'eclipse'
+                url 'https://repo.eclipse.org/content/repositories/paho-' + (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+                credentials {
+                    username eclipseRepoUsername
+                    password eclipseRepoPassword
+                }
             }
-        }
-    } else {
-        maven {
-            url "$buildDir/repo"
+        } else {
+            maven {
+                url "$buildDir/repo"
+            }
         }
     }
 }
+
+
 
 // Required to bundle Java library Jar in AAR
 assemble.dependsOn copyLibs
