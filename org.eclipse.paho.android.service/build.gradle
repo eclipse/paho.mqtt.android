@@ -119,7 +119,9 @@ publishing {
 
 
 // Required to bundle Java library Jar in AAR
-assemble.dependsOn copyLibs
+preBuild.doLast{
+    copyLibs.execute()
+}
 assemble.doLast {
     renameReleaseAAR.execute()
 }
