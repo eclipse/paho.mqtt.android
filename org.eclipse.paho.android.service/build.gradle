@@ -64,6 +64,7 @@ task("generateSourcesJar", type: Jar) {
 
 // Copy the Paho Java client into the libs directory to bundle it with the AAR
 task("copyLibs", type: Copy) {
+    println "Copying MQTT Jar into libs directory"
     from configurations.compile
     into 'libs'
     include 'org.eclipse.paho*'
@@ -117,7 +118,9 @@ publishing {
 }
 
 
-
+task debug << {
+    configurations.compile.each { println it}
+}
 // Required to bundle Java library Jar in AAR
 preBuild.doLast{
     copyLibs.execute()
