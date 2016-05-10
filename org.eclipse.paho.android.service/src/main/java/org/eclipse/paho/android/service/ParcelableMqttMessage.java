@@ -44,8 +44,7 @@ import android.os.Parcelable;
  * <p>
  */
 
-// Relies on knowledge of MqttMessage internals, unfortunately
-class ParcelableMqttMessage extends MqttMessage implements Parcelable {
+public class ParcelableMqttMessage extends MqttMessage implements Parcelable {
 
   String messageId = null;
 
