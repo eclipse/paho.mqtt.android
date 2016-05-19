@@ -128,7 +128,16 @@ class AlarmPingSender implements MqttPingSender {
 			// This guarantees that the phone will not sleep until you have
 			// finished handling the broadcast.", but this class still get
 			// a wake lock to wait for ping finished.
-			int count = intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, -1);
+			int count;
+			try {
+				count = intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, -1);
+			} catch (ClassCastException ex){
+				// This is a Motorola Phone (Probably a Moto G or X)
+				// And so Intent.EXTRA_ALARM_COUNT is actually a Long!
+				Long longCount = intent.getLongExtra(Intent.EXTRA_ALARM_COUNT, -1);
+				count = longCount.intValue();
+			}
+
 			Log.d(TAG, "Ping " + count + " times.");
 
 			Log.d(TAG, "Check time :" + System.currentTimeMillis());
