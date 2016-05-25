@@ -1587,7 +1587,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 				// let the service discard the saved message details
 			}
 			catch (Exception e) {
-				// Swallow the exception
+				Log.e(MqttService.TAG, "messageArrivedAction failed", e);
 			}
 		}
 	}
