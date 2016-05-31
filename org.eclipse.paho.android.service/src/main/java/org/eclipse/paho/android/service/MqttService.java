@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -506,6 +507,26 @@ public class MqttService extends Service implements MqttTraceHandler {
       String invocationContext, String activityToken) {
     MqttConnection client = getConnection(clientHandle);
     client.subscribe(topic, qos, invocationContext, activityToken);
+  }
+
+  /**
+   * Subscribe using topic filters
+   *
+   * @param clientHandle
+   *            identifies the MqttConnection to use
+   * @param topicFilters
+   *            a list of possibly wildcarded topicfilters
+   * @param qos
+   *            requested quality of service for each topic
+   * @param invocationContext
+   *            arbitrary data to be passed back to the application
+   * @param activityToken
+   *            arbitrary identifier to be passed back to the Activity
+   * @param messageListeners
+   */
+  public void subscribe(String clientHandle, String[] topicFilters, int[] qos, String invocationContext, String activityToken, IMqttMessageListener[] messageListeners){
+    MqttConnection client = getConnection(clientHandle);
+    client.subscribe(topicFilters, qos, invocationContext, activityToken, messageListeners);
   }
 
   /**

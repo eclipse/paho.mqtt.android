@@ -1,5 +1,5 @@
 # Eclipse Paho Android Service
-
+[![Build Status](https://travis-ci.org/eclipse/paho.mqtt.android.svg?branch=master)](https://travis-ci.org/eclipse/paho.mqtt.android)
 
 The Paho Android Service is an MQTT client library written in Java for developing applications on Android.
 

@@ -1079,8 +1079,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
 	public IMqttToken subscribe(String topicFilter, int qos, Object userContext, IMqttActionListener callback, IMqttMessageListener messageListener) throws MqttException {
-		
-		return null;
+
+		return subscribe(new String[] {topicFilter}, new int[] {qos}, userContext, callback, new IMqttMessageListener[] {messageListener});
 	}
 
 	/**
@@ -1100,7 +1100,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String topicFilter, int qos, IMqttMessageListener messageListener) throws MqttException {
 		
-		return null;
+		return subscribe(topicFilter, qos, null, null, messageListener);
 	}
 
 	
@@ -1124,7 +1124,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	public IMqttToken subscribe(String[] topicFilters, int[] qos, IMqttMessageListener[] messageListeners) throws MqttException {
 		
-		return null;
+		return subscribe(topicFilters, qos, null, null, messageListeners);
 	}
 
 
@@ -1151,7 +1151,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * @throws MqttException if there was an error registering the subscription.
 	 */
 	public IMqttToken subscribe(String[] topicFilters, int[] qos, Object userContext, IMqttActionListener callback, IMqttMessageListener[] messageListeners) throws MqttException {
-		
+		IMqttToken token = new MqttTokenAndroid(this, userContext, callback, topicFilters);
+		String activityToken = storeToken(token);
+		mqttService.subscribe(clientHandle, topicFilters, qos, null, activityToken, messageListeners);
+
 		return null;
 	}
 
