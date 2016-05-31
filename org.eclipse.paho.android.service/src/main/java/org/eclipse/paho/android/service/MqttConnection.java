@@ -21,6 +21,7 @@ import org.eclipse.paho.android.service.MessageStore.StoredMessage;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -31,6 +32,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.internal.DisconnectedMessageBuffer;
+import org.eclipse.paho.client.mqttv3.internal.ExceptionHelper;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import android.app.Service;
@@ -685,16 +687,38 @@ class MqttConnection implements MqttCallbackExtended {
 		}
 	}
 
-	/**
-	 * Unsubscribe from a topic
-	 * 
-	 * @param topic
-	 *            a possibly wildcarded topic name
-	 * @param invocationContext
-	 *            arbitrary data to be passed back to the application
-	 * @param activityToken
-	 *            arbitrary identifier to be passed back to the Activity
-	 */
+	public void subscribe(String[] topicFilters, int[] qos, String invocationContext, String activityToken, IMqttMessageListener[] messageListeners) {
+		service.traceDebug(TAG, "subscribe({" + topicFilters + "}," + qos + ",{"
+				+ invocationContext + "}, {" + activityToken + "}");
+		final Bundle resultBundle = new Bundle();
+		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SUBSCRIBE_ACTION);
+		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
+		resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
+		if((myClient != null) && (myClient.isConnected())){
+			IMqttActionListener listener = new MqttConnectionListener(resultBundle);
+			try {
+
+				myClient.subscribe(topicFilters, qos,messageListeners);
+			} catch (Exception e){
+				handleException(resultBundle, e);
+			}
+		} else {
+			resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
+			service.traceError("subscribe", NOT_CONNECTED);
+			service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
+		}
+	}
+
+		/**
+         * Unsubscribe from a topic
+         *
+         * @param topic
+         *            a possibly wildcarded topic name
+         * @param invocationContext
+         *            arbitrary data to be passed back to the application
+         * @param activityToken
+         *            arbitrary identifier to be passed back to the Activity
+         */
 	void unsubscribe(final String topic, String invocationContext,
 			String activityToken) {
 		service.traceDebug(TAG, "unsubscribe({" + topic + "},{"
