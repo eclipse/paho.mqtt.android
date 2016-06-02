@@ -7,9 +7,9 @@ The Paho Android Service is an MQTT client library written in Java for developin
 ## Features
 |                     |                    |   |                      |                    |
 |---------------------|--------------------|---|----------------------|--------------------|
-| MQTT 3.1            | :heavy_check_mark: |   | Automatic Reconnect  | :heavy_multiplication_x: (Coming in 1.1.0) |
-| MQTT 3.1.1          | :heavy_check_mark: |   | Offline Buffering    | :heavy_multiplication_x: (Coming in 1.1.0) |
-| LWT                 | :heavy_check_mark: |   | WebSocket Support    | :heavy_multiplication_x: (Coming in 1.1.0) |
+| MQTT 3.1            | :heavy_check_mark: |   | Automatic Reconnect  | :heavy_check_mark: |
+| MQTT 3.1.1          | :heavy_check_mark: |   | Offline Buffering    | :heavy_check_mark: |
+| LWT                 | :heavy_check_mark: |   | WebSocket Support    | :heavy_check_mark: |
 | SSL / TLS           | :heavy_check_mark: |   | Standard TCP Support | :heavy_check_mark: |
 | Message Persistence | :heavy_check_mark: |   |
 
@@ -45,7 +45,7 @@ Eclipse hosts a Nexus repository for those who want to use Maven to manage their
 Add the repository definition and the dependency definition shown below to your pom.xml.
 
 Replace %REPOURL% with either ``` https://repo.eclipse.org/content/repositories/paho-releases/ ``` for the official releases, or ``` https://repo.eclipse.org/content/repositories/paho-snapshots/  ``` for the nightly snapshots. Replace %VERSION% with the level required .
-The latest release version is ```1.0.2``` and the current snapshot version is ```1.0.3-SNAPSHOT```.
+The latest release version is ```1.1.0``` and the current snapshot version is ```1.1.1-SNAPSHOT```.
 
 ```
 <project ...>
