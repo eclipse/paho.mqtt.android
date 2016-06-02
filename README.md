@@ -45,7 +45,7 @@ Eclipse hosts a Nexus repository for those who want to use Maven to manage their
 Add the repository definition and the dependency definition shown below to your pom.xml.
 
 Replace %REPOURL% with either ``` https://repo.eclipse.org/content/repositories/paho-releases/ ``` for the official releases, or ``` https://repo.eclipse.org/content/repositories/paho-snapshots/  ``` for the nightly snapshots. Replace %VERSION% with the level required .
-The latest release version is ```1.0.2``` and the current snapshot version is ```1.0.3-SNAPSHOT```.
+The latest release version is ```1.1.0``` and the current snapshot version is ```1.1.1-SNAPSHOT```.
 
 ```
 <project ...>

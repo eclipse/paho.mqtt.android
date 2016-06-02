@@ -26,12 +26,12 @@ ext{
     group = 'org.eclipse.paho'
 
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
-    sampleVersion = '1.0.3'
+    sampleVersion = '1.1.0'
 
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.0.3-SNAPSHOT'
+    serviceVersion = '1.1.0'
 
-    clientVersion = '1.0.3-SNAPSHOT'
+    clientVersion = '1.1.0'
 
     mavenUrl = "https://repo.eclipse.org/content/repositories/paho-snapshots/"
 
@@ -46,4 +46,3 @@ allprojects {
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
 }
-
