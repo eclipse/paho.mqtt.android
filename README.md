@@ -74,7 +74,7 @@ If you are using Android Studio and / or Gradle to manage your application depen
 ```
 repositories {
     maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+        url "https://repo.eclipse.org/content/repositories/paho-releases/"
     }
 }
 
