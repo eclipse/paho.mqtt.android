@@ -45,7 +45,7 @@ public class PahoExampleActivity extends AppCompatActivity{
 
     final String serverUri = "tcp://iot.eclipse.org:1883";
 
-    final String clientId = "ExampleAndroidClient";
+    String clientId = "ExampleAndroidClient";
     final String subscriptionTopic = "exampleAndroidTopic";
     final String publishTopic = "exampleAndroidPublishTopic";
     final String publishMessage = "Hello World!";
@@ -76,6 +76,7 @@ public class PahoExampleActivity extends AppCompatActivity{
         mAdapter = new HistoryAdapter(new ArrayList<String>());
         mRecyclerView.setAdapter(mAdapter);
 
+        clientId = clientId + System.currentTimeMillis();
 
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
