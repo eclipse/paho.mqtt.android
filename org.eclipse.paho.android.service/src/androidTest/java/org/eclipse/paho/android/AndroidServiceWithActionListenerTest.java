@@ -36,8 +36,6 @@ import org.eclipse.paho.android.service.MqttAndroidClient;
  */
 public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
-    private IBinder binder;
-
     private String serverURI;
     private String mqttSSLServerURI;
 
@@ -49,7 +47,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
     //since we know tokens do not work when an action listener isn't specified
     private TestCaseNotifier notifier = new TestCaseNotifier();
 
-    private String classCanonicalName = this.getClass().getCanonicalName();
+    private final String classCanonicalName = this.getClass().getCanonicalName();
 
 
     public AndroidServiceWithActionListenerTest() {
@@ -62,7 +60,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
         super.setUp();
         Intent intent = new Intent();
         intent.setClassName("org.eclipse.paho.android.service", "MqttService");
-        binder = bindService(intent);
+        IBinder binder = bindService(intent);
 
         TestProperties properties = new TestProperties(this.getContext());
         serverURI = properties.getServerURI();
@@ -99,7 +97,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
         String methodName = "testRemoteConnect";
         IMqttAsyncClient mqttClient = null;
 
-        mqttClient = mqttClient = new MqttAndroidClient(mContext, serverURI, "testRemoteConnect");
+        mqttClient = new MqttAndroidClient(mContext, serverURI, "testRemoteConnect");
         IMqttToken connectToken = null;
         IMqttToken subToken = null;
         IMqttDeliveryToken pubToken = null;
@@ -198,7 +196,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -246,8 +244,8 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
         for (int iMessage = 0; iMessage < 2; iMessage++) {
             byte[] payload = ("Message " + iMessage).getBytes();
-            for (int i = 0; i < mqttPublisher.length; i++) {
-                pubToken = mqttPublisher[i].publish(topicNames[0], payload, 0, false,
+            for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
+                pubToken = aMqttPublisher.publish(topicNames[0], payload, 0, false,
                         null, new ActionListener(notifier));
                 notifier.waitForCompletion(waitForCompletionTime);
             }
@@ -255,7 +253,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
             TimeUnit.MILLISECONDS.sleep(30000);
 
             for (int i = 0; i < mqttSubscriber.length; i++) {
-                for (int ii = 0; ii < mqttPublisher.length; ii++) {
+                for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
                     boolean ok = mqttV3Receiver[i].validateReceipt(
                             topicNames[0], 0, payload);
                     if (!ok) {
@@ -266,15 +264,15 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
         } // for messages...
 
 
-        for (int i = 0; i < mqttPublisher.length; i++) {
-            disconnectToken = mqttPublisher[i].disconnect(null, null);
+        for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
+            disconnectToken = aMqttPublisher.disconnect(null, null);
             disconnectToken.waitForCompletion(waitForCompletionTime);
-            mqttPublisher[i].close();
+            aMqttPublisher.close();
         }
-        for (int i = 0; i < mqttSubscriber.length; i++) {
-            disconnectToken = mqttSubscriber[i].disconnect(null, null);
+        for (IMqttAsyncClient aMqttSubscriber : mqttSubscriber) {
+            disconnectToken = aMqttSubscriber.disconnect(null, null);
             disconnectToken.waitForCompletion(waitForCompletionTime);
-            mqttSubscriber[i].close();
+            aMqttSubscriber.close();
         }
 
     }
@@ -523,7 +521,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -591,7 +589,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
             subToken = mqttClientRetained.subscribe(topicNames, topicQos, null, new ActionListener(notifier));
             notifier.waitForCompletion(waitForCompletionTime);
 
-            Log.i(methodName, "subscribe "+topicNames[0].toString() + " QoS is " + topicQos[0]);
+            Log.i(methodName, "subscribe "+ topicNames[0] + " QoS is " + topicQos[0]);
 
             TimeUnit.MILLISECONDS.sleep(3000);
 

@@ -40,7 +40,7 @@ import android.util.Log;
  */
 class AlarmPingSender implements MqttPingSender {
 	// Identifier for Intents, log messages, etc..
-	static final String TAG = "AlarmPingSender";
+	private static final String TAG = "AlarmPingSender";
 
 	// TODO: Add log.
 	private ClientComms comms;
@@ -104,7 +104,15 @@ class AlarmPingSender implements MqttPingSender {
 		Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
 		AlarmManager alarmManager = (AlarmManager) service
 				.getSystemService(Service.ALARM_SERVICE);
-		if (Build.VERSION.SDK_INT >= 19) {
+
+        if(Build.VERSION.SDK_INT >= 23){
+			// In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
+			// the device to run this task whilst dosing.
+			Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
+			alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
+					pendingIntent);
+		} else if (Build.VERSION.SDK_INT >= 19) {
+			Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
 					pendingIntent);
 		} else {
@@ -118,7 +126,7 @@ class AlarmPingSender implements MqttPingSender {
 	 */
 	class AlarmReceiver extends BroadcastReceiver {
 		private WakeLock wakelock;
-		private String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
+		private final String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
 				+ that.comms.getClient().getClientId();
 
 		@Override

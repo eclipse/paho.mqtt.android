@@ -36,7 +36,7 @@ interface MessageStore {
 	/**
 	 * External representation of a stored message
 	 */
-	public interface StoredMessage {
+	interface StoredMessage {
 		/**
 		 * @return the identifier for the message within the store
 		 */
@@ -67,8 +67,8 @@ interface MessageStore {
 	 *            message to be stored
 	 * @return a unique identifier for it
 	 */
-	public String storeArrived(String clientHandle, String Topic,
-			MqttMessage message);
+	String storeArrived(String clientHandle, String Topic,
+						MqttMessage message);
 
 	/**
 	 * Discard a message - called when we are certain that an arrived message
@@ -79,7 +79,7 @@ interface MessageStore {
 	 * @param id
 	 *            id of message to be discarded
 	 */
-	public boolean discardArrived(String clientHandle, String id);
+	boolean discardArrived(String clientHandle, String id);
 
 	/**
 	 * Get all the stored messages, usually for a specific client
@@ -88,7 +88,7 @@ interface MessageStore {
 	 *            identifier for the client - if null, then messages for all
 	 *            clients are returned
 	 */
-	public Iterator<StoredMessage> getAllArrivedMessages(String clientHandle);
+	Iterator<StoredMessage> getAllArrivedMessages(String clientHandle);
 
 	/**
 	 * Discard stored messages, usually for a specific client
@@ -97,7 +97,7 @@ interface MessageStore {
 	 *            identifier for the client - if null, then messages for all
 	 *            clients are discarded
 	 */
-	public void clearArrivedMessages(String clientHandle);
+	void clearArrivedMessages(String clientHandle);
 
-	public void close();
+	void close();
 }

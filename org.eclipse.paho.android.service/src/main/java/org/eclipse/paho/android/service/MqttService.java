@@ -15,7 +15,6 @@
  */
 package org.eclipse.paho.android.service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,10 +27,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
-import org.eclipse.paho.client.mqttv3.internal.DisconnectedMessageBuffer;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningTaskInfo;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -45,7 +42,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 /**
  * <p>
@@ -225,6 +221,7 @@ import android.util.Log;
  * </table >
  * </p>
  */
+@SuppressLint("Registered")
 public class MqttService extends Service implements MqttTraceHandler {
 
 	// Identifier for Intents, log messages, etc..
@@ -254,7 +251,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   private MqttServiceBinder mqttServiceBinder;
 
 	// mapping from client handle strings to actual client connections.
-	private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<String, MqttConnection>();
+	private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
 
   public MqttService() {
     super();
@@ -327,7 +324,7 @@ public class MqttService extends Service implements MqttTraceHandler {
       String invocationContext, String activityToken)
       throws MqttSecurityException, MqttException {
 	  	MqttConnection client = getConnection(clientHandle);
-	  	client.connect(connectOptions, invocationContext, activityToken);
+	  	client.connect(connectOptions, null, activityToken);
 
   }
 
@@ -838,6 +835,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 	public boolean isOnline() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+      //noinspection RedundantIfStatement
       if (networkInfo != null
               && networkInfo.isAvailable()
               && networkInfo.isConnected()
@@ -851,7 +849,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 	/**
 	 * Notify clients we're offline
 	 */
-	public void notifyClientsOffline() {
+    private void notifyClientsOffline() {
 		for (MqttConnection connection : connections.values()) {
 			connection.offline();
 		}
