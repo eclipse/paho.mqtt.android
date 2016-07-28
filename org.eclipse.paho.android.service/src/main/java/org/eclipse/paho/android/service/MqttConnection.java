@@ -1067,6 +1067,17 @@ class MqttConnection implements MqttCallbackExtended {
 				service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
 				setConnectingState(false);
 				handleException(resultBundle, e);
+			} catch (Exception e){
+				/*  TODO: Added Due to: https://github.com/eclipse/paho.mqtt.android/issues/101
+				    For some reason in a small number of cases, myClient is null here and so
+				    a NullPointer Exception is thrown. This is a workaround to pass the exception
+				    up to the application. myClient should not be null so more investigation is
+				    required.
+				*/
+				service.traceError(TAG, "Cannot reconnect to remote server." + e.getMessage());
+				setConnectingState(false);
+				MqttException newEx = new MqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR, e.getCause());
+				handleException(resultBundle, newEx);
 			}
 		}
 	}
