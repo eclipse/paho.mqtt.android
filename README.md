@@ -40,7 +40,7 @@ Paho reflects the inherent physical and cost constraints of device connectivity.
 
 #### Maven
 
-Eclipse hosts a Nexus repository for those who want to use Maven to manage their dependencies. The released libraries are also available in the Maven Central repository.
+Eclipse hosts a Nexus repository for those who want to use Maven to manage their dependencies. 
 
 Add the repository definition and the dependency definition shown below to your pom.xml.
 
