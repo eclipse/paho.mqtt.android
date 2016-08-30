@@ -57,6 +57,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.util.SparseArray;
 
 /**
@@ -1590,7 +1591,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 				// let the service discard the saved message details
 			}
 			catch (Exception e) {
-				// Swallow the exception
+				Log.e(MqttService.TAG, "messageArrivedAction failed", e);
 			}
 		}
 	}
