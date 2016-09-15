@@ -7,9 +7,9 @@ The Paho Android Service is an MQTT client library written in Java for developin
 ## Features
 |                     |                    |   |                      |                    |
 |---------------------|--------------------|---|----------------------|--------------------|
-| MQTT 3.1            | :heavy_check_mark: |   | Automatic Reconnect  | :heavy_multiplication_x: (Coming in 1.1.0) |
-| MQTT 3.1.1          | :heavy_check_mark: |   | Offline Buffering    | :heavy_multiplication_x: (Coming in 1.1.0) |
-| LWT                 | :heavy_check_mark: |   | WebSocket Support    | :heavy_multiplication_x: (Coming in 1.1.0) |
+| MQTT 3.1            | :heavy_check_mark: |   | Automatic Reconnect  | :heavy_check_mark: (Since 1.1.0) |
+| MQTT 3.1.1          | :heavy_check_mark: |   | Offline Buffering    | :heavy_check_mark: (Since 1.1.0) |
+| LWT                 | :heavy_check_mark: |   | WebSocket Support    | :heavy_check_mark: (Since 1.1.0) |
 | SSL / TLS           | :heavy_check_mark: |   | Standard TCP Support | :heavy_check_mark: |
 | Message Persistence | :heavy_check_mark: |   |
 
