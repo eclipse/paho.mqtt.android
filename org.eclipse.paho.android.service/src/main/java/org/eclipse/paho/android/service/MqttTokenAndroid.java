@@ -54,7 +54,7 @@ class MqttTokenAndroid implements IMqttToken {
    */
   MqttTokenAndroid(MqttAndroidClient client,
       Object userContext, IMqttActionListener listener) {
-    this(client, userContext, listener, (String[]) null);
+    this(client, userContext, listener, null);
   }
 
   /**

@@ -16,7 +16,6 @@
  */
 package org.eclipse.paho.android.service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -100,7 +99,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 
 	private static final int BIND_SERVICE_FLAG = 0;
 
-	private static ExecutorService pool = Executors.newCachedThreadPool();
+	private static final ExecutorService pool = Executors.newCachedThreadPool();
 
 	/**
 	 * ServiceConnection to process when we bind to our service
@@ -123,7 +122,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	}
 
 	// Listener for when the service is connected or disconnected
-	private MyServiceConnection serviceConnection = new MyServiceConnection();
+	private final MyServiceConnection serviceConnection = new MyServiceConnection();
 
 	// The Android Service which will process our mqtt calls
 	private MqttService mqttService;
@@ -132,16 +131,16 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	// the service
 	private String clientHandle;
 
-	Context myContext;
+	private Context myContext;
 
 	// We hold the various tokens in a collection and pass identifiers for them
 	// to the service
-	private SparseArray<IMqttToken> tokenMap = new SparseArray<IMqttToken>();
+	private final SparseArray<IMqttToken> tokenMap = new SparseArray<>();
 	private int tokenNumber = 0;
 
 	// Connection data
-	private String serverURI;
-	private String clientId;
+	private final String serverURI;
+	private final String clientId;
 	private MqttClientPersistence persistence = null;
 	private MqttConnectOptions connectOptions;
 	private IMqttToken connectToken;
@@ -151,7 +150,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private MqttTraceHandler traceCallback;
 
 	//The acknowledgment that a message has been processed by the application
-	private Ack messageAck;
+	private final Ack messageAck;
 	private boolean traceEnabled = false;
 	
 	private volatile boolean receiverRegistered = false;
@@ -249,11 +248,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public boolean isConnected() {
 
-		if (clientHandle != null && mqttService != null) {
-			return mqttService.isConnected(clientHandle);
-		} else {
-			return false;
-		}
+		return clientHandle != null && mqttService != null && mqttService.isConnected(clientHandle);
 	}
 
 	/**
@@ -500,7 +495,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public IMqttToken disconnect() throws MqttException {
 		IMqttToken token = new MqttTokenAndroid(this, null,
-				(IMqttActionListener) null);
+				null);
 		String activityToken = storeToken(token);
 		mqttService.disconnect(clientHandle, null, activityToken);
 		return token;
@@ -529,7 +524,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public IMqttToken disconnect(long quiesceTimeout) throws MqttException {
 		IMqttToken token = new MqttTokenAndroid(this, null,
-				(IMqttActionListener) null);
+				null);
 		String activityToken = storeToken(token);
 		mqttService.disconnect(clientHandle, quiesceTimeout, null,
 				activityToken);
@@ -1575,7 +1570,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			String destinationName = data
 					.getString(MqttServiceConstants.CALLBACK_DESTINATION_NAME);
 
-			ParcelableMqttMessage message = (ParcelableMqttMessage) data
+			ParcelableMqttMessage message = data
 					.getParcelable(MqttServiceConstants.CALLBACK_MESSAGE_PARCEL);
 			try {
 				if (messageAck == Ack.AUTO_ACK) {
@@ -1656,8 +1651,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private synchronized IMqttToken getMqttToken(Bundle data) {
 		String activityToken = data
 				.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN);
-		IMqttToken token = tokenMap.get(Integer.parseInt(activityToken));
-		return token;
+		return tokenMap.get(Integer.parseInt(activityToken));
 	}
 
 	/**
@@ -1714,17 +1708,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		 sslSockFactory=ctx.getSocketFactory();
 		 return sslSockFactory;
 		 
-		} catch (KeyStoreException e) {
-			throw new MqttSecurityException(e);
-		} catch (CertificateException e) {
-			throw new MqttSecurityException(e);
-		} catch (FileNotFoundException e) {
-			throw new MqttSecurityException(e);
-		} catch (IOException e) {
-			throw new MqttSecurityException(e);
-		} catch (NoSuchAlgorithmException e) {
-			throw new MqttSecurityException(e);
-		} catch (KeyManagementException e) {
+		} catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | KeyManagementException e) {
 			throw new MqttSecurityException(e);
 		}
 	}

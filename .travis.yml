@@ -1,9 +1,9 @@
 language: android
-jdk: oraclejdk7
+jdk: oraclejdk8
 android:
   components:
     - tools
-    - build-tools-23.0.2
+    - build-tools-24.0.1
     - android-23
     - extra-android-support
     - extra
@@ -18,4 +18,3 @@ script:
   - ./gradlew clean
   - ./gradlew org.eclipse.paho.android.sample:assemble paho.mqtt.android.example:assemble
 #  - ./gradlew org.eclipse.paho.android.service:assemble org.eclipse.paho.android.service:connectedCheck
-

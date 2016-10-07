@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2015, 2016 IBM Corp.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ * and the Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
+ */
 package org.eclipse.paho.android;
 
 import java.io.PrintStream;
@@ -16,9 +28,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import android.util.Log;
 
-/**
- * Created by james on 19/08/15.
- */
 public class MqttV3Receiver implements MqttCallback{
 
     private final java.io.PrintStream reportStream;
@@ -42,7 +51,7 @@ public class MqttV3Receiver implements MqttCallback{
         }
     }
 
-    java.util.List<ReceivedMessage> receivedMessages = Collections.synchronizedList(new java.util.ArrayList<ReceivedMessage>());
+    private java.util.List<ReceivedMessage> receivedMessages = Collections.synchronizedList(new java.util.ArrayList<ReceivedMessage>());
 
     /**
      * @param mqttClient
@@ -149,7 +158,7 @@ public class MqttV3Receiver implements MqttCallback{
         if (!java.util.Arrays.equals(sentBytes,
                 receivedMessage.message.getPayload())) {
             report("Received invalid payload="
-                    + receivedMessage.message.getPayload() + "\n" + "Sent:"
+                    + Arrays.toString(receivedMessage.message.getPayload()) + "\n" + "Sent:"
                     + new String(sentBytes) + "\n" + "Received:"
                     + new String(receivedMessage.message.getPayload()));
 

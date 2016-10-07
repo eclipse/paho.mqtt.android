@@ -1,6 +1,6 @@
 package org.eclipse.paho.android;
 
-public class TestCaseNotifier {
+class TestCaseNotifier {
 
     private Throwable exception;
 
@@ -13,7 +13,7 @@ public class TestCaseNotifier {
         try {
             wait(timeout);
         }
-        catch (InterruptedException e) {}
+        catch (InterruptedException ignored) {}
 
         if (exception != null) {
             throw exception;
