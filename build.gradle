@@ -14,7 +14,7 @@ buildscript {
 
 ext{
 
-    compileSdkVersion = 23
+    compileSdkVersion = 24
     buildToolsVersion = '24.0.1'
 
     group = 'org.eclipse.paho'
@@ -34,9 +34,27 @@ ext{
 }
 
 allprojects {
-    repositories {
-        jcenter()
+    def rootDir = project.rootDir
+    def localProperties = new File(rootDir, "local.properties")
+    if (localProperties.exists()) {
+        Properties properties = new Properties()
+        localProperties.withInputStream { instr ->
+            properties.load(instr)
+        }
+        def sdkDir = properties.getProperty('sdk.dir')
+        println "Got SDK DIR: $sdkDir"
+        repositories {
+            jcenter()
+            maven {
+                url "$sdkDir/extras/android/m2repository/"
+            }
+        }
+    } else {
+        repositories {
+            jcenter()
+        }
     }
+
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
 }
