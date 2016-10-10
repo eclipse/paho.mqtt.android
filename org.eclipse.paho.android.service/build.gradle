@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 24
         testApplicationId "org.eclipse.paho.android.service.test"
     }
     buildTypes {
