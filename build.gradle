@@ -33,25 +33,31 @@ ext{
 
 }
 
-allprojects {
+def getSdkDirFromLocalProperties() {
     def rootDir = project.rootDir
     def localProperties = new File(rootDir, "local.properties")
-    if (localProperties.exists()) {
-        Properties properties = new Properties()
-        localProperties.withInputStream { instr ->
-            properties.load(instr)
-        }
-        def sdkDir = properties.getProperty('sdk.dir')
-        println "Got SDK DIR: $sdkDir"
-        repositories {
-            jcenter()
-            maven {
-                url "$sdkDir/extras/android/m2repository/"
-            }
-        }
-    } else {
-        repositories {
-            jcenter()
+    Properties properties = new Properties()
+    localProperties.withInputStream { instr ->
+        properties.load(instr)
+    }
+    properties.getProperty('sdk.dir')
+}
+
+def androidHome = System.env['ANDROID_HOME']
+
+def androidHomeIsDefined = androidHome?.trim()
+
+def sdkDir = androidHomeIsDefined ? androidHome : getSdkDirFromLocalProperties()
+
+println "SDK dir: $sdkDir"
+
+
+allprojects {
+
+    repositories {
+        jcenter()
+        maven {
+            url "file://$sdkDir/extras/android/m2repository/"
         }
     }
 
