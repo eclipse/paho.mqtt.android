@@ -14,8 +14,9 @@ buildscript {
 
 ext{
 
-    compileSdkVersion = 23
-    buildToolsVersion = '24.0.1'
+    compileSdkVersion = 24
+    buildToolsVersion = '23.0.3'
+
 
     group = 'org.eclipse.paho'
 
@@ -33,10 +34,34 @@ ext{
 
 }
 
+def getSdkDirFromLocalProperties() {
+    def rootDir = project.rootDir
+    def localProperties = new File(rootDir, "local.properties")
+    Properties properties = new Properties()
+    localProperties.withInputStream { instr ->
+        properties.load(instr)
+    }
+    properties.getProperty('sdk.dir')
+}
+
+def androidHome = System.env['ANDROID_HOME']
+
+def androidHomeIsDefined = androidHome?.trim()
+
+def sdkDir = androidHomeIsDefined ? androidHome : getSdkDirFromLocalProperties()
+
+println "SDK dir: $sdkDir"
+
+
 allprojects {
+
     repositories {
         jcenter()
+        maven {
+            url "file://$sdkDir/extras/android/m2repository/"
+        }
     }
+
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
 }
