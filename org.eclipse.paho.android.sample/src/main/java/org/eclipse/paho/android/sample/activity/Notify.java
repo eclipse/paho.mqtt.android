@@ -22,13 +22,11 @@ import android.widget.Toast;
 
 import org.eclipse.paho.android.sample.R;
 
-import java.util.Calendar;
-
 /**
  * Provides static methods for creating and showing notifications to the user.
  *
  */
-public class Notify {
+class Notify {
 
   /** Message ID Counter **/
   private static int MessageID = 0;
@@ -45,8 +43,6 @@ public class Notify {
     //Get the notification manage which we will use to display the notification
     String ns = Context.NOTIFICATION_SERVICE;
     NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(ns);
-
-    Calendar.getInstance().getTime().toString();
 
     long when = System.currentTimeMillis();
 
@@ -83,7 +79,7 @@ public class Notify {
    * @param text The text the toast should display
    * @param duration The amount of time for the toast to appear to the user
    */
-  static void toast(Context context, CharSequence text, int duration) {
+  static void toast(Context context, CharSequence text, @SuppressWarnings("SameParameterValue") int duration) {
     Toast toast = Toast.makeText(context, text, duration);
     toast.show();
   }

@@ -1,6 +1,7 @@
 package org.eclipse.paho.android.sample.components;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,9 @@ public class SubscriptionListItemAdapter extends ArrayAdapter<Subscription>{
 
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent){
+    public View getView(final int position, View convertView, @NonNull ViewGroup parent){
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.subscription_list_item, parent, false);
         TextView topicTextView = (TextView) rowView.findViewById(R.id.message_text);
@@ -61,7 +63,7 @@ public class SubscriptionListItemAdapter extends ArrayAdapter<Subscription>{
     }
 
     public interface OnUnsubscribeListner{
-        public void onUnsubscribe(Subscription subscription);
+        void onUnsubscribe(Subscription subscription);
     }
 
 

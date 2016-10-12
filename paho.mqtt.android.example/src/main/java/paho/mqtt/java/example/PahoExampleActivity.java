@@ -37,9 +37,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.ArrayList;
 
 public class PahoExampleActivity extends AppCompatActivity{
-    private RecyclerView mRecyclerView;
     private HistoryAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     MqttAndroidClient mqttAndroidClient;
 
@@ -67,10 +65,8 @@ public class PahoExampleActivity extends AppCompatActivity{
         });
 
 
-
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.history_recycler_view);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new HistoryAdapter(new ArrayList<String>());

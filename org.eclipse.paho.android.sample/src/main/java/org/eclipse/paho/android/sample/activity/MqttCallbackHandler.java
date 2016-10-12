@@ -27,12 +27,12 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  * Handles call backs from the MQTT Client
  *
  */
-public class MqttCallbackHandler implements MqttCallback {
+class MqttCallbackHandler implements MqttCallback {
 
   /** {@link Context} for the application used to format and import external strings**/
-  private Context context;
+  private final Context context;
   /** Client handle to reference the connection that this handler is attached to**/
-  private String clientHandle;
+  private final String clientHandle;
 
   private static final String TAG = "MqttCallbackHandler";
     private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";

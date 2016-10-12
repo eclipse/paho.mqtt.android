@@ -809,6 +809,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   private class NetworkConnectionIntentReceiver extends BroadcastReceiver {
 
 		@Override
+        @SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			traceDebug(TAG, "Internal network status receive.");
 			// we protect against the phone switching off

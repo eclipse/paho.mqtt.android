@@ -25,12 +25,6 @@ class TestProperties {
     private final Class<?> cclass = TestProperties.class;
     private final String className = cclass.getName();
 
-    private final String KEY_SERVER_URI = "SERVER_URI";
-    private final String KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE";
-    private final String KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD";
-    private final String KEY_SERVER_SSL_URI = "SERVER_SSL_URI";
-    private final String KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME";
-
     private Properties properties = new Properties();
 
     private Context context;
@@ -118,6 +112,7 @@ class TestProperties {
 
     public String getClientKeyStore() {
 
+        String KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE";
         return getProperty(KEY_CLIENT_KEY_STORE);
     }
 
@@ -126,6 +121,7 @@ class TestProperties {
      */
 
     public String getClientKeyStorePassword() {
+        String KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD";
         return getProperty(KEY_CLIENT_KEY_STORE_PASSWORD);
     }
 
@@ -134,6 +130,7 @@ class TestProperties {
      */
 
     public String getServerSSLURI() {
+        String KEY_SERVER_SSL_URI = "SERVER_SSL_URI";
         return getProperty(KEY_SERVER_SSL_URI);
     }
 
@@ -141,11 +138,13 @@ class TestProperties {
      * @return the server url for testing
      */
     public String getServerURI() {
+        String KEY_SERVER_URI = "SERVER_URI";
         return getProperty(KEY_SERVER_URI);
 
     }
 
     public int getWaitForCompletionTime(){
+        String KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME";
         return getIntProperty(KEY_WAIT_FOR_COMPLETION_TIME);
     }
 }

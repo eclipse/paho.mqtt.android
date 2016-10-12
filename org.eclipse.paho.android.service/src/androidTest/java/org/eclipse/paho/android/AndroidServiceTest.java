@@ -28,7 +28,6 @@ public class AndroidServiceTest extends AndroidTestCase {
     private String mqttServerURI;
     private String mqttSSLServerURI;
     private int waitForCompletionTime;
-    private String clientKeyStore;
     private String keyStorePwd;
 
     @Override
@@ -38,7 +37,7 @@ public class AndroidServiceTest extends AndroidTestCase {
         mqttServerURI = properties.getServerURI();
         mqttSSLServerURI = properties.getServerSSLURI();
         waitForCompletionTime = properties.getWaitForCompletionTime();
-        clientKeyStore = properties.getClientKeyStore();
+        String clientKeyStore = properties.getClientKeyStore();
         keyStorePwd = properties.getClientKeyStorePassword();
         Log.d(TAG, properties.getServerSSLURI());
     }

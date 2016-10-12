@@ -17,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttPingSender;
 import org.eclipse.paho.client.mqttv3.internal.ClientComms;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -130,6 +131,7 @@ class AlarmPingSender implements MqttPingSender {
 				+ that.comms.getClient().getClientId();
 
 		@Override
+        @SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			// According to the docs, "Alarm Manager holds a CPU wake lock as
 			// long as the alarm receiver's onReceive() method is executing.
@@ -177,6 +179,7 @@ class AlarmPingSender implements MqttPingSender {
 					wakelock.release();
 				}
 			});
+
 
 			if (token == null && wakelock.isHeld()) {
 				wakelock.release();

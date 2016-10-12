@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:id="@+id/subscription_list_view"
-        android:layout_below="@+id/label"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_above="@+id/subscribe_button"
         android:choiceMode="singleChoice" />
 

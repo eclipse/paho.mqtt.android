@@ -3,7 +3,6 @@ package org.eclipse.paho.android.sample.activity;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,10 +10,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.android.sample.model.ConnectionModel;
@@ -30,14 +28,13 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener{
 
-    private Toolbar mToolbar;
     private FragmentDrawer drawerFragment;
 
     private static final String TAG = "MainActivity";
 
-    private ChangeListener changeListener = new ChangeListener();
+    private final ChangeListener changeListener = new ChangeListener();
 
-    private MainActivity mainActivity = this;
+    private final MainActivity mainActivity = this;
 
     private ArrayList<String> connectionMap;
 
@@ -46,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -62,11 +59,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         drawerFragment.removeConnection(connection);
         populateConnectionList();
     }
-
-    public Context getThemedContext(){
-        return getSupportActionBar().getThemedContext();
-    }
-
 
 
     private void populateConnectionList(){
@@ -104,24 +96,24 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
     @Override
-    public void onDrawerItemSelected(View view, int position){
+    public void onDrawerItemSelected(int position){
         displayView(position);
     }
 
     @Override
-    public void onDrawerItemLongSelected(View view, int position){
+    public void onDrawerItemLongSelected(int position){
         displayDeleteView(position);
     }
 
     @Override
-    public void onAddConnectionSelected(View view) {
+    public void onAddConnectionSelected() {
         Fragment editConnectionFragment =  new EditConnectionFragment();
         String title = "Edit Connection";
         displayFragment(editConnectionFragment, title);
     }
 
     @Override
-    public void onHelpSelected(View view) {
+    public void onHelpSelected() {
         Fragment helpFragment = new HelpFragment();
         displayFragment(helpFragment, getString(R.string.help_and_feedback));
 
@@ -130,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     private void displayDeleteView(int position){
         if(position == -1){
             displayFragment(new HomeFragment(), "Home");
-            return;
         } else {
             Fragment fragment  = new ManageConnectionFragment();
             Bundle bundle = new Bundle();
@@ -139,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             Map<String, Connection> connections = Connections.getInstance(this)
                     .getConnections();
             Connection connection = connections.get(connectionMap.get(position));
-            String title = connection.getId();
             displayFragment(fragment, "");
         }
     }
@@ -147,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     private void displayView(int position){
         if(position == -1){
             displayFragment(new HomeFragment(), "Home");
-            return;
         } else {
             Fragment fragment  = new ConnectionFragment();
             Bundle bundle = new Bundle();
@@ -173,10 +162,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
         }
-    }
-
-    public void setActionBarTitle(String title){
-        getSupportActionBar().setTitle(title);
     }
 
     public void updateAndConnect(ConnectionModel model){
@@ -217,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
 
         } catch (MqttException ex){
-
+            Log.e(TAG, "Exception occurred updating connection: " + connections.keySet().toString() + " : " + ex.getMessage());
         }
     }
 
@@ -225,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     /**
      * Takes a {@link ConnectionModel} and uses it to connect
      * and then persist.
-     * @param model
+     * @param model - The connection Model
      */
     public void persistAndConnect(ConnectionModel model){
         Log.i(TAG, "Persisting new connection:" + model.getClientHandle());
@@ -264,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
         catch (MqttException e) {
             Log.e(this.getClass().getCanonicalName(),
-                    "MqttException Occured", e);
+                    "MqttException occurred", e);
         }
 
     }
@@ -310,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
         catch (MqttException e) {
             Log.e(this.getClass().getCanonicalName(),
-                    "MqttException Occured", e);
+                    "MqttException occurred", e);
         }
     }
 
@@ -319,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         try {
             connection.getClient().disconnect();
         } catch( MqttException ex){
-            Log.e(TAG, "Exception occured during disconnect: " + ex.getMessage());
+            Log.e(TAG, "Exception occurred during disconnect: " + ex.getMessage());
         }
     }
 
@@ -333,20 +318,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
                     ActionListener.Action.PUBLISH, connection, actionArgs);
             connection.getClient().publish(topic, message.getBytes(), qos, retain, null, callback);
         } catch( MqttException ex){
-            Log.e(TAG, "Exception occured during publish: " + ex.getMessage());
-        }
-    }
-
-    public void subscribe(Connection connection, String topic, int qos){
-
-        try {
-            String[] actionArgs = new String[2];
-            actionArgs[1] = topic;
-            final ActionListener callback = new ActionListener(this,
-                    ActionListener.Action.SUBSCRIBE, connection, actionArgs);
-            connection.getClient().subscribe(topic, qos);
-        } catch( MqttException ex){
-            Log.e(TAG, "Exception occured during subscribe: " + ex.getMessage());
+            Log.e(TAG, "Exception occurred during publish: " + ex.getMessage());
         }
     }
 

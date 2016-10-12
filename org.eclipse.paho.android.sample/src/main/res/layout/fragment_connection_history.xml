@@ -12,13 +12,14 @@
         android:layout_height="fill_parent"
         android:id="@+id/history_list_view"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_above="@+id/history_clear_button"
         android:choiceMode="singleChoice"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Clear"
+        android:text="@string/connection_clear"
         android:id="@+id/history_clear_button"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />

@@ -20,5 +20,6 @@
         android:ems="10"
         android:lines="1"
         android:padding="10dp"
-        android:id="@+id/edittext"/>
+        android:id="@+id/edittext"
+        android:inputType="text"/>
 </LinearLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
@@ -18,7 +19,8 @@
             android:layout_height="70dp"
             android:src="@mipmap/ic_launcher"
             android:scaleType="fitCenter"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            tools:ignore="ContentDescription" />
 
     </RelativeLayout>
 
@@ -54,6 +56,7 @@
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             android:paddingLeft="15dp"
+            android:paddingRight="0dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:textSize="13sp"
@@ -68,6 +71,7 @@
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             android:paddingLeft="15dp"
+            android:paddingRight="0dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:textSize="13sp"
