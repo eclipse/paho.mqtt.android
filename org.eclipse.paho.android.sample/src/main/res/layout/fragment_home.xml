@@ -13,8 +13,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:textSize="45dp"
-        android:text="No Connections"
+        android:textSize="45sp"
+        android:text="@string/home_no_connections"
         android:textStyle="bold"/>
 
     <TextView
@@ -22,9 +22,9 @@
         android:layout_centerInParent="true"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="12dp"
+        android:textSize="12sp"
         android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
-        android:text="It looks like you don&apos;t have any connections defined yet." />
+        android:text="@string/home_no_cons_message" />
 
 </RelativeLayout>

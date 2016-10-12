@@ -117,7 +117,6 @@ class TestProperties {
      */
 
     public String getClientKeyStore() {
-
         return getProperty(KEY_CLIENT_KEY_STORE);
     }
 

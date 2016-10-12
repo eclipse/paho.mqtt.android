@@ -51,6 +51,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * The main API of MqttService is intended to pretty much mirror the
  * IMqttAsyncClient with appropriate adjustments for the Android environment.<br>
  * These adjustments usually consist of adding two parameters to each method :-
+ * </p>
  * <ul>
  * <li>invocationContext - a string passed from the application to identify the
  * context of the operation (mainly included for support of the javascript API
@@ -58,7 +59,6 @@ import android.support.v4.content.LocalBroadcastManager;
  * <li>activityToken - a string passed from the Activity to relate back to a
  * callback method or other context-specific data</li>
  * </ul>
- * </p>
  * <p>
  * To support multiple client connections, the bulk of the MQTT work is
  * delegated to MqttConnection objects. These are identified by "client
@@ -79,7 +79,8 @@ import android.support.v4.content.LocalBroadcastManager;
  * MqttServiceConstants.CALLBACK_TO_ACTIVITY} which allows the Activity to
  * register a listener with an appropriate IntentFilter.<br>
  * Further data is provided by "Extra Data" in the Intent, as follows :-
- * <table border="1">
+ * </p>
+ * <table border="1" summary="">
  * <tr>
  * <th align="left">Name</th>
  * <th align="left">Data Type</th>
@@ -100,7 +101,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * MqttServiceConstants.CALLBACK_STATUS}</td>
  * <td align="left" valign="top">Serializable</td>
  * <td align="left" valign="top">An {@link Status} value indicating success or
- * otherwise of the operation</td>;
+ * otherwise of the operation</td>
  * <td align="left" valign="top">All operations</td>
  * </tr>
  * <tr>
@@ -125,7 +126,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * MqttServiceConstants.CALLBACK_ACTION}</td>
  * <td align="left" valign="top">String</td>
  * <td align="left" valign="top">one of
- * <table>
+ * <table summary="">
  * <tr>
  * <td align="left" valign="top"> {@link MqttServiceConstants#SEND_ACTION
  * MqttServiceConstants.SEND_ACTION}</td>
@@ -175,6 +176,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * relevant exception where possible)</td>
  * <td align="left" valign="top">All failing operations</td>
  * </tr>
+ * <tr>
  * <td align="left" valign="top">
  * {@link MqttServiceConstants#CALLBACK_ERROR_NUMBER
  * MqttServiceConstants.CALLBACK_ERROR_NUMBER}
@@ -218,8 +220,7 @@ import android.support.v4.content.LocalBroadcastManager;
  * Parcelable format as a {@link ParcelableMqttMessage}</td>
  * <td align="left" valign="top">The Message Arrived event</td>
  * </tr>
- * </table >
- * </p>
+ * </table>
  */
 @SuppressLint("Registered")
 public class MqttService extends Service implements MqttTraceHandler {
@@ -293,10 +294,11 @@ public class MqttService extends Service implements MqttTraceHandler {
    * @param serverURI specifies the protocol, host name and port to be used to connect to an MQTT server
    * @param clientId specifies the name by which this connection should be identified to the server
    * @param contextId specifies the app conext info to make a difference between apps
+   * @param persistence specifies the persistence layer to be used with this client
    * @return a string to be used by the Activity as a "handle" for this
    *         MqttConnection
    */
-  public String getClient(String serverURI, String clientId, String contextId,MqttClientPersistence persistence) {
+  public String getClient(String serverURI, String clientId, String contextId, MqttClientPersistence persistence) {
     String clientHandle = serverURI + ":" + clientId+":"+contextId;
     if (!connections.containsKey(clientHandle)) {
       MqttConnection client = new MqttConnection(this, serverURI,
@@ -317,8 +319,8 @@ public class MqttService extends Service implements MqttTraceHandler {
    *            arbitrary data to be passed back to the application
    * @param activityToken
    *            arbitrary identifier to be passed back to the Activity
-   * @throws MqttSecurityException
-   * @throws MqttException
+   * @throws MqttSecurityException thrown if there is a security exception
+   * @throws MqttException thrown for all other MqttExceptions
    */
   public void connect(String clientHandle, MqttConnectOptions connectOptions,
       String invocationContext, String activityToken)
@@ -429,8 +431,8 @@ public class MqttService extends Service implements MqttTraceHandler {
    *            arbitrary data to be passed back to the application
    * @param activityToken
    *            arbitrary identifier to be passed back to the Activity
-   * @throws MqttPersistenceException
-   * @throws MqttException
+   * @throws MqttPersistenceException when a problem occurs storing the message
+   * @throws MqttException if there was an error publishing the message
    * @return token for tracking the operation
    */
   public IMqttDeliveryToken publish(String clientHandle, String topic,
@@ -455,8 +457,8 @@ public class MqttService extends Service implements MqttTraceHandler {
    *            arbitrary data to be passed back to the application
    * @param activityToken
    *            arbitrary identifier to be passed back to the Activity
-   * @throws MqttPersistenceException
-   * @throws MqttException
+   * @throws MqttPersistenceException when a problem occurs storing the message
+   * @throws MqttException if there was an error publishing the message
    * @return token for tracking the operation
    */
   public IMqttDeliveryToken publish(String clientHandle, String topic,
@@ -519,7 +521,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    *            arbitrary data to be passed back to the application
    * @param activityToken
    *            arbitrary identifier to be passed back to the Activity
-   * @param messageListeners
+   * @param messageListeners a callback to handle incoming messages
    */
   public void subscribe(String clientHandle, String[] topicFilters, int[] qos, String invocationContext, String activityToken, IMqttMessageListener[] messageListeners){
     MqttConnection client = getConnection(clientHandle);
@@ -594,6 +596,7 @@ public class MqttService extends Service implements MqttTraceHandler {
    *
    * @param clientHandle identifier for the client which received the message
    * @param id identifier for the MQTT message
+   * @return {@link Status}
    */
   public Status acknowledgeMessageArrival(String clientHandle, String id) {
     if (messageStore.discardArrived(clientHandle, id)) {
@@ -806,6 +809,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   private class NetworkConnectionIntentReceiver extends BroadcastReceiver {
 
 		@Override
+        @SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			traceDebug(TAG, "Internal network status receive.");
 			// we protect against the phone switching off
@@ -882,7 +886,8 @@ public class MqttService extends Service implements MqttTraceHandler {
 
   /**
    * Sets the DisconnectedBufferOptions for this client
-   * @param bufferOpts
+   * @param clientHandle identifier for the client
+   * @param bufferOpts the DisconnectedBufferOptions for this client
    */
   public void setBufferOpts(String clientHandle, DisconnectedBufferOptions bufferOpts) {
     MqttConnection client = getConnection(clientHandle);

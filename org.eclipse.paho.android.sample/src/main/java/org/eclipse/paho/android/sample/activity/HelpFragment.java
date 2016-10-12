@@ -1,6 +1,5 @@
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -25,10 +24,6 @@ import java.util.Map;
 
 
 public class HelpFragment extends Fragment {
-    Button websiteButton;
-    Button feedbackButton;
-    Switch enableLoggingSwitch;
-    SharedPreferences preferences;
 
     private static final String TAG = "HelpFragment";
 
@@ -48,23 +43,16 @@ public class HelpFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
         final View rootView = inflater.inflate(R.layout.fragment_help, container, false);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(rootView.getContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(rootView.getContext());
 
 
-        websiteButton = (Button) rootView.findViewById(R.id.websiteButton);
+        Button websiteButton = (Button) rootView.findViewById(R.id.websiteButton);
         websiteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +62,7 @@ public class HelpFragment extends Fragment {
             }
         });
 
-        feedbackButton = (Button) rootView.findViewById(R.id.feedbackButton);
+        Button feedbackButton = (Button) rootView.findViewById(R.id.feedbackButton);
         feedbackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,7 +73,7 @@ public class HelpFragment extends Fragment {
             }
         });
 
-        enableLoggingSwitch = (Switch) rootView.findViewById(R.id.enable_logging_switch);
+        Switch enableLoggingSwitch = (Switch) rootView.findViewById(R.id.enable_logging_switch);
         enableLoggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -109,16 +97,6 @@ public class HelpFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return rootView;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
 

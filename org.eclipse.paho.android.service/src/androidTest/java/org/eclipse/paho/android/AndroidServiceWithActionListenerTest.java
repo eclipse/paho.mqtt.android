@@ -41,7 +41,6 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
     private int waitForCompletionTime;
 
-    private String clientKeyStore;
     private String keyStorePwd;
 
     //since we know tokens do not work when an action listener isn't specified
@@ -51,6 +50,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
 
 
     public AndroidServiceWithActionListenerTest() {
+        //noinspection unchecked
         super(org.eclipse.paho.android.service.MqttService.class);
     }
 
@@ -66,7 +66,7 @@ public class AndroidServiceWithActionListenerTest extends ServiceTestCase {
         serverURI = properties.getServerURI();
         mqttSSLServerURI = properties.getServerSSLURI();
         waitForCompletionTime = properties.getWaitForCompletionTime();
-        clientKeyStore = properties.getClientKeyStore();
+        String clientKeyStore = properties.getClientKeyStore();
         keyStorePwd = properties.getClientKeyStorePassword();
 
     }

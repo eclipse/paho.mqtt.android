@@ -15,7 +15,6 @@
  */
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,9 +32,9 @@ import java.util.Map;
 
 
 public class ManageConnectionFragment extends Fragment {
-    Connection connection;
-    Map<String, Connection> connections;
-    String connectionKey;
+    private Connection connection;
+    private Map<String, Connection> connections;
+    private String connectionKey;
 
 
     public ManageConnectionFragment() {
@@ -97,13 +96,4 @@ public class ManageConnectionFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 }

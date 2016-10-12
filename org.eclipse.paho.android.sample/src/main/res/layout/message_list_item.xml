@@ -8,12 +8,12 @@
         android:layout_width="fill_parent"
         android:layout_height="26dip"
         android:ellipsize="marquee"
-        android:singleLine="true"
-        android:text="Topic: "
+        android:text="@string/message_topic"
         android:textSize="12sp"
         android:layout_below="@+id/message_text"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:maxLines="1" />
 
     <TextView
         android:id="@+id/message_text"
@@ -23,15 +23,15 @@
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"
-        android:text="Example application"
+        android:text="@string/placeholder_example"
         android:textSize="16sp" />
 
     <TextView
         android:layout_width="100dip"
         android:layout_height="26dip"
-        android:text="Time:"
+        android:text="@string/message_time"
         android:id="@+id/message_date_text"
-        android:textSize="12dip"
+        android:textSize="12sp"
         android:layout_below="@+id/message_text"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />

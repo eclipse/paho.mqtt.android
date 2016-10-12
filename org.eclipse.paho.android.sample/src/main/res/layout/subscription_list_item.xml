@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="6dip" >
@@ -10,7 +11,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="6dip"
-        android:src="@drawable/ic_topic" />
+        android:src="@drawable/ic_topic"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/qos_label"
@@ -19,9 +21,9 @@
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/icon"
         android:ellipsize="marquee"
-        android:singleLine="true"
         android:text="@string/qos_text"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:maxLines="1" />
 
     <TextView
         android:id="@+id/show_notifications_label"
@@ -52,6 +54,8 @@
         android:layout_marginRight="6dip"
         android:src="@drawable/ic_delete"
         android:layout_alignEnd="@+id/message_text"
-        android:layout_alignParentRight="true" />
+        android:layout_alignRight="@+id/message_text"
+        android:layout_alignParentRight="true"
+        tools:ignore="ContentDescription" />
 
 </RelativeLayout>

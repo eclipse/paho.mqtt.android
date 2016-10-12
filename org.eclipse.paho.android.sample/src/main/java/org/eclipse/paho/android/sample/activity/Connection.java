@@ -19,6 +19,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,7 +60,7 @@ public class Connection {
     private MqttAndroidClient client = null;
 
     /** Collection of {@link java.beans.PropertyChangeListener} **/
-    private ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
+    private final ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
     /** The {@link Context} of the application this object is part of**/
     private Context context = null;
@@ -75,11 +76,11 @@ public class Connection {
 
 
     /** The list of this connection's subscriptions **/
-    private Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
+    private final Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
 
-    private ArrayList<ReceivedMessage> messageHistory =  new ArrayList<ReceivedMessage>();
+    private final ArrayList<ReceivedMessage> messageHistory =  new ArrayList<ReceivedMessage>();
 
-    private ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<IReceivedMessageListener>();
+    private final ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<IReceivedMessageListener>();
 
     /**
      * Connections status for  a connection
@@ -113,7 +114,7 @@ public class Connection {
      */
     public static Connection createConnection(String clientHandle, String clientId, String host, int port, Context context, boolean tlsConnection){
 
-        String uri = null;
+        String uri;
         if(tlsConnection) {
             uri = "ssl://" + host + ":" + port;
         } else {
@@ -125,7 +126,7 @@ public class Connection {
     }
 
     public void updateConnection(String clientId, String host, int port, boolean tlsConnection){
-        String uri = null;
+        String uri;
         if(tlsConnection) {
             uri = "ssl://" + host + ":" + port;
         } else {
@@ -136,8 +137,7 @@ public class Connection {
         this.host = host;
         this.port = port;
         this.tlsConnection = tlsConnection;
-        MqttAndroidClient client = new MqttAndroidClient(context, uri, clientId);
-        this.client = client;
+        this.client = new MqttAndroidClient(context, uri, clientId);
 
     }
 
@@ -153,8 +153,8 @@ public class Connection {
      * @param client The MqttAndroidClient which communicates with the service for this connection
      * @param tlsConnection true if the connection is secured by SSL
      */
-    public Connection(String clientHandle, String clientId, String host,
-                      int port, Context context, MqttAndroidClient client, boolean tlsConnection) {
+    private Connection(String clientHandle, String clientId, String host,
+                       int port, Context context, MqttAndroidClient client, boolean tlsConnection) {
         //generate the client handle from its hash code
         this.clientHandle = clientHandle;
         this.clientId = clientId;
@@ -164,11 +164,10 @@ public class Connection {
         this.client = client;
         this.tlsConnection = tlsConnection;
         history = new ArrayList<String>();
-        StringBuffer sb = new StringBuffer();
-        sb.append("Client: ");
-        sb.append(clientId);
-        sb.append(" created");
-        addAction(sb.toString());
+        String sb = "Client: " +
+                clientId +
+                " created";
+        addAction(sb);
     }
 
     /**
@@ -178,33 +177,13 @@ public class Connection {
     public void addAction(String action) {
 
         Object[] args = new String[1];
-        SimpleDateFormat sdf = new SimpleDateFormat(context.getString(R.string.connection_dateFormat));
-        args[0] = sdf.format(new Date());
+        DateFormat dateTimeFormatter = SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        args[0] = dateTimeFormatter.format(new Date());
 
         String timestamp = context.getString(R.string.timestamp, args);
         history.add(action + timestamp);
 
         notifyListeners(new PropertyChangeEvent(this, ActivityConstants.historyProperty, null, null));
-    }
-
-    /**
-     * Generate an array of Spanned items representing the history of this
-     * connection.
-     *
-     * @return an array of history entries
-     */
-    public Spanned[] history() {
-
-        int i = 0;
-        Spanned[] array = new Spanned[history.size()];
-
-        for (String s : history) {
-            if (s != null) {
-                array[i] = Html.fromHtml(s);
-                i++;
-            }
-        }
-        return array;
     }
 
     /**
@@ -272,15 +251,6 @@ public class Connection {
     }
 
     /**
-     * Determines if a given handle refers to this client
-     * @param handle The handle to compare with this clients handle
-     * @return true if the handles match
-     */
-    public boolean isHandle(String handle) {
-        return clientHandle.equals(handle);
-    }
-
-    /**
      * Compares two connection objects for equality
      * this only takes account of the client handle
      * @param o The object to compare to
@@ -313,22 +283,6 @@ public class Connection {
     public String getHostName() {
 
         return host;
-    }
-
-    /**
-     * Determines if the client is in a state of connecting or connected.
-     * @return if the client is connecting or connected
-     */
-    public boolean isConnectedOrConnecting() {
-        return (status == ConnectionStatus.CONNECTED) || (status == ConnectionStatus.CONNECTING);
-    }
-
-    /**
-     * Client is currently not in an error state
-     * @return true if the client is in not an error state
-     */
-    public boolean noError() {
-        return status != ConnectionStatus.ERROR;
     }
 
     /**
@@ -367,19 +321,8 @@ public class Connection {
     }
 
     /**
-     * Remove a registered {@link PropertyChangeListener}
-     * @param listener A reference to the listener to remove
-     */
-    public void removeChangeListener(PropertyChangeListener listener)
-    {
-        if (listener != null) {
-            listeners.remove(listener);
-        }
-    }
-
-    /**
      * Notify {@link PropertyChangeListener} objects that the object has been updated
-     * @param propertyChangeEvent
+     * @param propertyChangeEvent - The property Change event
      */
     private void notifyListeners(PropertyChangeEvent propertyChangeEvent)
     {

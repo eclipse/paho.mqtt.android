@@ -1,10 +1,6 @@
 package org.eclipse.paho.android.sample.model;
 
 
-import android.os.Bundle;
-import android.util.Log;
-
-import org.eclipse.paho.android.sample.activity.ActivityConstants;
 import org.eclipse.paho.android.sample.activity.Connection;
 
 public class ConnectionModel {
@@ -25,25 +21,23 @@ public class ConnectionModel {
     private static final String LWT_QOS = "LWT_QOS";
     private static final String LWT_RETAIN = "LWT_RETAIN";
 
-    private static final String TAG = "ConnectionModel";
 
-
-    private String clientHandle = new String();
+    private String clientHandle = "";
     private String clientId = "AndroidExampleClient";
     private String serverHostName = "iot.eclipse.org";
     private int serverPort = 1883;
     private boolean cleanSession = true;
-    private String username = new String();
-    private String password = new String();
+    private String username = "";
+    private String password = "";
 
 
     private boolean tlsConnection = false;
-    private String tlsServerKey = new String();
-    private String tlsClientKey = new String();
+    private String tlsServerKey = "";
+    private String tlsClientKey = "";
     private int timeout = 80;
     private int keepAlive = 200;
-    private String lwtTopic = new String();
-    private String lwtMessage = new String();
+    private String lwtTopic = "";
+    private String lwtMessage = "";
     private int lwtQos = 0;
     private boolean lwtRetain =  false;
 
@@ -62,14 +56,14 @@ public class ConnectionModel {
         cleanSession = connection.getConnectionOptions().isCleanSession();
 
         if(connection.getConnectionOptions().getUserName() == null){
-            username = new String();
+            username = "";
         }else {
             username = connection.getConnectionOptions().getUserName();
         }
         if(connection.getConnectionOptions().getPassword() != null) {
             password = new String(connection.getConnectionOptions().getPassword());
         } else {
-            password = new String();
+            password = "";
         }
         tlsServerKey = "--- TODO ---";
         tlsClientKey = "--- TODO ---";
@@ -77,7 +71,7 @@ public class ConnectionModel {
         keepAlive = connection.getConnectionOptions().getKeepAliveInterval();
 
         if(connection.getConnectionOptions().getWillDestination() == null){
-            lwtTopic = new String();
+            lwtTopic = "";
         } else {
             lwtTopic = connection.getConnectionOptions().getWillDestination();
         }
@@ -86,53 +80,10 @@ public class ConnectionModel {
             lwtQos = connection.getConnectionOptions().getWillMessage().getQos();
             lwtRetain = connection.getConnectionOptions().getWillMessage().isRetained();
         } else {
-            lwtMessage = new String();
+            lwtMessage = "";
             lwtQos = 0;
             lwtRetain = false;
         }
-
-    }
-
-    public ConnectionModel(Bundle connectionBundle) {
-
-        clientHandle = connectionBundle.getString(CLIENT_HANDLE);
-        clientId = connectionBundle.getString(CLIENT_ID);
-        serverHostName = connectionBundle.getString(HOST_NAME);
-        serverPort = connectionBundle.getInt(PORT);
-        cleanSession = connectionBundle.getBoolean(CLEAN_SESSION);
-        username = connectionBundle.getString(USERNAME);
-        password = connectionBundle.getString(PASSWORD);
-        tlsServerKey = connectionBundle.getString(TLS_SERVER_KEY);
-        tlsClientKey = connectionBundle.getString(TLS_CLIENT_KEY);
-        timeout = connectionBundle.getInt(TIMEOUT);
-        keepAlive = connectionBundle.getInt(KEEP_ALIVE);
-        lwtTopic = connectionBundle.getString(LWT_TOPIC);
-        lwtMessage = connectionBundle.getString(LWT_MESSAGE);
-        lwtQos = connectionBundle.getInt(LWT_QOS);
-        lwtRetain = connectionBundle.getBoolean(LWT_RETAIN);
-
-    }
-
-    public Bundle getConnectionBundle(){
-
-        Bundle connectionBundle  = new Bundle();
-        connectionBundle.putString(CLIENT_HANDLE, clientHandle);
-        connectionBundle.putString(CLIENT_ID, clientId);
-        connectionBundle.putString(HOST_NAME, serverHostName);
-        connectionBundle.putInt(PORT, serverPort);
-        connectionBundle.putBoolean(CLEAN_SESSION, cleanSession);
-        connectionBundle.putString(USERNAME, username);
-        connectionBundle.putString(PASSWORD, password);
-        connectionBundle.putString(TLS_SERVER_KEY, tlsServerKey);
-        connectionBundle.putString(TLS_CLIENT_KEY, tlsClientKey);
-        connectionBundle.putInt(TIMEOUT, timeout);
-        connectionBundle.putInt(KEEP_ALIVE, keepAlive);
-        connectionBundle.putString(LWT_TOPIC, lwtTopic);
-        connectionBundle.putString(LWT_MESSAGE, lwtMessage);
-        connectionBundle.putInt(LWT_QOS, lwtQos);
-        connectionBundle.putBoolean(LWT_RETAIN, lwtRetain);
-
-        return connectionBundle;
 
     }
 

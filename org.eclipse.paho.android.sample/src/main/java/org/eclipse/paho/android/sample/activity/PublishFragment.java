@@ -1,6 +1,5 @@
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -24,12 +23,12 @@ import java.util.Map;
 
 public class PublishFragment extends Fragment {
 
-    Connection connection;
+    private Connection connection;
 
-    int selectedQos = 0;
-    boolean retainValue = false;
-    String topic = "/test";
-    String message = "Hello world";
+    private int selectedQos = 0;
+    private boolean retainValue = false;
+    private String topic = "/test";
+    private String message = "Hello world";
 
     public PublishFragment() {
         // Required empty public constructor
@@ -128,16 +127,6 @@ public class PublishFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return rootView;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
 

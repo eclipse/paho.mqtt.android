@@ -25,19 +25,12 @@ import org.eclipse.paho.android.sample.model.NavDrawerItem;
 
 public class FragmentDrawer extends Fragment {
 
-    private static String TAG = FragmentDrawer.class.getSimpleName();
-
-    private RecyclerView recyclerView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private NavigationDrawerAdapter adapter;
     private View containerView;
-    private static String[] titles = null;
     private FragmentDrawerListener drawerListener;
-    List<NavDrawerItem> data = new ArrayList<NavDrawerItem>();
-
-    private TextView addConnectionTextView ;
-    private TextView helpTextView;
+    private final List<NavDrawerItem> data = new ArrayList<NavDrawerItem>();
 
     public FragmentDrawer() {
 
@@ -93,7 +86,7 @@ public class FragmentDrawer extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    public  List<NavDrawerItem> getData() {
+    private List<NavDrawerItem> getData() {
 
 
 
@@ -102,37 +95,29 @@ public class FragmentDrawer extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // drawer labels
-        titles = getActivity().getResources().getStringArray(R.array.nav_drawer_labels);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflating view layout
         View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-        recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
+        RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
 
-        addConnectionTextView = (TextView) layout.findViewById(R.id.action_add_connection);
+        TextView addConnectionTextView = (TextView) layout.findViewById(R.id.action_add_connection);
 
         addConnectionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerListener.onAddConnectionSelected(v);
+                drawerListener.onAddConnectionSelected();
                 mDrawerLayout.closeDrawer(containerView);
             }
         });
 
 
-        helpTextView = (TextView) layout.findViewById(R.id.action_help);
+        TextView helpTextView = (TextView) layout.findViewById(R.id.action_help);
 
         helpTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawerListener.onHelpSelected(v);
+                drawerListener.onHelpSelected();
                 mDrawerLayout.closeDrawer(containerView);
             }
         });
@@ -143,15 +128,15 @@ public class FragmentDrawer extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
             @Override
-            public void onClick(View view, int position) {
-                drawerListener.onDrawerItemSelected(view, position);
+            public void onClick(int position) {
+                drawerListener.onDrawerItemSelected(position);
                 mDrawerLayout.closeDrawer(containerView);
             }
 
             @Override
-            public void onLongClick(View view, int position) {
+            public void onLongClick(int position) {
                 System.out.println("I want to delete: " + position);
-                drawerListener.onDrawerItemLongSelected(view, position);
+                drawerListener.onDrawerItemLongSelected(position);
                 mDrawerLayout.closeDrawer(containerView);
             }
         }));
@@ -193,16 +178,16 @@ public class FragmentDrawer extends Fragment {
 
     }
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
+    public interface ClickListener {
+        void onClick(int position);
 
-        public void onLongClick(View view, int position);
+        void onLongClick(int position);
     }
 
     static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
-        private GestureDetector gestureDetector;
-        private ClickListener clickListener;
+        private final GestureDetector gestureDetector;
+        private final ClickListener clickListener;
 
         public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
             this.clickListener = clickListener;
@@ -216,7 +201,7 @@ public class FragmentDrawer extends Fragment {
                 public void onLongPress(MotionEvent e) {
                     View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if (child != null && clickListener != null) {
-                        clickListener.onLongClick(child, recyclerView.getChildPosition(child));
+                        clickListener.onLongClick(recyclerView.getChildPosition(child));
 
                     }
                 }
@@ -228,7 +213,7 @@ public class FragmentDrawer extends Fragment {
 
             View child = rv.findChildViewUnder(e.getX(), e.getY());
             if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildPosition(child));
+                clickListener.onClick(rv.getChildPosition(child));
             }
             return false;
         }
@@ -246,9 +231,9 @@ public class FragmentDrawer extends Fragment {
     }
 
     public interface FragmentDrawerListener {
-        public void onDrawerItemSelected(View view, int position);
-        public void onDrawerItemLongSelected(View view, int position);
-        public void onAddConnectionSelected(View view);
-        public void onHelpSelected(View view);
+        void onDrawerItemSelected(int position);
+        void onDrawerItemLongSelected(int position);
+        void onAddConnectionSelected();
+        void onHelpSelected();
     }
 }

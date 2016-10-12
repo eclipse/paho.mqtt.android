@@ -118,6 +118,8 @@ class MqttConnection implements MqttCallbackExtended {
 	// our client object - instantiated on connect
 	private MqttAsyncClient myClient = null;
 
+	private AlarmPingSender alarmPingSender = null;
+
 	// our (parent) service object
 	private MqttService service = null;
 
@@ -283,8 +285,9 @@ class MqttConnection implements MqttCallbackExtended {
 			
 			// if myClient is null, then create a new connection
 			else {
+				alarmPingSender = new AlarmPingSender(service);
 				myClient = new MqttAsyncClient(serverURI, clientId,
-						persistence, new AlarmPingSender(service));
+						persistence, alarmPingSender);
 				myClient.setCallback(this);
 
 				service.traceDebug(TAG,"Do Real connect!");
@@ -803,19 +806,26 @@ class MqttConnection implements MqttCallbackExtended {
 		service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
 		disconnected = true;
 		try {
-			myClient.disconnect(null, new IMqttActionListener() {
+			if(!this.connectOptions.isAutomaticReconnect()) {
+				myClient.disconnect(null, new IMqttActionListener() {
 
-				@Override
-				public void onSuccess(IMqttToken asyncActionToken) {
-					// No action
-				}
+					@Override
+					public void onSuccess(IMqttToken asyncActionToken) {
+						// No action
+					}
 
-				@Override
-				public void onFailure(IMqttToken asyncActionToken,
-						Throwable exception) {
-					// No action
-				}
-			});
+					@Override
+					public void onFailure(IMqttToken asyncActionToken,
+										  Throwable exception) {
+						// No action
+					}
+				});
+			} else {
+				// Using the new Automatic reconnect functionality.
+				// We can't force a disconnection, but we can speed one up
+				alarmPingSender.schedule(100);
+
+			}
 		} catch (Exception e) {
 			// ignore it - we've done our best
 		}

@@ -61,7 +61,7 @@ public class Connections {
     }
 
     /**
-     * Returns an already initalised instance of <code>Connections</code>, if Connections has yet to be created, it will
+     * Returns an already initialised instance of <code>Connections</code>, if Connections has yet to be created, it will
      * create and return that instance.
      * @param context The applications context used to create the <code>Connections</code> object if it is not already initialised
      * @return <code>Connections</code> instance
@@ -98,20 +98,21 @@ public class Connections {
 
     }
 
-    /**
-     * Create a fully initialised <code>MqttAndroidClient</code> for the parameters given
-     * @param context The Applications context
-     * @param serverURI The ServerURI to connect to
-     * @param clientId The clientId for this client
-     * @return new instance of MqttAndroidClient
-     */
-    public MqttAndroidClient createClient(Context context, String serverURI, String clientId){
-    MqttAndroidClient client = new MqttAndroidClient(context, serverURI, clientId);
-        return client;
-    }
+// --Commented out by Inspection START (12/10/2016, 10:21):
+//    /**
+//     * Create a fully initialised <code>MqttAndroidClient</code> for the parameters given
+//     * @param context The Applications context
+//     * @param serverURI The ServerURI to connect to
+//     * @param clientId The clientId for this client
+//     * @return new instance of MqttAndroidClient
+//     */
+//    public MqttAndroidClient createClient(Context context, String serverURI, String clientId){
+//        return new MqttAndroidClient(context, serverURI, clientId);
+//    }
+// --Commented out by Inspection STOP (12/10/2016, 10:21)
 
     /**
-     * Get all the connections assiciated with this <code>Connections</code> object.
+     * Get all the connections associated with this <code>Connections</code> object.
      * @return <code>Map</code> of connections
      */
     public Map<String, Connection> getConnections(){
@@ -135,12 +136,7 @@ public class Connections {
      */
     public void updateConnection(Connection connection){
         connections.put(connection.handle(), connection);
-        try{
-            persistence.updateConnection(connection);
-        } catch(PersistenceException e){
-            // TODO - Handle this update error
-            e.printStackTrace();
-        }
+        persistence.updateConnection(connection);
     }
 
 
