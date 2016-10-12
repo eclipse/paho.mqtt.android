@@ -1026,7 +1026,25 @@ class MqttConnection implements MqttCallbackExtended {
 			return;
 		}
 
-		if (disconnected && !cleanSession) {
+		if(connectOptions.isAutomaticReconnect()){
+			//The Automatic reconnect functionality is enabled here
+			Log.i(TAG, "Requesting Automatic reconnect using New Java AC");
+			final Bundle resultBundle = new Bundle();
+			resultBundle.putString(
+					MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN,
+					reconnectActivityToken);
+			resultBundle.putString(
+					MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, null);
+			resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
+					MqttServiceConstants.CONNECT_ACTION);
+			try {
+				myClient.reconnect();
+			} catch (MqttException ex){
+				Log.e(TAG, "Exception occurred attempting to reconnect: " + ex.getMessage());
+				setConnectingState(false);
+				handleException(resultBundle, ex);
+			}
+		} else if (disconnected && !cleanSession) {
 			// use the activityToke the same with action connect
 			service.traceDebug(TAG,"Do Real Reconnect!");
 			final Bundle resultBundle = new Bundle();
