@@ -89,7 +89,7 @@ hs_err_pid*
 /.idea/libraries
 .DS_Store
 /captures
-**/*.iml
+*.iml
 *.class
 
 
