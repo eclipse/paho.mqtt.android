@@ -14,7 +14,7 @@ buildscript {
 ext {
 
     compileSdkVersion = 23
-    buildToolsVersion = '23.0.3'
+    buildToolsVersion = '25.0.0'
 
     group = 'org.eclipse.paho'
 
@@ -28,7 +28,7 @@ ext {
 
     mavenUrl = "https://repo.eclipse.org/content/repositories/paho-snapshots/"
 
-    supportLibVersion = '23.3.0'
+    supportLibVersion = '25.0.0'
 
 }
 
