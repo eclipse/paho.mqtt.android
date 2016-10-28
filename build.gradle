@@ -7,21 +7,14 @@ buildscript {
         maven { url "https://jitpack.io" }
     }
     dependencies {
-        //classpath 'com.android.tools.build:gradle:2.0.0'
-	classpath 'com.android.tools.build:gradle:2.0.0'
-        //classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
-        // Work around to fix build
-        //classpath 'com.github.JakeWharton:sdk-manager-plugin:1d29782dd6'
-        classpath 'com.github.sschuberth:sdk-manager-plugin:master-SNAPSHOT'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:2.2.2'
     }
 }
 
-ext{
+ext {
 
     compileSdkVersion = 23
-    buildToolsVersion = '23.0.2'
+    buildToolsVersion = '23.0.3'
 
     group = 'org.eclipse.paho'
 
