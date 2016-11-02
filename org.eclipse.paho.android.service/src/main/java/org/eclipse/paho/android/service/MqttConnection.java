@@ -295,6 +295,8 @@ class MqttConnection implements MqttCallbackExtended {
 				myClient.connect(connectOptions, invocationContext, listener);
 			}
 		} catch (Exception e) {
+			service.traceError(TAG, "Exception occurred attempting to connect: " + e.getMessage());
+			setConnectingState(false);
 			handleException(resultBundle, e);
 		}
 	}
@@ -1015,6 +1017,12 @@ class MqttConnection implements MqttCallbackExtended {
 	* multiple times 
 	*/
 	synchronized void reconnect() {
+
+		if (myClient == null) {
+			service.traceError(TAG,"Reconnect myClient = null. Will not do reconnect");
+			return;
+		}
+
 		if (isConnecting) {
 			service.traceDebug(TAG, "The client is connecting. Reconnect return directly.");
 			return ;
