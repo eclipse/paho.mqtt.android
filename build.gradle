@@ -4,15 +4,9 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
-        maven { url "https://jitpack.io" }
     }
     dependencies {
-        //classpath 'com.android.tools.build:gradle:2.0.0'
-	classpath 'com.android.tools.build:gradle:2.0.0'
-        //classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.+'
-        // Work around to fix build
-        //classpath 'com.github.JakeWharton:sdk-manager-plugin:1d29782dd6'
-        classpath 'com.github.sschuberth:sdk-manager-plugin:master-SNAPSHOT'
+	    classpath 'com.android.tools.build:gradle:2.2.1'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -33,16 +27,40 @@ ext{
 
     clientVersion = '1.1.0'
 
-    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
 
     supportLibVersion = '23.3.0'
 
 }
 
+def getSdkDirFromLocalProperties() {
+    def rootDir = project.rootDir
+    def localProperties = new File(rootDir, "local.properties")
+    Properties properties = new Properties()
+    localProperties.withInputStream { instr ->
+        properties.load(instr)
+    }
+    properties.getProperty('sdk.dir')
+}
+
+def androidHome = System.env['ANDROID_HOME']
+
+def androidHomeIsDefined = androidHome?.trim()
+
+def sdkDir = androidHomeIsDefined ? androidHome : getSdkDirFromLocalProperties()
+
+println "SDK dir: $sdkDir"
+
+
 allprojects {
+
     repositories {
         jcenter()
+        maven {
+            url "file://$sdkDir/extras/android/m2repository/"
+        }
     }
+
     version = rootProject.ext.serviceVersion
     group = rootProject.ext.group
 }
