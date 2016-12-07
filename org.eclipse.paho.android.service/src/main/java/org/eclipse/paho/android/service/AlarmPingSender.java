@@ -81,14 +81,17 @@ class AlarmPingSender implements MqttPingSender {
 
 	@Override
 	public void stop() {
-		// Cancel Alarm.
-		AlarmManager alarmManager = (AlarmManager) service
-				.getSystemService(Service.ALARM_SERVICE);
-		alarmManager.cancel(pendingIntent);
-
 		Log.d(TAG, "Unregister alarmreceiver to MqttService"+comms.getClient().getClientId());
 		if(hasStarted){
 			hasStarted = false;
+
+			// Cancel Alarm.
+			if (pendingIntent != null) {
+				AlarmManager alarmManager = (AlarmManager) service
+						.getSystemService(Service.ALARM_SERVICE);
+				alarmManager.cancel(pendingIntent);
+			}
+
 			try{
 				service.unregisterReceiver(alarmReceiver);
 			}catch(IllegalArgumentException e){
