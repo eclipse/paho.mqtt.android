@@ -169,41 +169,36 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
                 .getConnections();
 
         Log.i(TAG, "Updating connection: " + connections.keySet().toString());
-        try {
-            Connection connection = connections.get(model.getClientHandle());
-            // First disconnect the current instance of this connection
-            if(connection.isConnected()){
-                connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTING);
-                connection.getClient().disconnect();
-            }
-            // Update the connection.
-            connection.updateConnection(model.getClientId(), model.getServerHostName(), model.getServerPort(), model.isTlsConnection());
-            connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTING);
 
-            String[] actionArgs = new String[1];
-            actionArgs[0] = model.getClientId();
-            final ActionListener callback = new ActionListener(this,
-                    ActionListener.Action.CONNECT, connection, actionArgs);
-            connection.getClient().setCallback(new MqttCallbackHandler(this, model.getClientHandle()));
-
-            connection.getClient().setTraceCallback(new MqttTraceCallback());
-            MqttConnectOptions connOpts = optionsFromModel(model);
-            connection.addConnectionOptions(connOpts);
-            Connections.getInstance(this).updateConnection(connection);
-            drawerFragment.updateConnection(connection);
-
-            connection.getClient().connect(connOpts, null, callback);
-            Fragment fragment  = new ConnectionFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
-            fragment.setArguments(bundle);
-            String title = connection.getId();
-            displayFragment(fragment, title);
-
-
-        } catch (MqttException ex){
-            Log.e(TAG, "Exception occurred updating connection: " + connections.keySet().toString() + " : " + ex.getMessage());
+        Connection connection = connections.get(model.getClientHandle());
+        // First disconnect the current instance of this connection
+        if(connection.isConnected()){
+            connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTING);
+            connection.getClient().disconnect();
         }
+        // Update the connection.
+        connection.updateConnection(model.getClientId(), model.getServerHostName(), model.getServerPort(), model.isTlsConnection());
+        connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTING);
+
+        String[] actionArgs = new String[1];
+        actionArgs[0] = model.getClientId();
+        final ActionListener callback = new ActionListener(this,
+                ActionListener.Action.CONNECT, connection, actionArgs);
+        connection.getClient().setCallback(new MqttCallbackHandler(this, model.getClientHandle()));
+
+        connection.getClient().setTraceCallback(new MqttTraceCallback());
+        MqttConnectOptions connOpts = optionsFromModel(model);
+        connection.addConnectionOptions(connOpts);
+        Connections.getInstance(this).updateConnection(connection);
+        drawerFragment.updateConnection(connection);
+
+        connection.getClient().connect(connOpts, null, callback);
+        Fragment fragment  = new ConnectionFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
+        fragment.setArguments(bundle);
+        String title = connection.getId();
+        displayFragment(fragment, title);
     }
 
 
@@ -236,22 +231,14 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         connectionMap.add(model.getClientHandle());
         drawerFragment.addConnection(connection);
 
-        try {
-            connection.getClient().connect(connOpts, null, callback);
-            Fragment fragment  = new ConnectionFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
-            bundle.putBoolean(ActivityConstants.CONNECTED, true);
-            fragment.setArguments(bundle);
-            String title = connection.getId();
-            displayFragment(fragment, title);
-
-        }
-        catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(),
-                    "MqttException occurred", e);
-        }
-
+        connection.getClient().connect(connOpts, null, callback);
+        Fragment fragment  = new ConnectionFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
+        bundle.putBoolean(ActivityConstants.CONNECTED, true);
+        fragment.setArguments(bundle);
+        String title = connection.getId();
+        displayFragment(fragment, title);
     }
 
 
@@ -290,36 +277,20 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         final ActionListener callback = new ActionListener(this,
                 ActionListener.Action.CONNECT, connection, actionArgs);
         connection.getClient().setCallback(new MqttCallbackHandler(this, connection.handle()));
-        try {
-            connection.getClient().connect(connection.getConnectionOptions(), null, callback);
-        }
-        catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(),
-                    "MqttException occurred", e);
-        }
+        connection.getClient().connect(connection.getConnectionOptions(), null, callback);
     }
 
     public void disconnect(Connection connection){
-
-        try {
-            connection.getClient().disconnect();
-        } catch( MqttException ex){
-            Log.e(TAG, "Exception occurred during disconnect: " + ex.getMessage());
-        }
+        connection.getClient().disconnect();
     }
 
     public void publish(Connection connection, String topic, String message, int qos, boolean retain){
-
-        try {
-            String[] actionArgs = new String[2];
-            actionArgs[0] = message;
-            actionArgs[1] = topic;
-            final ActionListener callback = new ActionListener(this,
-                    ActionListener.Action.PUBLISH, connection, actionArgs);
-            connection.getClient().publish(topic, message.getBytes(), qos, retain, null, callback);
-        } catch( MqttException ex){
-            Log.e(TAG, "Exception occurred during publish: " + ex.getMessage());
-        }
+        String[] actionArgs = new String[2];
+        actionArgs[0] = message;
+        actionArgs[1] = topic;
+        final ActionListener callback = new ActionListener(this,
+                ActionListener.Action.PUBLISH, connection, actionArgs);
+        connection.getClient().publish(topic, message.getBytes(), qos, retain, null, callback);
     }
 
     /**

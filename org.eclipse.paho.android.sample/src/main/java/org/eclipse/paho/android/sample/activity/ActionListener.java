@@ -170,17 +170,12 @@ public class ActionListener implements IMqttActionListener {
         c.changeConnectionStatus(Connection.ConnectionStatus.CONNECTED);
         c.addAction("Client Connected");
         Log.i(TAG, c.handle() + " connected.");
-        try {
 
-            ArrayList<Subscription> subscriptions = connection.getSubscriptions();
-            for (Subscription sub : subscriptions) {
-                Log.i(TAG, "Auto-subscribing to: " + sub.getTopic() + "@ QoS: " + sub.getQos());
-                connection.getClient().subscribe(sub.getTopic(), sub.getQos());
-            }
-        } catch (MqttException ex){
-            Log.e(TAG, "Failed to Auto-Subscribe: " + ex.getMessage());
+        ArrayList<Subscription> subscriptions = connection.getSubscriptions();
+        for (Subscription sub : subscriptions) {
+            Log.i(TAG, "Auto-subscribing to: " + sub.getTopic() + "@ QoS: " + sub.getQos());
+            connection.getClient().subscribe(sub.getTopic(), sub.getQos());
         }
-
     }
 
     /**
