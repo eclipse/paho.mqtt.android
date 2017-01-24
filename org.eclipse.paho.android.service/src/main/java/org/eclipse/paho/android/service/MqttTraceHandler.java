@@ -28,7 +28,7 @@ public interface MqttTraceHandler {
 	 * @param message
 	 *            the text to be traced
 	 */
-	public abstract void traceDebug(String source, String message);
+	void traceDebug(String tag, String message);
 
 	/**
 	 * Trace error information
@@ -38,7 +38,7 @@ public interface MqttTraceHandler {
 	 * @param message
 	 *            the text to be traced
 	 */
-	public abstract void traceError(String source, String message);
+	void traceError(String tag, String message);
 
 	/**
 	 * trace exceptions
@@ -50,7 +50,7 @@ public interface MqttTraceHandler {
 	 * @param e
 	 *            the exception
 	 */
-	public abstract void traceException(String source, String message,
-			Exception e);
+	void traceException(String tag, String message,
+						Exception e);
 
 }

@@ -1,11 +1,10 @@
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -33,13 +31,12 @@ import java.util.Map;
 
 public class SubscriptionFragment extends Fragment {
 
-    int temp_qos_value = 0;
-    ListView subscriptionListView;
+    private int temp_qos_value = 0;
+    // --Commented out by Inspection (12/10/2016, 10:22):ListView subscriptionListView;
 
-    ArrayList<Subscription> subscriptions;
-    SubscriptionListItemAdapter adapter;
+    private ArrayList<Subscription> subscriptions;
 
-    Connection connection;
+    private Connection connection;
 
     public SubscriptionFragment() {
         // Required empty public constructor
@@ -71,7 +68,7 @@ public class SubscriptionFragment extends Fragment {
         });
 
         ListView subscriptionListView = (ListView) rootView.findViewById(R.id.subscription_list_view);
-        adapter = new SubscriptionListItemAdapter(this.getActivity(), subscriptions);
+        SubscriptionListItemAdapter adapter = new SubscriptionListItemAdapter(this.getActivity(), subscriptions);
 
         adapter.addOnUnsubscribeListner(new SubscriptionListItemAdapter.OnUnsubscribeListner() {
             @Override
@@ -84,16 +81,16 @@ public class SubscriptionFragment extends Fragment {
                 }
             }
         });
-        subscriptionListView.setAdapter(adapter);;
+        subscriptionListView.setAdapter(adapter);
 
 
         // Inflate the layout for this fragment
         return rootView;
     }
 
-    protected void showInputDialog(){
+    private void showInputDialog(){
         LayoutInflater layoutInflater =  (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
+        @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
         final EditText topicText = (EditText) promptView.findViewById(R.id.subscription_topic_edit_text);
 
         final Spinner qos = (Spinner) promptView.findViewById(R.id.subscription_qos_spinner);
@@ -134,7 +131,6 @@ public class SubscriptionFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
 
-            ;
         }).setNegativeButton(R.string.subscribe_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
@@ -146,13 +142,4 @@ public class SubscriptionFragment extends Fragment {
         alert.show();
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 }

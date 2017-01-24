@@ -11,11 +11,12 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:textSize="45dp"
+        android:textSize="45sp"
         android:text="@string/manage_title"
         android:textStyle="bold"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -41,7 +42,9 @@
         android:layout_marginTop="26dp"
         android:layout_below="@+id/delete_button"
         android:layout_alignStart="@+id/delete_button"
-        android:layout_alignEnd="@+id/delete_button" />
+        android:layout_alignLeft="@+id/delete_button"
+        android:layout_alignEnd="@+id/delete_button"
+        android:layout_alignRight="@+id/delete_button"/>
 
 
 </RelativeLayout>

@@ -12,20 +12,21 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/textView"
-        android:text="Topic" />
+        android:text="@string/topic_label" />
 
     <EditText
         android:id="@+id/subscription_topic_edit_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:inputType="text"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/qos_label"
-        android:text="QoS" />
+        android:text="@string/qos_label" />
 
     <Spinner
         android:layout_width="match_parent"

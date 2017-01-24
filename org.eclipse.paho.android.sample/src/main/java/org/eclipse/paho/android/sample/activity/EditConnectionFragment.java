@@ -1,13 +1,10 @@
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,10 +17,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
-
 import org.eclipse.paho.android.sample.R;
-import org.eclipse.paho.android.sample.components.ITextSelectCallback;
-import org.eclipse.paho.android.sample.components.TextSelectComponent;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.android.sample.model.ConnectionModel;
 
@@ -32,11 +26,6 @@ import java.util.Random;
 
 
 public class EditConnectionFragment extends Fragment {
-
-    private Toolbar mToolbar;
-
-    private ConnectionModel initialFormModel;
-    private ConnectionModel updatedFormModel;
 
     private EditText clientId;
     private EditText serverHostname;
@@ -53,15 +42,12 @@ public class EditConnectionFragment extends Fragment {
     private Spinner lwtQos;
     private Switch lwtRetain;
 
-    private String connectionHandle;
     private ConnectionModel formModel;
     private boolean newConnection = true;
 
-    private static String TAG = "EditConnectionFragment";
-
-    static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    static Random random = new Random();
-    static int length = 8;
+    private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final Random random = new Random();
+    private static final int length = 8;
 
     public EditConnectionFragment() {
         // Required empty public constructor
@@ -356,6 +342,7 @@ public class EditConnectionFragment extends Fragment {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void populateFromConnectionModel(ConnectionModel connectionModel) {
         clientId.setText(connectionModel.getClientId());
         serverHostname.setText(connectionModel.getServerHostName());
@@ -395,15 +382,6 @@ public class EditConnectionFragment extends Fragment {
 
     }
 
-    /**
-     * Compares the Initial state of the form to the current state.
-     * If the form has changed, return true.
-     * @return <code>True</code> if the form has changed.
-     */
-    private boolean checkFormForChanges(){
-        return true;
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -426,13 +404,4 @@ public class EditConnectionFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
 }

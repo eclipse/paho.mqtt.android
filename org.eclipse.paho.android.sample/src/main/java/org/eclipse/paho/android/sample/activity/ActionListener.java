@@ -1,5 +1,6 @@
 package org.eclipse.paho.android.sample.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -11,6 +12,7 @@ import org.eclipse.paho.android.sample.model.Subscription;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.util.ArrayList;
 
@@ -51,21 +53,21 @@ public class ActionListener implements IMqttActionListener {
      * The {@link Action} that is associated with this instance of
      * <code>ActionListener</code>
      **/
-    private Action action;
+    private final Action action;
     /**
      * The arguments passed to be used for formatting strings
      **/
-    private String[] additionalArgs;
+    private final String[] additionalArgs;
 
-    private Connection connection;
+    private final Connection connection;
     /**
      * Handle of the {@link Connection} this action was being executed on
      **/
-    private String clientHandle;
+    private final String clientHandle;
     /**
      * {@link Context} for performing various operations
      **/
-    private Context context;
+    private final Context context;
 
     /**
      * Creates a generic action listener for actions performed form any activity
@@ -116,7 +118,7 @@ public class ActionListener implements IMqttActionListener {
     private void publish() {
 
         Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        String actionTaken = context.getString(R.string.toast_pub_success,
+        @SuppressLint("StringFormatMatches") String actionTaken = context.getString(R.string.toast_pub_success,
               (Object[]) additionalArgs);
         c.addAction(actionTaken);
         Notify.toast(context, actionTaken, Toast.LENGTH_SHORT);
@@ -213,7 +215,7 @@ public class ActionListener implements IMqttActionListener {
      */
     private void publish(Throwable exception) {
         Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        String action = context.getString(R.string.toast_pub_failed,
+        @SuppressLint("StringFormatMatches") String action = context.getString(R.string.toast_pub_failed,
                 (Object[]) additionalArgs);
         c.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);

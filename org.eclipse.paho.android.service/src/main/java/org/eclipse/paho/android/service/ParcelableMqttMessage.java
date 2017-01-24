@@ -25,7 +25,7 @@ import android.os.Parcelable;
  * <p>
  * An application will probably use this only when receiving a message from a
  * Service in a Bundle - the necessary code will be something like this :-
- * 
+ * </p>
  * <pre>
  * <code>
  * 	private void messageArrivedAction(Bundle data) {
@@ -36,12 +36,11 @@ import android.os.Parcelable;
  * 
  * </code>
  * </pre>
- * 
- * </p>
+ *
  * <p>
  * It is unlikely that an application will directly use the methods which are
  * specific to this class.
- * <p>
+ * </p>
  */
 
 public class ParcelableMqttMessage extends MqttMessage implements Parcelable {

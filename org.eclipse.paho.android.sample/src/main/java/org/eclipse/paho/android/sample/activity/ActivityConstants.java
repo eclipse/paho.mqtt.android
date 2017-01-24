@@ -1,6 +1,6 @@
 package org.eclipse.paho.android.sample.activity;
 
-public class ActivityConstants {
+class ActivityConstants {
 
     /** Bundle key for passing a connection around by it's name **/
     public static final String CONNECTION_KEY = "CONNECTION_KEY";
@@ -20,5 +20,5 @@ public class ActivityConstants {
 
 
     /** Empty String for comparisons **/
-    static final String empty = new String();
+    static final String empty = "";
 }

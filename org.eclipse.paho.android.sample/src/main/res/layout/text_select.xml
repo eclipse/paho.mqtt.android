@@ -7,12 +7,12 @@
         <TextView
             android:id="@+id/mainLabel"
             style="@style/textFieldLabel"
-            android:text="Main Label"/>
+            android:text="@string/placeholder_main_label"/>
 
         <TextView
             android:id="@+id/subLabel"
             style="@style/textfieldSubLabel"
             android:layout_below="@+id/mainLabel"
-            android:text="Sub Label"/>
+            android:text="@string/placeholder_sub_label"/>
     </RelativeLayout>
 </merge>

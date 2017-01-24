@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-	    classpath 'com.android.tools.build:gradle:2.2.1'
+	    classpath 'com.android.tools.build:gradle:2.2.3'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -14,22 +14,23 @@ buildscript {
 
 ext{
 
-    compileSdkVersion = 23
-    buildToolsVersion = '23.0.2'
+    compileSdkVersion = 24
+    buildToolsVersion = '23.0.3'
+
 
     group = 'org.eclipse.paho'
 
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
-    sampleVersion = '1.1.0'
+    sampleVersion = '1.1.1'
 
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.1.0'
+    serviceVersion = '1.1.1'
 
     clientVersion = '1.1.0'
 
     mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
 
-    supportLibVersion = '23.3.0'
+    supportLibVersion = '24.2.1'
 
 }
 
@@ -42,6 +43,7 @@ def getSdkDirFromLocalProperties() {
     }
     properties.getProperty('sdk.dir')
 }
+
 
 def androidHome = System.env['ANDROID_HOME']
 

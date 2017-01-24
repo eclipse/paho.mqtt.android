@@ -33,7 +33,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 class DatabaseMessageStore implements MessageStore {
 
 	// TAG used for indentify trace data etc.
-	private static String TAG = "DatabaseMessageStore";
+	private static final String TAG = "DatabaseMessageStore";
 
 	// One "private" database column name
 	// The other database column names are defined in MqttServiceConstants
@@ -57,7 +57,7 @@ class DatabaseMessageStore implements MessageStore {
 	 */
 	private static class MQTTDatabaseHelper extends SQLiteOpenHelper {
 		// TAG used for indentify trace data etc.
-		private static String TAG = "MQTTDatabaseHelper";
+		private static final String TAG = "MQTTDatabaseHelper";
 
 		private static final String DATABASE_NAME = "mqttAndroidService.db";
 
@@ -141,7 +141,7 @@ class DatabaseMessageStore implements MessageStore {
 	 *            a context to use for android calls
 	 */
 	public DatabaseMessageStore(MqttService service, Context context) {
-		this.traceHandler = (MqttTraceHandler) service;
+		this.traceHandler = service;
 
 		// Open message database
 		mqttDb = new MQTTDatabaseHelper(traceHandler, context);
@@ -290,7 +290,7 @@ class DatabaseMessageStore implements MessageStore {
 		return new Iterator<StoredMessage>() {
 			private Cursor c;
 			private boolean hasNext;
-            private String[] selectionArgs = {
+            private final String[] selectionArgs = {
                     clientHandle,
             };
 
@@ -321,7 +321,7 @@ class DatabaseMessageStore implements MessageStore {
 
 			@Override
 			public boolean hasNext() {
-		        if (hasNext == false){
+		        if (!hasNext){
 		          	c.close();
 				}
 				return hasNext;
@@ -401,7 +401,6 @@ class DatabaseMessageStore implements MessageStore {
 		}
 		traceHandler.traceDebug(TAG, "clearArrivedMessages: rows affected = "
 				+ rows);
-		return;
 	}
 
 	private class DbStoredData implements StoredMessage {

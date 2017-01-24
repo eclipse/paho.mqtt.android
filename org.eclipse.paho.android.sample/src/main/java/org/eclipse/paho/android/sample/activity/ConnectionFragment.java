@@ -1,6 +1,5 @@
 package org.eclipse.paho.android.sample.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
@@ -17,10 +16,9 @@ import java.util.Map;
 
 
 public class ConnectionFragment extends Fragment {
-    Connection connection;
-    FragmentTabHost mTabHost;
-    Switch connectSwitch;
-    boolean connected;
+    private Connection connection;
+    private FragmentTabHost mTabHost;
+    private Switch connectSwitch;
 
     public ConnectionFragment() {
         setHasOptionsMenu(true);
@@ -32,10 +30,8 @@ public class ConnectionFragment extends Fragment {
         Map<String, Connection> connections = Connections.getInstance(this.getActivity())
                 .getConnections();
         connection = connections.get(this.getArguments().getString(ActivityConstants.CONNECTION_KEY));
-        connected = this.getArguments().getBoolean(ActivityConstants.CONNECTED, false);
+        boolean connected = this.getArguments().getBoolean(ActivityConstants.CONNECTED, false);
 
-
-        final String name = connection.getId() + "@" + connection.getHostName() + ":" + connection.getPort();
         setHasOptionsMenu(true);
     }
 
@@ -62,20 +58,10 @@ public class ConnectionFragment extends Fragment {
 
     }
 
-    public void changeConnectedState(boolean state){
+    private void changeConnectedState(boolean state){
         mTabHost.getTabWidget().getChildTabViewAt(1).setEnabled(state);
         mTabHost.getTabWidget().getChildTabViewAt(2).setEnabled(state);
         connectSwitch.setChecked(state);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override

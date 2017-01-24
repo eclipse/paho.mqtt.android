@@ -1,30 +1,15 @@
 package org.eclipse.paho.android;
 
-import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
-import android.os.IBinder;
-import android.test.AndroidTestCase;
-import android.test.ApplicationTestCase;
-import android.test.ServiceTestCase;
-import android.util.Log;
-
-import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
-import org.eclipse.paho.android.service.R;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import android.content.Intent;
-import android.os.IBinder;
 import android.test.AndroidTestCase;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -36,14 +21,13 @@ import android.util.Log;
  */
 public class AndroidServiceTest extends AndroidTestCase {
 
-    private static String TAG = "org.eclipse.paho.android.service.AndroidServiceTest";
+    private static final String TAG = "AndroidServiceTest";
 
-    private String classCanonicalName = this.getClass().getCanonicalName();
+    private final String classCanonicalName = this.getClass().getCanonicalName();
 
     private String mqttServerURI;
     private String mqttSSLServerURI;
     private int waitForCompletionTime;
-    private String clientKeyStore;
     private String keyStorePwd;
 
     @Override
@@ -53,7 +37,7 @@ public class AndroidServiceTest extends AndroidTestCase {
         mqttServerURI = properties.getServerURI();
         mqttSSLServerURI = properties.getServerSSLURI();
         waitForCompletionTime = properties.getWaitForCompletionTime();
-        clientKeyStore = properties.getClientKeyStore();
+        String clientKeyStore = properties.getClientKeyStore();
         keyStorePwd = properties.getClientKeyStorePassword();
         Log.d(TAG, properties.getServerSSLURI());
     }
@@ -249,7 +233,7 @@ public class AndroidServiceTest extends AndroidTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -304,18 +288,18 @@ public class AndroidServiceTest extends AndroidTestCase {
 
                 subToken = mqttSubscriber[i].subscribe(topicNames, topicQos,
                         null, null);
-                Log.i(methodName, "subscribe " + topicNames[0].toString()
+                Log.i(methodName, "subscribe " + topicNames[0]
                         + " QoS is " + topicQos[0]);
                 subToken.waitForCompletion(waitForCompletionTime);
             } // for...
 
             for (int iMessage = 0; iMessage < 2; iMessage++) {
                 byte[] payload = ("Message " + iMessage).getBytes();
-                for (int i = 0; i < mqttPublisher.length; i++) {
-                    pubToken = mqttPublisher[i].publish(topicNames[0], payload,
+                for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
+                    pubToken = aMqttPublisher.publish(topicNames[0], payload,
                             0, false, null, null);
                     Log.i(methodName, "publish to " + topicNames[0]
-                            + " payload is " + payload.toString());
+                            + " payload is " + Arrays.toString(payload));
 
                     pubToken.waitForCompletion(waitForCompletionTime);
                 }
@@ -323,7 +307,7 @@ public class AndroidServiceTest extends AndroidTestCase {
                 TimeUnit.MILLISECONDS.sleep(30000);
 
                 for (int i = 0; i < mqttSubscriber.length; i++) {
-                    for (int ii = 0; ii < mqttPublisher.length; ii++) {
+                    for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
                         Log.i(methodName,
                                 "validate time = " + new Date().toString());
                         boolean ok = mqttV3Receiver[i].validateReceipt(
@@ -343,17 +327,17 @@ public class AndroidServiceTest extends AndroidTestCase {
                     + exception);
         } finally {
             try {
-                for (int i = 0; i < mqttPublisher.length; i++) {
-                    disconnectToken = mqttPublisher[i].disconnect(null, null);
+                for (IMqttAsyncClient aMqttPublisher : mqttPublisher) {
+                    disconnectToken = aMqttPublisher.disconnect(null, null);
                     disconnectToken.waitForCompletion(waitForCompletionTime);
-                    mqttPublisher[i].close();
+                    aMqttPublisher.close();
                 }
-                for (int i = 0; i < mqttSubscriber.length; i++) {
-                    disconnectToken = mqttSubscriber[i].disconnect(null, null);
+                for (IMqttAsyncClient aMqttSubscriber : mqttSubscriber) {
+                    disconnectToken = aMqttSubscriber.disconnect(null, null);
                     disconnectToken.waitForCompletion(waitForCompletionTime);
-                    mqttSubscriber[i].close();
+                    aMqttSubscriber.close();
                 }
-            } catch (Exception exception) {
+            } catch (Exception ignored) {
 
             }
         }
@@ -549,7 +533,7 @@ public class AndroidServiceTest extends AndroidTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -686,7 +670,7 @@ public class AndroidServiceTest extends AndroidTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -792,7 +776,7 @@ public class AndroidServiceTest extends AndroidTestCase {
 
                 mqttClient.close();
             }
-            catch (Exception exception) {
+            catch (Exception ignored) {
 
             }
         }
@@ -899,7 +883,7 @@ public class AndroidServiceTest extends AndroidTestCase {
             subToken = mqttClientRetained.subscribe(topicNames, topicQos, null, null);
             subToken.waitForCompletion();
 
-            Log.i(methodName, "subscribe "+topicNames[0].toString() + " QoS is " + topicQos[0]);
+            Log.i(methodName, "subscribe "+ topicNames[0] + " QoS is " + topicQos[0]);
 
             TimeUnit.MILLISECONDS.sleep(3000);
 

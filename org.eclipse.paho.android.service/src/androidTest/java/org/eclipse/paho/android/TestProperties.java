@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2015, 2016 IBM Corp.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ * and the Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
+ */
 package org.eclipse.paho.android;
 
 import android.content.Context;
@@ -7,25 +19,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Created by james on 18/08/15.
- */
-public class TestProperties {
+class TestProperties {
 
-    //	public int waitForCompletionTime = 6000;
-//	public String serverURI = "tcp://9.125.29.127:1883";
-    // public static String serverURI = "tcp://9.119.156.175:1883";
-    // public static String sslServerURI = "ssl://9.119.156.175:8892";
-//	public String sslServerURI = "ssl://9.125.29.12:8892";
 
     private final Class<?> cclass = TestProperties.class;
     private final String className = cclass.getName();
 
-    public final String KEY_SERVER_URI = "SERVER_URI";
-    public final String KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE";
-    public final String KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD";
-    public final String KEY_SERVER_SSL_URI = "SERVER_SSL_URI";
-    public final String KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME";
+    private final String KEY_SERVER_URI = "SERVER_URI";
+    private final String KEY_CLIENT_KEY_STORE = "CLIENT_KEY_STORE";
+    private final String KEY_CLIENT_KEY_STORE_PASSWORD = "CLIENT_KEY_STORE_PASSWORD";
+    private final String KEY_SERVER_SSL_URI = "SERVER_SSL_URI";
+    private final String KEY_WAIT_FOR_COMPLETION_TIME = "WAIT_FOR_COMPLETION_TIME";
 
     private Properties properties = new Properties();
 
@@ -85,9 +89,8 @@ public class TestProperties {
      * @param key
      * @return value
      */
-    public String getProperty(String key) {
-        String value = properties.getProperty(key);
-        return value;
+    private String getProperty(String key) {
+        return properties.getProperty(key);
     }
 
     /**
@@ -103,7 +106,7 @@ public class TestProperties {
      * @param key
      * @return value
      */
-    public int getIntProperty(String key) {
+    private int getIntProperty(String key) {
         String value = getProperty(key);
         return Integer.parseInt(value);
     }
@@ -114,7 +117,6 @@ public class TestProperties {
      */
 
     public String getClientKeyStore() {
-
         return getProperty(KEY_CLIENT_KEY_STORE);
     }
 

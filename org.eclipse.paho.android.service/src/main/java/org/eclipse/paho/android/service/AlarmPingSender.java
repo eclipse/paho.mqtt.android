@@ -17,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttPingSender;
 import org.eclipse.paho.client.mqttv3.internal.ClientComms;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -40,7 +41,7 @@ import android.util.Log;
  */
 class AlarmPingSender implements MqttPingSender {
 	// Identifier for Intents, log messages, etc..
-	static final String TAG = "AlarmPingSender";
+	private static final String TAG = "AlarmPingSender";
 
 	// TODO: Add log.
 	private ClientComms comms;
@@ -81,13 +82,15 @@ class AlarmPingSender implements MqttPingSender {
 
 	@Override
 	public void stop() {
-		// Cancel Alarm.
-		AlarmManager alarmManager = (AlarmManager) service
-				.getSystemService(Service.ALARM_SERVICE);
-		alarmManager.cancel(pendingIntent);
 
 		Log.d(TAG, "Unregister alarmreceiver to MqttService"+comms.getClient().getClientId());
 		if(hasStarted){
+			if(pendingIntent != null){
+				// Cancel Alarm.
+				AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
+				alarmManager.cancel(pendingIntent);
+			}
+
 			hasStarted = false;
 			try{
 				service.unregisterReceiver(alarmReceiver);
@@ -104,7 +107,15 @@ class AlarmPingSender implements MqttPingSender {
 		Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
 		AlarmManager alarmManager = (AlarmManager) service
 				.getSystemService(Service.ALARM_SERVICE);
-		if (Build.VERSION.SDK_INT >= 19) {
+
+        if(Build.VERSION.SDK_INT >= 23){
+			// In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
+			// the device to run this task whilst dosing.
+			Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
+			alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
+					pendingIntent);
+		} else if (Build.VERSION.SDK_INT >= 19) {
+			Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
 					pendingIntent);
 		} else {
@@ -118,29 +129,19 @@ class AlarmPingSender implements MqttPingSender {
 	 */
 	class AlarmReceiver extends BroadcastReceiver {
 		private WakeLock wakelock;
-		private String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
+		private final String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
 				+ that.comms.getClient().getClientId();
 
 		@Override
+        @SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			// According to the docs, "Alarm Manager holds a CPU wake lock as
 			// long as the alarm receiver's onReceive() method is executing.
 			// This guarantees that the phone will not sleep until you have
 			// finished handling the broadcast.", but this class still get
 			// a wake lock to wait for ping finished.
-			int count;
-			try {
-				count = intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, -1);
-			} catch (ClassCastException ex){
-				// This is a Motorola Phone (Probably a Moto G or X)
-				// And so Intent.EXTRA_ALARM_COUNT is actually a Long!
-				Long longCount = intent.getLongExtra(Intent.EXTRA_ALARM_COUNT, -1);
-				count = longCount.intValue();
-			}
 
-			Log.d(TAG, "Ping " + count + " times.");
-
-			Log.d(TAG, "Check time :" + System.currentTimeMillis());
+			Log.d(TAG, "Sending Ping at:" + System.currentTimeMillis());
 
 			PowerManager pm = (PowerManager) service
 					.getSystemService(Service.POWER_SERVICE);
@@ -169,6 +170,7 @@ class AlarmPingSender implements MqttPingSender {
 					wakelock.release();
 				}
 			});
+
 
 			if (token == null && wakelock.isHeld()) {
 				wakelock.release();
