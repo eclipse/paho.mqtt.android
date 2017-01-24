@@ -14,7 +14,7 @@ The Paho Android Service is an MQTT client library written in Java for developin
 | Message Persistence | :heavy_check_mark: |   |
 
 
-To get started, download [Android Studio](http://developer.android.com/tools/studio/index.html). You will also need to download the [Android SDK](https://developer.android.com/sdk/installing/adding-packages.html). Currently you will need the SDK for 19,21 and 22, This will hopefully be simplified soon.
+To get started, download [Android Studio](http://developer.android.com/tools/studio/index.html). You will also need to download the [Android SDK](https://developer.android.com/sdk/installing/adding-packages.html). Currently you will need the SDK for 24.
 
 
 ## Project description:
@@ -45,7 +45,7 @@ Eclipse hosts a Nexus repository for those who want to use Maven to manage their
 Add the repository definition and the dependency definition shown below to your pom.xml.
 
 Replace %REPOURL% with either ``` https://repo.eclipse.org/content/repositories/paho-releases/ ``` for the official releases, or ``` https://repo.eclipse.org/content/repositories/paho-snapshots/  ``` for the nightly snapshots. Replace %VERSION% with the level required .
-The latest release version is ```1.1.0``` and the current snapshot version is ```1.1.1-SNAPSHOT```.
+The latest release version is ```1.1.1``` and the current snapshot version is ```1.1.2-SNAPSHOT```.
 
 ```
 <project ...>
@@ -80,11 +80,11 @@ repositories {
 
 
 dependencies {
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1-SNAPSHOT'
-    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1-SNAPSHOT'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 }
 ```
-__Note:__ currently you have to include the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency as well. We are attempting to get the build to produce an Android `AAR` file that contains both the Android service as well as it's dependencies, however this is still experimental. If you wish to try it, remove the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency and append `@aar` to the end of the Android Service dependency. E.g. `org.eclipse.paho:org.eclipse.paho.android.service:1.1.1-SNAPSHOT@aar`
+__Note:__ currently you have to include the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency as well. We are attempting to get the build to produce an Android `AAR` file that contains both the Android service as well as it's dependencies, however this is still experimental. If you wish to try it, remove the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency and append `@aar` to the end of the Android Service dependency. E.g. `org.eclipse.paho:org.eclipse.paho.android.service:1.1.1@aar`
 
 If you find that there is functionality missing or bugs in the release version, you may want to try using the snapshot version to see if this helps before raising a feature request or an issue.
 

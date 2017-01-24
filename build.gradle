@@ -21,14 +21,14 @@ ext{
     group = 'org.eclipse.paho'
 
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
-    sampleVersion = '1.1.1-SNAPSHOT'
+    sampleVersion = '1.1.1'
 
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.1.1-SNAPSHOT'
+    serviceVersion = '1.1.1'
 
-    clientVersion = '1.1.1-SNAPSHOT'
+    clientVersion = '1.1.0'
 
-    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
 
     supportLibVersion = '24.2.1'
 
