@@ -287,14 +287,12 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	@Override
 	public void close() {
-	 if (clientHandle == null) {
-		 System.out.println(serverURI);
-		 System.out.println(clientId);
-		 System.out.println(myContext.getApplicationInfo().packageName);
-		 System.out.println(persistence);
-		 clientHandle = mqttService.getClient(serverURI, clientId, myContext.getApplicationInfo().packageName,persistence);
-	 }
-	 mqttService.close(clientHandle);
+		if(mqttService != null){
+			if (clientHandle == null) {
+				clientHandle = mqttService.getClient(serverURI, clientId, myContext.getApplicationInfo().packageName,persistence);
+			}
+			mqttService.close(clientHandle);
+		}
 	}
 	
 	/**
