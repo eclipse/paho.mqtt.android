@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
-apply plugin: 'signing'
-apply plugin: 'maven'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -91,18 +89,6 @@ task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion
     classifier = 'javadoc'
 }
 
-task("generateAar", type: Jar){
-    from("$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar")
-}
-
-artifacts {
-    archives generateSourcesJar, generateLibraryJar, generateJavaDocJar, generateAar
-}
-
-signing {
-        sign configurations.archives
-}
-
 publishing {
     publications {
         paho(MavenPublication) {
@@ -131,66 +117,10 @@ publishing {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if(project.hasProperty('signing.keyId')) {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            }
 
-
-            if(project.hasProperty('releaseBuild')){
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-            } else if (project.hasProperty('eclipseRepoUsername')) {
-                repository(url: 'https://repo.eclipse.org/content/repositories/paho-' + (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')){
-                    authentication(userName: eclipseRepoUsername, password: eclipseRepoPassword)
-                }
-
-            } else {
-                repository(url: "file://$buildDir/repo")
-            }
-
-
-
-
-
-            pom.project {
-                name 'Eclipse Paho - MQTT Android Service'
-                packaging 'jar'
-                // optionally artifactId can be defined here
-                description 'The Paho project provides scalable open-source implementations of open and standard messaging protocols aimed at new, existing, and emerging applications for Machine to Machine (M2M) and Internet of Things (IoT).'
-                url 'http://www.eclipse.org/paho'
-
-                scm {
-                    connection 'scm:git:https://github.com/eclipse/paho.mqtt.android.git'
-                    url 'https://github.com/eclipse/paho.mqtt.android'
-                }
-
-                licenses {
-                    license {
-                        name 'Eclipse Public License - Version 1.0'
-                        url 'http://www.eclipse.org/org/documents/epl-v10.php'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'jsutton'
-                        name 'James Sutton'
-                        email 'james.sutton@uk.ibm.com'
-                        organization 'IBM'
-                        organizationUrl 'http://www.ibm.com'
-                    }
-                }
-            }
-        }
-    }
+task debug << {
+    configurations.compile.each { println it}
 }
-
-
-
 // Required to bundle Java library Jar in AAR
 clean.doLast{
     copyLibs.execute()
