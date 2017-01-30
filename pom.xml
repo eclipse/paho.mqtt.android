@@ -115,6 +115,37 @@
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
+      <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <executions>
+              <execution>
+                  <id>attach-artifacts</id>
+                  <phase>package</phase>
+                  <goals>
+                      <goal>attach-artifact</goal>
+                  </goals>
+                  <configuration>
+                      <artifacts>
+                          <artifact>
+                              <file>target/org.eclipse.paho.android.service-1.1.1.jar</file>
+                              <type>jar</type>
+                          </artifact>
+                          <artifact>
+                              <file>target/org.eclipse.paho.android.service-1.1.1-sources.jar</file>
+                              <type>jar</type>
+                              <classifier>sources</classifier>
+                          </artifact>
+                          <artifact>
+                              <file>target/org.eclipse.paho.android.service-1.1.1-javadoc.jar</file>
+                              <type>jar</type>
+                              <classifier>javadoc</classifier>
+                          </artifact>
+                      </artifacts>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin>
         </plugins>
     </build>
 
