@@ -21,10 +21,10 @@ ext{
     group = 'org.eclipse.paho'
 
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
-    sampleVersion = '1.1.1-SNAPSHOT'
+    sampleVersion = '1.1.2-SNAPSHOT'
 
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.1.1-SNAPSHOT'
+    serviceVersion = '1.1.2-SNAPSHOT'
 
     clientVersion = '1.1.1-SNAPSHOT'
 
