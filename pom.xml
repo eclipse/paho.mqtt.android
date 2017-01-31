@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.eclipse.paho</groupId>
+    <artifactId>org.eclipse.paho.android.service</artifactId>
+    <packaging>pom</packaging>
+    <version>1.1.1</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.level>${maven.build.timestamp}</build.level>
+    </properties>
+
+    <name>Eclipse Paho Android Service</name>
+    <url>http://www.eclipse.org/paho</url>
+    <description>
+        The Paho project provides scalable open-source implementations of open and standard messaging protocols aimed at new, existing, and emerging applications for Machine to Machine (M2M) and Internet of Things (IoT).
+    </description>
+
+    <organization>
+        <name>Eclipse Paho</name>
+        <url>http://www.eclipse.org/paho</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>jsutton</id>
+            <name>James Sutton</name>
+            <email>james.sutton@uk.ibm.com</email>
+            <organization>IBM</organization>
+            <organizationUrl>http://www.ibm.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Eclipse Public License - Version 1.0</name>
+            <url>http://www.eclipse.org/org/documents/epl-v10.php</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/eclipse/paho.mqtt.android.git</url>
+        <connection>scm:https://github.com/eclipse/paho.mqtt.android.git</connection>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>repo.eclipse.org</id>
+            <name>Paho Repository - Releases</name>
+            <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.android.service</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/</outputDirectory>
+                            <type>jar</type>
+                            <overWriteReleases>true</overWriteReleases>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/</outputDirectory>
+                            <copyPom>true</copyPom>
+                            <classifier>sources</classifier>
+                            <overWriteReleases>true</overWriteReleases>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/</outputDirectory>
+                            <classifier>javadoc</classifier>
+                            <overWriteReleases>true</overWriteReleases>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!--
+					Use the Nexus Staging plugin as a full replacement for the standard
+					Maven Deploy plugin.
+					See https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin
+					why this makes sense :-)
+					We can control whether we want to deploy to the Eclipse repo or Maven Central
+					by a combination of the version being a SNAPHOT or release version and property
+					skipStaging=true/false.
+					In any case we can take advantage of the plugin's "deferred deploy" feature which
+					makes sure that all artifacts of a multi-module project are deployed as a whole
+					at the end of the build process instead of deploying each module's artifacts
+					individually as part of building the module.
+				 -->
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1.jar</file>
+                                    <type>jar</type>
+                                </artifact>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1-sources.jar</file>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1-javadoc.jar</file>
+                                    <type>jar</type>
+                                    <classifier>javadoc</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <!-- this profile generates GPG signatures -->
+            <id>create_gpg_signature</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>createGPGSignature</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
