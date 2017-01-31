@@ -6,6 +6,13 @@
     <packaging>pom</packaging>
     <version>1.1.1</version>
 
+    <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<build.level>${maven.build.timestamp}</build.level>
+		<tycho.version>0.20.0</tycho.version>
+		<kepler.repo.url>http://download.eclipse.org/releases/kepler</kepler.repo.url>
+		</properties>
+
     <name>Eclipse Paho Android Service</name>
     <url>http://www.eclipse.org/paho</url>
     <description>
