@@ -7,11 +7,9 @@
     <version>1.1.1</version>
 
     <properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<build.level>${maven.build.timestamp}</build.level>
-		<tycho.version>0.20.0</tycho.version>
-		<kepler.repo.url>http://download.eclipse.org/releases/kepler</kepler.repo.url>
-		</properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.level>${maven.build.timestamp}</build.level>
+    </properties>
 
     <name>Eclipse Paho Android Service</name>
     <url>http://www.eclipse.org/paho</url>
@@ -23,6 +21,19 @@
         <name>Eclipse Paho</name>
         <url>http://www.eclipse.org/paho</url>
     </organization>
+
+    <developers>
+        <developer>
+            <id>jsutton</id>
+            <name>James Sutton</name>
+            <email>james.sutton@uk.ibm.com</email>
+            <organization>IBM</organization>
+            <organizationUrl>http://www.ibm.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <licenses>
         <license>
@@ -44,13 +55,6 @@
         </repository>
     </repositories>
 
-    <pluginRepositories>
-		<pluginRepository>
-			<id>cbi</id>
-			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
-		</pluginRepository>
-	</pluginRepositories>
-
     <dependencies>
         <dependency>
             <groupId>org.eclipse.paho</groupId>
@@ -60,88 +64,24 @@
     </dependencies>
 
     <build>
-      <pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
-					<configuration>
-						<encoding>${project.build.sourceEncoding}</encoding>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.7</version>
-					<configuration>
-						<deployAtEnd>true</deployAtEnd>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-maven-plugin</artifactId>
-					<version>${tycho.version}</version>
-					<extensions>true</extensions>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>target-platform-configuration</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-source-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-document-bundle-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.cbi.maven.plugins</groupId>
-					<artifactId>eclipse-jarsigner-plugin</artifactId>
-					<version>1.0.5</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-pack200a-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-
-				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-pack200b-plugin</artifactId>
-					<version>${tycho.version}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.0.0</version>
                 <executions>
-                  <execution>
-                      <id>jar</id>
-                      <phase>package</phase>
-                      <goals>
-                          <goal>copy-dependencies</goal>
-                      </goals>
-                      <configuration>
-                          <outputDirectory>${project.build.directory}/</outputDirectory>
-                          <type>jar</type>
-                          <overWriteReleases>true</overWriteReleases>
-                      </configuration>
-                  </execution>
+                    <execution>
+                        <id>jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/</outputDirectory>
+                            <type>jar</type>
+                            <overWriteReleases>true</overWriteReleases>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>sources</id>
                         <phase>package</phase>
@@ -170,7 +110,7 @@
                 </executions>
             </plugin>
             <plugin>
-				<!--
+                <!--
 					Use the Nexus Staging plugin as a full replacement for the standard
 					Maven Deploy plugin.
 					See https://github.com/sonatype/nexus-maven-plugins/tree/master/staging/maven-plugin
@@ -183,121 +123,52 @@
 					at the end of the build process instead of deploying each module's artifacts
 					individually as part of building the module.
 				 -->
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.5</version>
-				<extensions>true</extensions>
-				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>false</autoReleaseAfterClose>
-				</configuration>
-			</plugin>
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.12</version>
-          <executions>
-              <execution>
-                  <id>attach-artifacts</id>
-                  <phase>package</phase>
-                  <goals>
-                      <goal>attach-artifact</goal>
-                  </goals>
-                  <configuration>
-                      <artifacts>
-                          <artifact>
-                              <file>target/org.eclipse.paho.android.service-1.1.1.jar</file>
-                              <type>jar</type>
-                          </artifact>
-                          <artifact>
-                              <file>target/org.eclipse.paho.android.service-1.1.1-sources.jar</file>
-                              <type>jar</type>
-                              <classifier>sources</classifier>
-                          </artifact>
-                          <artifact>
-                              <file>target/org.eclipse.paho.android.service-1.1.1-javadoc.jar</file>
-                              <type>jar</type>
-                              <classifier>javadoc</classifier>
-                          </artifact>
-                      </artifacts>
-                  </configuration>
-              </execution>
-          </executions>
-      </plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.5</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1.jar</file>
+                                    <type>jar</type>
+                                </artifact>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1-sources.jar</file>
+                                    <type>jar</type>
+                                    <classifier>sources</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>target/org.eclipse.paho.android.service-1.1.1-javadoc.jar</file>
+                                    <type>jar</type>
+                                    <classifier>javadoc</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
-      <profile>
-			<id>eclipse-sign</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>target-platform-configuration</artifactId>
-						<configuration>
-							<includePackedArtifacts>true</includePackedArtifacts>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-pack200a-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>pack200-normalize</id>
-								<goals>
-									<goal>normalize</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.cbi.maven.plugins</groupId>
-						<artifactId>eclipse-jarsigner-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign</id>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.tycho.extras</groupId>
-						<artifactId>tycho-pack200b-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>pack200-pack</id>
-								<goals>
-									<goal>pack</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>tycho-p2-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>p2-metadata</id>
-								<goals>
-									<goal>p2-metadata</goal>
-								</goals>
-								<phase>verify</phase>
-							</execution>
-						</executions>
-						<configuration>
-							<defaultP2Metadata>false</defaultP2Metadata>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
         <profile>
             <!-- this profile generates GPG signatures -->
             <id>create_gpg_signature</id>
