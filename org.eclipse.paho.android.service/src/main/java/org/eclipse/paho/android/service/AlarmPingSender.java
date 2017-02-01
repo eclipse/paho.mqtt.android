@@ -16,7 +16,9 @@ import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttPingSender;
 import org.eclipse.paho.client.mqttv3.internal.ClientComms;
+import org.eclipse.paho.client.mqttv3.MqttException;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -25,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
+import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -40,7 +43,7 @@ import android.util.Log;
  */
 class AlarmPingSender implements MqttPingSender {
 	// Identifier for Intents, log messages, etc..
-	static final String TAG = "AlarmPingSender";
+	private static final String TAG = "AlarmPingSender";
 
 	// TODO: Add log.
 	private ClientComms comms;
@@ -84,9 +87,17 @@ class AlarmPingSender implements MqttPingSender {
 
 		Log.d(TAG, "Unregister alarmreceiver to MqttService"+comms.getClient().getClientId());
 		if(hasStarted){
+<<<<<<< HEAD
 			// Cancel Alarm.
 			AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
 			alarmManager.cancel(pendingIntent);
+=======
+			if(pendingIntent != null){
+				// Cancel Alarm.
+				AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
+				alarmManager.cancel(pendingIntent);
+			}
+>>>>>>> e710ed9... Move ping request to AsyncTask
 
 			hasStarted = false;
 			try{
@@ -104,7 +115,15 @@ class AlarmPingSender implements MqttPingSender {
 		Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
 		AlarmManager alarmManager = (AlarmManager) service
 				.getSystemService(Service.ALARM_SERVICE);
-		if (Build.VERSION.SDK_INT >= 19) {
+
+        if(Build.VERSION.SDK_INT >= 23){
+			// In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
+			// the device to run this task whilst dosing.
+			Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
+			alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
+					pendingIntent);
+		} else if (Build.VERSION.SDK_INT >= 19) {
+			Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
 					pendingIntent);
 		} else {
@@ -112,65 +131,89 @@ class AlarmPingSender implements MqttPingSender {
 					pendingIntent);
 		}
 	}
+	
+	private class PingAsyncTask extends AsyncTask<ClientComms, Void, Boolean> {
+
+		boolean success = false;
+		
+		protected Boolean doInBackground(ClientComms... comms) {
+			IMqttToken token = comms[0].checkForActivity(new IMqttActionListener() {
+
+				@Override
+				public void onSuccess(IMqttToken asyncActionToken) {
+					Log.d(TAG, "Ping async task : Success.");
+					success = true;
+				}
+
+				@Override
+				public void onFailure(IMqttToken asyncActionToken,
+									  Throwable exception) {
+					Log.d(TAG, "Ping async task : Failed.");
+					success = false;
+				}
+			});
+			
+			try {
+				if (token != null) {
+					token.waitForCompletion();
+				} else {
+					Log.d(TAG, "Ping async background : Ping command was not sent by the client.");
+				}
+			} catch ( MqttException e) {
+				Log.d(TAG, "Ping async background : Ignore MQTT exception : " + e.getMessage());
+			} catch (Exception ex) {
+				Log.d(TAG, "Ping async background : Ignore unknown exception : " + ex.getMessage());
+			}
+		
+			Log.d(TAG, "Ping async background task completed at " + System.currentTimeMillis() + " Success is " + success);
+			return new Boolean(success);
+		}
+
+		protected void onPostExecute(Boolean success) {
+			Log.d(TAG, "Ping async task onPostExecute() Success is " + this.success);
+		}
+		
+		protected void onCancelled(Boolean success) {
+			Log.d(TAG, "Ping async task onCancelled() Success is " + this.success);
+		}
+		
+	}
 
 	/*
 	 * This class sends PingReq packet to MQTT broker
 	 */
 	class AlarmReceiver extends BroadcastReceiver {
+		private PingAsyncTask pingRunner = null;
 		private WakeLock wakelock;
-		private String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
+		private final String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
 				+ that.comms.getClient().getClientId();
 
 		@Override
+        @SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			// According to the docs, "Alarm Manager holds a CPU wake lock as
 			// long as the alarm receiver's onReceive() method is executing.
 			// This guarantees that the phone will not sleep until you have
 			// finished handling the broadcast.", but this class still get
 			// a wake lock to wait for ping finished.
-			int count;
-			try {
-				count = intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, -1);
-			} catch (ClassCastException ex){
-				// This is a Motorola Phone (Probably a Moto G or X)
-				// And so Intent.EXTRA_ALARM_COUNT is actually a Long!
-				Long longCount = intent.getLongExtra(Intent.EXTRA_ALARM_COUNT, -1);
-				count = longCount.intValue();
-			}
 
-			Log.d(TAG, "Ping " + count + " times.");
-
-			Log.d(TAG, "Check time :" + System.currentTimeMillis());
+			Log.d(TAG, "Sending Ping at:" + System.currentTimeMillis());
 
 			PowerManager pm = (PowerManager) service
 					.getSystemService(Service.POWER_SERVICE);
 			wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, wakeLockTag);
 			wakelock.acquire();
-
-			// Assign new callback to token to execute code after PingResq
-			// arrives. Get another wakelock even receiver already has one,
-			// release it until ping response returns.
-			IMqttToken token = comms.checkForActivity(new IMqttActionListener() {
-
-				@Override
-				public void onSuccess(IMqttToken asyncActionToken) {
-					Log.d(TAG, "Success. Release lock(" + wakeLockTag + "):"
-							+ System.currentTimeMillis());
-					//Release wakelock when it is done.
-					wakelock.release();
+			
+			if (pingRunner != null) {
+				if (pingRunner.cancel(true)) {
+					Log.d(TAG, "Previous ping async task was cancelled at:" + System.currentTimeMillis());
 				}
+			}
 
-				@Override
-				public void onFailure(IMqttToken asyncActionToken,
-									  Throwable exception) {
-					Log.d(TAG, "Failure. Release lock(" + wakeLockTag + "):"
-							+ System.currentTimeMillis());
-					//Release wakelock when it is done.
-					wakelock.release();
-				}
-			});
+			pingRunner = new PingAsyncTask();
+			pingRunner.execute(comms);
 
-			if (token == null && wakelock.isHeld()) {
+			if (wakelock.isHeld()) {
 				wakelock.release();
 			}
 		}
