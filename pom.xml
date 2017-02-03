@@ -46,6 +46,19 @@
         <url>https://github.com/eclipse/paho.mqtt.android.git</url>
         <connection>scm:https://github.com/eclipse/paho.mqtt.android.git</connection>
     </scm>
+	
+    <distributionManagement>
+        <repository>
+            <id>repo.eclipse.org</id>
+            <name>Paho Repository - Releases</name>
+            <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>repo.eclipse.org</id>
+            <name>Paho Repository - Snapshots</name>
+            <url>https://repo.eclipse.org/content/repositories/paho-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <repositories>
         <repository>
