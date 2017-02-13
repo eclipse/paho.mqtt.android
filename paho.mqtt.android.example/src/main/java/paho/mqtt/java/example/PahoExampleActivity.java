@@ -113,32 +113,24 @@ public class PahoExampleActivity extends AppCompatActivity{
 
 
 
+        //addToHistory("Connecting to " + serverUri);
+        mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken asyncActionToken) {
+                DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
+                disconnectedBufferOptions.setBufferEnabled(true);
+                disconnectedBufferOptions.setBufferSize(100);
+                disconnectedBufferOptions.setPersistBuffer(false);
+                disconnectedBufferOptions.setDeleteOldestMessages(false);
+                mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
+                subscribeToTopic();
+            }
 
-        try {
-            //addToHistory("Connecting to " + serverUri);
-            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
-                    disconnectedBufferOptions.setBufferEnabled(true);
-                    disconnectedBufferOptions.setBufferSize(100);
-                    disconnectedBufferOptions.setPersistBuffer(false);
-                    disconnectedBufferOptions.setDeleteOldestMessages(false);
-                    mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
-                    subscribeToTopic();
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to connect to: " + serverUri);
-                }
-            });
-
-
-        } catch (MqttException ex){
-            ex.printStackTrace();
-        }
-
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                addToHistory("Failed to connect to: " + serverUri);
+            }
+        });
     }
 
     private void addToHistory(String mainText){
@@ -169,48 +161,35 @@ public class PahoExampleActivity extends AppCompatActivity{
     }
 
     public void subscribeToTopic(){
-        try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    addToHistory("Subscribed!");
-                }
+        mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+            @Override
+            public void onSuccess(IMqttToken asyncActionToken) {
+                addToHistory("Subscribed!");
+            }
 
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to subscribe");
-                }
-            });
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                addToHistory("Failed to subscribe");
+            }
+        });
 
-            // THIS DOES NOT WORK!
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, new IMqttMessageListener() {
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    // message Arrived!
-                    System.out.println("Message: " + topic + " : " + new String(message.getPayload()));
-                }
-            });
-
-        } catch (MqttException ex){
-            System.err.println("Exception whilst subscribing");
-            ex.printStackTrace();
-        }
+        // THIS DOES NOT WORK!
+        mqttAndroidClient.subscribe(subscriptionTopic, 0, new IMqttMessageListener() {
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                // message Arrived!
+                System.out.println("Message: " + topic + " : " + new String(message.getPayload()));
+            }
+        });
     }
 
     public void publishMessage(){
-
-        try {
-            MqttMessage message = new MqttMessage();
-            message.setPayload(publishMessage.getBytes());
-            mqttAndroidClient.publish(publishTopic, message);
-            addToHistory("Message Published");
-            if(!mqttAndroidClient.isConnected()){
-                addToHistory(mqttAndroidClient.getBufferedMessageCount() + " messages in buffer.");
-            }
-        } catch (MqttException e) {
-            System.err.println("Error Publishing: " + e.getMessage());
-            e.printStackTrace();
+        MqttMessage message = new MqttMessage();
+        message.setPayload(publishMessage.getBytes());
+        mqttAndroidClient.publish(publishTopic, message);
+        addToHistory("Message Published");
+        if(!mqttAndroidClient.isConnected()){
+            addToHistory(mqttAndroidClient.getBufferedMessageCount() + " messages in buffer.");
         }
     }
-
 }
