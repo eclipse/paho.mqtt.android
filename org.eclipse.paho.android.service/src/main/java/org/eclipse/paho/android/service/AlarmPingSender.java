@@ -87,17 +87,11 @@ class AlarmPingSender implements MqttPingSender {
 
 		Log.d(TAG, "Unregister alarmreceiver to MqttService"+comms.getClient().getClientId());
 		if(hasStarted){
-<<<<<<< HEAD
-			// Cancel Alarm.
-			AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
-			alarmManager.cancel(pendingIntent);
-=======
 			if(pendingIntent != null){
 				// Cancel Alarm.
 				AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
 				alarmManager.cancel(pendingIntent);
 			}
->>>>>>> e710ed9... Move ping request to AsyncTask
 
 			hasStarted = false;
 			try{
@@ -115,8 +109,7 @@ class AlarmPingSender implements MqttPingSender {
 		Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
 		AlarmManager alarmManager = (AlarmManager) service
 				.getSystemService(Service.ALARM_SERVICE);
-
-        if(Build.VERSION.SDK_INT >= 23){
+		if(Build.VERSION.SDK_INT >= 23){
 			// In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
 			// the device to run this task whilst dosing.
 			Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
@@ -141,7 +134,6 @@ class AlarmPingSender implements MqttPingSender {
 
 				@Override
 				public void onSuccess(IMqttToken asyncActionToken) {
-					Log.d(TAG, "Ping async task : Success.");
 					success = true;
 				}
 
@@ -164,13 +156,16 @@ class AlarmPingSender implements MqttPingSender {
 			} catch (Exception ex) {
 				Log.d(TAG, "Ping async background : Ignore unknown exception : " + ex.getMessage());
 			}
-		
-			Log.d(TAG, "Ping async background task completed at " + System.currentTimeMillis() + " Success is " + success);
+			if (success == false) {
+				Log.d(TAG, "Ping async background task completed at " + System.currentTimeMillis() + " Success is " + success);
+			}
 			return new Boolean(success);
 		}
 
 		protected void onPostExecute(Boolean success) {
-			Log.d(TAG, "Ping async task onPostExecute() Success is " + this.success);
+			if (success == false) {
+				Log.d(TAG, "Ping async task onPostExecute() Success is " + this.success);
+			}
 		}
 		
 		protected void onCancelled(Boolean success) {
@@ -189,15 +184,13 @@ class AlarmPingSender implements MqttPingSender {
 				+ that.comms.getClient().getClientId();
 
 		@Override
-        @SuppressLint("Wakelock")
+		@SuppressLint("Wakelock")
 		public void onReceive(Context context, Intent intent) {
 			// According to the docs, "Alarm Manager holds a CPU wake lock as
 			// long as the alarm receiver's onReceive() method is executing.
 			// This guarantees that the phone will not sleep until you have
 			// finished handling the broadcast.", but this class still get
 			// a wake lock to wait for ping finished.
-
-			Log.d(TAG, "Sending Ping at:" + System.currentTimeMillis());
 
 			PowerManager pm = (PowerManager) service
 					.getSystemService(Service.POWER_SERVICE);
