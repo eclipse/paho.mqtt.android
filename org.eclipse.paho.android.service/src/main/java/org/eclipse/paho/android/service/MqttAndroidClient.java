@@ -110,14 +110,14 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		public void onServiceConnected(ComponentName name, IBinder binder) {
 			mqttService = ((MqttServiceBinder) binder).getService();
 			bindedService = true;
-			// now that we have the service available, we can actually
-			// connect...
-			doConnect();
+			// now that we have the service available, tell bind has been finished
+			bindServiceFinished();
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mqttService = null;
+			bindedService = false;
 		}
 	}
 
@@ -132,6 +132,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private String clientHandle;
 
 	private Context myContext;
+
+	private DisconnectedBufferOptions bufferOpts;
 
 	// We hold the various tokens in a collection and pass identifiers for them
 	// to the service
@@ -238,6 +240,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		this.clientId = clientId;
 		this.persistence = persistence;
 		messageAck = ackType;
+
+		bindService();
 	}
 
 	 /**
@@ -286,10 +290,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	@Override
 	public void close() {
-		if(mqttService != null){
-			if (clientHandle == null) {
-				clientHandle = mqttService.getClient(serverURI, clientId, myContext.getApplicationInfo().packageName,persistence);
-			}
+		if(mqttService != null && clientHandle != null) {
 			mqttService.close(clientHandle);
 		}
 	}
@@ -392,63 +393,67 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		connectOptions = options;
 		connectToken = token;
 
-		/*
-		 * The actual connection depends on the service, which we start and bind
-		 * to here, but which we can't actually use until the serviceConnection
-		 * onServiceConnected() method has run (asynchronously), so the
-		 * connection itself takes place in the onServiceConnected() method
-		 */
-		if (mqttService == null) { // First time - must bind to the service
-			Intent serviceStartIntent = new Intent();
-			serviceStartIntent.setClassName(myContext, SERVICE_NAME);
-			Object service = myContext.startService(serviceStartIntent);
-			if (service == null) {
-				IMqttActionListener listener = token.getActionCallback();
-				if (listener != null) {
-					listener.onFailure(token, new RuntimeException(
-							"cannot start service " + SERVICE_NAME));
-				}
-			}
-
-			// We bind with BIND_SERVICE_FLAG (0), leaving us the manage the lifecycle
-			// until the last time it is stopped by a call to stopService()
-			myContext.bindService(serviceStartIntent, serviceConnection,
-					Context.BIND_AUTO_CREATE);
-
-			if (!receiverRegistered) registerReceiver(this);
-		}
-		else {
+		// check if mqttService is ready
+		if (clientHandle != null && mqttService != null) {
 			pool.execute(new Runnable() {
-
 				@Override
 				public void run() {
-					doConnect();
-					
-					//Register receiver to show shoulder tap.
-					if (!receiverRegistered) registerReceiver(MqttAndroidClient.this);
+					if (clientHandle != null && mqttService != null) {
+						doConnect();
+					}
 				}
-
 			});
 		}
 
 		return token;
 	}
 
+	private void bindService() {
+		Intent serviceStartIntent = new Intent();
+		serviceStartIntent.setClassName(this.myContext, SERVICE_NAME);
+		this.myContext.startService(serviceStartIntent);
+
+		// We also call bindService so that we can manage the lifecycle
+		// until the last time it is stopped by a call to stopService()
+		this.myContext.bindService(serviceStartIntent, this.serviceConnection,
+				Context.BIND_AUTO_CREATE);
+
+		//Register receiver to show shoulder tap.
+		registerReceiver(this);
+	}
+
 	private void registerReceiver(BroadcastReceiver receiver) {
 		IntentFilter filter = new IntentFilter();
-				filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
-				LocalBroadcastManager.getInstance(myContext).registerReceiver(receiver, filter);
-				receiverRegistered = true;
+		filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
+		LocalBroadcastManager.getInstance(myContext).registerReceiver(receiver, filter);
+		receiverRegistered = true;
+	}
+
+	private void bindServiceFinished() {
+		if (clientHandle == null) {
+			try {
+				clientHandle = mqttService.getClient(serverURI, clientId,myContext.getApplicationInfo().packageName,
+						persistence);
+			} catch(Exception e) {
+				mqttService.traceError(MqttService.TAG, "Failed to receive client : " + e.getMessage());
+				return;
+			}
+		}
+
+		if (this.bufferOpts != null) {
+			mqttService.setBufferOpts(clientHandle, bufferOpts);
+		}
+
+		// attempt to connect if token already exists
+		if (connectToken != null) {
+			doConnect();
+		}
 	}
 
 	/**
 	 * Actually do the mqtt connect operation
 	 */
 	private void doConnect() {
-		if (clientHandle == null) {
-			clientHandle = mqttService.getClient(serverURI, clientId,myContext.getApplicationInfo().packageName,
-					persistence);
-		}
 		mqttService.setTraceEnabled(traceEnabled);
 		mqttService.setTraceCallbackId(clientHandle);
 		
@@ -480,11 +485,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	@Override
 	public IMqttToken disconnect() {
-		IMqttToken token = new MqttTokenAndroid(this, null,
-				null);
-		String activityToken = storeToken(token);
-		mqttService.disconnect(clientHandle, null, activityToken);
-		return token;
+		return disconnect(null, null);
 	}
 
 	/**
@@ -507,12 +508,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	@Override
 	public IMqttToken disconnect(long quiesceTimeout) {
-		IMqttToken token = new MqttTokenAndroid(this, null,
-				null);
-		String activityToken = storeToken(token);
-		mqttService.disconnect(clientHandle, quiesceTimeout, null,
-				activityToken);
-		return token;
+		return disconnect(quiesceTimeout, null, null);
 	}
 
 	/**
@@ -537,6 +533,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public IMqttToken disconnect(Object userContext,
 			IMqttActionListener callback) {
+		connectOptions = null;
+		connectToken = null;
+
 		IMqttToken token = new MqttTokenAndroid(this, userContext,
 				callback);
 		String activityToken = storeToken(token);
@@ -588,6 +587,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	@Override
 	public IMqttToken disconnect(long quiesceTimeout, Object userContext,
 			IMqttActionListener callback) {
+		connectOptions = null;
+		connectToken = null;
+
 		IMqttToken token = new MqttTokenAndroid(this, userContext,
 				callback);
 		String activityToken = storeToken(token);
@@ -1380,7 +1382,6 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * @param data
 	 */
 	private void disconnected(Bundle data) {
-		clientHandle = null; // avoid reuse!
 		IMqttToken token = removeMqttToken(data);
 		if (token != null) {
 			((MqttTokenAndroid) token).notifyComplete();
@@ -1588,7 +1589,12 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * @param bufferOpts the DisconnectedBufferOptions
 	 */
 	public void setBufferOpts(DisconnectedBufferOptions bufferOpts) {
-		mqttService.setBufferOpts(clientHandle, bufferOpts);
+		// in case client is not yet prepared
+		if (mqttService == null || clientHandle == null) {
+			this.bufferOpts = bufferOpts;
+		} else {
+			mqttService.setBufferOpts(clientHandle, bufferOpts);
+		}
 	}
 
 	public int getBufferedMessageCount(){
