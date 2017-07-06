@@ -53,8 +53,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
 
@@ -74,7 +79,7 @@ import android.util.SparseArray;
  * </ul>
  */
 public class MqttAndroidClient extends BroadcastReceiver implements
-		IMqttAsyncClient {
+		IMqttAsyncClient, Handler.Callback {
 
 	/**
 	 * 
@@ -100,6 +105,40 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	private static final int BIND_SERVICE_FLAG = 0;
 
 	private static final ExecutorService pool = Executors.newCachedThreadPool();
+
+	private final class MqttCallbackHandlerThread extends HandlerThread {
+
+		private Handler callbackHandler;
+		private Handler.Callback handlerCallback;
+		private Messenger messenger;
+
+		public MqttCallbackHandlerThread(String name, Handler.Callback callback) {
+			super(name);
+			handlerCallback = callback;
+			start();
+		}
+
+		@Override
+		protected void onLooperPrepared() {
+			super.onLooperPrepared();
+			callbackHandler = new Handler(getLooper(), handlerCallback);
+			messenger = new Messenger(callbackHandler);
+		}
+
+		public void releaseResources() {
+			if (callbackHandler != null) {
+				callbackHandler.removeMessages(MqttServiceConstants.CALLBACK_TO_MESSENGER);
+				callbackHandler = null;
+			}
+		}
+
+		public Messenger getMessenger() {
+			return messenger;
+		}
+	}
+
+	private MqttCallbackHandlerThread handlerThread = new MqttCallbackHandlerThread(
+			"MqttCallbackHandlerThread", this);
 
 	/**
 	 * ServiceConnection to process when we bind to our service
@@ -461,6 +500,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		}
 		mqttService.setTraceEnabled(traceEnabled);
 		mqttService.setTraceCallbackId(clientHandle);
+
+		mqttService.setCallbackMessenger(handlerThread.getMessenger());
 		
 		String activityToken = storeToken(connectToken);
 		try {
@@ -1345,7 +1386,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 * and asynchronous activities such as message received
 	 * </p>
 	 * <p>
-	 * <strong>Note:</strong> This is only a public method because the Android
+	 * <strong>Note:</strong> One of the two public methods because the Android
 	 * APIs require such.<br>
 	 * This method should not be explicitly invoked.
 	 * </p>
@@ -1354,6 +1395,29 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	public void onReceive(Context context, Intent intent) {
 		Bundle data = intent.getExtras();
 
+		onReceiveCallback(data);
+	}
+
+	/**
+	 * <p>
+	 * Process incoming Bundle objects representing the results of operations
+	 * and asynchronous activities such as message received
+	 * </p>
+	 * <p>
+	 * <strong>Note:</strong> One of the two public methods because the Android
+	 * APIs require such.<br>
+	 * This method should not be explicitly invoked.
+	 * </p>
+	 */
+	@Override
+	public boolean handleMessage(Message msg) {
+		if (msg.what == MqttServiceConstants.CALLBACK_TO_MESSENGER) {
+			onReceiveCallback(msg.getData());
+		}
+		return false;
+	}
+
+	private void onReceiveCallback(Bundle data) {
 		String handleFromIntent = data
 				.getString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE);
 
@@ -1394,10 +1458,10 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		}
 		else if (MqttServiceConstants.TRACE_ACTION.equals(action)) {
 			traceAction(data);
-		}else{
-			mqttService.traceError(MqttService.TAG, "Callback action doesn't exist.");	
+		} 
+		else {
+			mqttService.traceError(MqttService.TAG, "Callback action doesn't exist.");
 		}
-
 	}
 
 	/**
@@ -1758,6 +1822,17 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			this.myContext = context;
 			if(!receiverRegistered){
 				registerReceiver(this);
+			}
+		}
+	}
+
+	public void releaseHandlerThread() {
+		if (handlerThread != null) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				handlerThread.quitSafely();
+			}
+			else {
+				handlerThread.quit();
 			}
 		}
 	}

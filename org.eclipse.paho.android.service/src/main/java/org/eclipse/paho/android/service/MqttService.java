@@ -15,19 +15,6 @@
  */
 package org.eclipse.paho.android.service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.MqttSecurityException;
-
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -39,9 +26,25 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
+
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
+import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -254,7 +257,10 @@ public class MqttService extends Service implements MqttTraceHandler {
 	// mapping from client handle strings to actual client connections.
 	private Map<String/* clientHandle */, MqttConnection/* client */> connections = new ConcurrentHashMap<>();
 
-  public MqttService() {
+	//callback messenger object associated to some thread
+    private Messenger callbackMessenger;
+
+    public MqttService() {
     super();
   }
 
@@ -273,17 +279,39 @@ public class MqttService extends Service implements MqttTraceHandler {
       Bundle dataBundle) {
     // Don't call traceDebug, as it will try to callbackToActivity leading
     // to recursion.
-    Intent callbackIntent = new Intent(
-        MqttServiceConstants.CALLBACK_TO_ACTIVITY);
-    if (clientHandle != null) {
-      callbackIntent.putExtra(
-          MqttServiceConstants.CALLBACK_CLIENT_HANDLE, clientHandle);
+
+    if (callbackMessenger != null) {
+      if (dataBundle == null) {
+        dataBundle = new Bundle();
+      }
+
+      if (clientHandle != null) {
+        dataBundle.putString(MqttServiceConstants.CALLBACK_CLIENT_HANDLE, clientHandle);
+      }
+      dataBundle.putSerializable(MqttServiceConstants.CALLBACK_STATUS, status);
+
+      Message msg = Message.obtain();
+      msg.what = MqttServiceConstants.CALLBACK_TO_MESSENGER;
+      msg.setData(dataBundle);
+      try {
+        callbackMessenger.send(msg);
+      } catch (RemoteException e) {
+        e.printStackTrace();
+      }
     }
-    callbackIntent.putExtra(MqttServiceConstants.CALLBACK_STATUS, status);
-    if (dataBundle != null) {
-      callbackIntent.putExtras(dataBundle);
+    else {
+      Intent callbackIntent = new Intent(
+              MqttServiceConstants.CALLBACK_TO_ACTIVITY);
+      if (clientHandle != null) {
+        callbackIntent.putExtra(
+                MqttServiceConstants.CALLBACK_CLIENT_HANDLE, clientHandle);
+      }
+      callbackIntent.putExtra(MqttServiceConstants.CALLBACK_STATUS, status);
+      if (dataBundle != null) {
+        callbackIntent.putExtras(dataBundle);
+      }
+      LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent);
     }
-    LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent);
   }
 
   // The major API implementation follows :-
@@ -801,11 +829,15 @@ public class MqttService extends Service implements MqttTraceHandler {
 		}
   }
 
-  /*
-   * Called in response to a change in network connection - after losing a
-   * connection to the server, this allows us to wait until we have a usable
-   * data connection again
-   */
+    public void setCallbackMessenger(Messenger callbackMessenger) {
+        this.callbackMessenger = callbackMessenger;
+    }
+
+    /*
+     * Called in response to a change in network connection - after losing a
+     * connection to the server, this allows us to wait until we have a usable
+     * data connection again
+     */
   private class NetworkConnectionIntentReceiver extends BroadcastReceiver {
 
 		@Override
