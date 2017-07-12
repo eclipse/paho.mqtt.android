@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
@@ -42,7 +43,21 @@ public class AndroidServiceTest extends AndroidTestCase {
         Log.d(TAG, properties.getServerSSLURI());
     }
 
+    private class MqttConnectCallback implements IMqttActionListener {
+        private IMqttToken asyncActionToken;
+        @Override
+        public void onSuccess(IMqttToken asyncActionToken) {
+            this.asyncActionToken = asyncActionToken;
+        }
 
+        @Override
+        public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+        }
+
+        public IMqttToken getAsyncActionToken() {
+            return asyncActionToken;
+        }
+    }
 
     /**
      * Tests that a client can be constructed and that it can connect to and
@@ -109,6 +124,51 @@ public class AndroidServiceTest extends AndroidTestCase {
         }
     }
 
+    /**
+     * Tests that a client calls a callback with a token which sessionPresent is false.
+     *
+     * @throws Exception
+     */
+    public void testCleanSession() throws Exception {
+
+        IMqttAsyncClient mqttClient = null;
+        try {
+            mqttClient = new MqttAndroidClient(mContext,mqttServerURI, "testConnectWithCleanSession");
+            IMqttToken connectToken;
+            IMqttToken disconnectToken;
+            final MqttConnectOptions options1 = new MqttConnectOptions();
+            options1.setCleanSession(true);
+            final MqttConnectCallback connectCallback1 = new MqttConnectCallback();
+
+            connectToken = mqttClient.connect(options1, null, connectCallback1);
+            connectToken.waitForCompletion(waitForCompletionTime);
+
+            final IMqttToken connectedToken1 = connectCallback1.getAsyncActionToken();
+            assertFalse(connectedToken1.getSessionPresent());
+
+            disconnectToken = mqttClient.disconnect(null, null);
+            disconnectToken.waitForCompletion(waitForCompletionTime);
+
+            final MqttConnectOptions options2 = new MqttConnectOptions();
+            options1.setCleanSession(false);
+            final MqttConnectCallback connectCallback2 = new MqttConnectCallback();
+
+            connectToken = mqttClient.connect(options2, null, connectCallback2);
+            connectToken.waitForCompletion(waitForCompletionTime);
+
+            final IMqttToken connectedToken2 = connectCallback1.getAsyncActionToken();
+            assertTrue(connectedToken2.getSessionPresent());
+
+            disconnectToken = mqttClient.disconnect(null, null);
+            disconnectToken.waitForCompletion(waitForCompletionTime);
+        } catch (Exception exception){
+            fail("Failed: " + "testCleanSession" + " exception= " + exception);
+        } finally {
+            if(mqttClient != null){
+                mqttClient.close();
+            }
+        }
+    }
 
     /**
      * Test connection using a remote host name for the local host.
