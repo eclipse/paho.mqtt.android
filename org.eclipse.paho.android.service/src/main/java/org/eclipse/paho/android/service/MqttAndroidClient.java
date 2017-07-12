@@ -1367,6 +1367,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 	 */
 	private void connectAction(Bundle data) {
 		IMqttToken token = connectToken;
+		((MqttTokenAndroid) token).setDelegate(
+				new MqttConnectTokenAndroid(data.getBoolean(MqttServiceConstants.SESSION_PRESENT)));
 		removeMqttToken(data);
 		
 		simpleAction(token, data);
