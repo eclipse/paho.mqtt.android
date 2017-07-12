@@ -245,6 +245,9 @@ class MqttConnection implements MqttCallbackExtended {
 
 				@Override
 				public void onSuccess(IMqttToken asyncActionToken) {
+					resultBundle.putBoolean(
+							MqttServiceConstants.SESSION_PRESENT,
+							asyncActionToken.getSessionPresent());
 					doAfterConnectSuccess(resultBundle);
 					service.traceDebug(TAG, "connect success!");
 				}
@@ -252,6 +255,9 @@ class MqttConnection implements MqttCallbackExtended {
 				@Override
 				public void onFailure(IMqttToken asyncActionToken,
 						Throwable exception) {
+					resultBundle.putBoolean(
+							MqttServiceConstants.SESSION_PRESENT,
+							asyncActionToken.getSessionPresent());
 					resultBundle.putString(
 							MqttServiceConstants.CALLBACK_ERROR_MESSAGE,
 							exception.getLocalizedMessage());

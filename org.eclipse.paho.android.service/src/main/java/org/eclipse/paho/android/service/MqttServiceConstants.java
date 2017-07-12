@@ -34,6 +34,7 @@ interface MqttServiceConstants {
   String DESTINATION_NAME = "destinationName";
   String CLIENT_HANDLE = "clientHandle";
   String MESSAGE_ID = "messageId";
+  String SESSION_PRESENT = "sessionPresent";
 
   /* Tags for actions passed between the Activity and the Service */
   String SEND_ACTION = "send";
