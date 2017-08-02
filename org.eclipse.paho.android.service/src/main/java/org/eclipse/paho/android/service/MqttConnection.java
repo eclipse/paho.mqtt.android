@@ -1047,7 +1047,7 @@ class MqttConnection implements MqttCallbackExtended {
 					MqttServiceConstants.CONNECT_ACTION);
 			try {
 				myClient.reconnect();
-			} catch (MqttException ex){
+			} catch (Exception ex){
 				Log.e(TAG, "Exception occurred attempting to reconnect: " + ex.getMessage());
 				setConnectingState(false);
 				handleException(resultBundle, ex);
