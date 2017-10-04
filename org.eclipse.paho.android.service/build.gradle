@@ -6,20 +6,10 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 24
 
         testApplicationId "org.eclipse.paho.android.service.test"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
     }
 
     lintOptions {
@@ -31,14 +21,9 @@ repositories {
     maven { url rootProject.ext.mavenUrl }
 }
 
-configurations {
-   //androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
-}
-
 dependencies {
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 android.libraryVariants.all { variant ->
@@ -60,14 +45,6 @@ android.libraryVariants.all { variant ->
 task("generateSourcesJar", type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
-}
-
-// Copy the Paho Java client into the libs directory to bundle it with the AAR
-task("copyLibs", type: Copy) {
-    println "Copying MQTT Jar into libs directory"
-    from configurations.compile
-    into 'libs'
-    include 'org.eclipse.paho*'
 }
 
 // Renames the Release AAR file to a maven convention
@@ -118,17 +95,6 @@ publishing {
 }
 
 
-task debug << {
-    configurations.compile.each { println it}
-}
-// Required to bundle Java library Jar in AAR
-clean.doLast{
-    copyLibs.execute()
-}
 assemble.doLast {
     renameReleaseAAR.execute()
-}
-
-clean.doFirst {
-    delete 'libs'
 }

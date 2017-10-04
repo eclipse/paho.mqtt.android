@@ -4,9 +4,10 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        google()
     }
     dependencies {
-	    classpath 'com.android.tools.build:gradle:2.2.3'
+	    classpath 'com.android.tools.build:gradle:3.0.0-beta5'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -14,8 +15,9 @@ buildscript {
 
 ext{
 
-    compileSdkVersion = 24
-    buildToolsVersion = '23.0.3'
+    compileSdkVersion = 26
+    buildToolsVersion = '26.0.0'
+    supportLibVersion = '26.1.0'
 
 
     group = 'org.eclipse.paho'
@@ -30,7 +32,6 @@ ext{
 
     mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
 
-    supportLibVersion = '24.2.1'
 
 }
 
@@ -51,9 +52,6 @@ def androidHomeIsDefined = androidHome?.trim()
 
 def sdkDir = androidHomeIsDefined ? androidHome : getSdkDirFromLocalProperties()
 
-println "SDK dir: $sdkDir"
-
-
 allprojects {
 
     repositories {
@@ -61,6 +59,7 @@ allprojects {
         maven {
             url "file://$sdkDir/extras/android/m2repository/"
         }
+        google()
     }
 
     version = rootProject.ext.serviceVersion
