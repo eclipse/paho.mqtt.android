@@ -7,6 +7,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
+        // TODO switch to 26 needs more work https://developer.android.com/about/versions/oreo/background.html
         targetSdkVersion 24
 
         testApplicationId "org.eclipse.paho.android.service.test"
@@ -22,8 +23,8 @@ repositories {
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
+    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
 }
 
 android.libraryVariants.all { variant ->
