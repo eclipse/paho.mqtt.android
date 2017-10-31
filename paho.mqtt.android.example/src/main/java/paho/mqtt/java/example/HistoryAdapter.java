@@ -56,9 +56,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mTextView;
 
-        public ViewHolder(View v) {
-            super(v);
-            mTextView = (TextView) v.findViewById(R.id.row_text);
+        public ViewHolder(View view) {
+            super(view);
+            mTextView = view.findViewById(R.id.row_text);
         }
     }
 

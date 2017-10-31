@@ -46,7 +46,7 @@ public class HelpFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.fragment_help, container, false);
 
-        Button websiteButton = (Button) rootView.findViewById(R.id.websiteButton);
+        Button websiteButton = rootView.findViewById(R.id.websiteButton);
         websiteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +56,7 @@ public class HelpFragment extends Fragment {
             }
         });
 
-        Button feedbackButton = (Button) rootView.findViewById(R.id.feedbackButton);
+        Button feedbackButton = rootView.findViewById(R.id.feedbackButton);
         feedbackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +67,7 @@ public class HelpFragment extends Fragment {
             }
         });
 
-        Switch enableLoggingSwitch = (Switch) rootView.findViewById(R.id.enable_logging_switch);
+        Switch enableLoggingSwitch = rootView.findViewById(R.id.enable_logging_switch);
         enableLoggingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

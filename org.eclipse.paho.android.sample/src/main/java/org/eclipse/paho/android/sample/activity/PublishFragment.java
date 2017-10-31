@@ -47,10 +47,10 @@ public class PublishFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_publish, container, false);
-        EditText topicText = (EditText) rootView.findViewById(R.id.topic);
-        EditText messageText = (EditText) rootView.findViewById(R.id.message);
-        Spinner qos = (Spinner) rootView.findViewById(R.id.qos_spinner);
-        final Switch retain = (Switch) rootView.findViewById(R.id.retain_switch);
+        EditText topicText = rootView.findViewById(R.id.topic);
+        EditText messageText = rootView.findViewById(R.id.message);
+        Spinner qos = rootView.findViewById(R.id.qos_spinner);
+        final Switch retain = rootView.findViewById(R.id.retain_switch);
         topicText.setText(topic);
 
         topicText.addTextChangedListener(new TextWatcher() {
@@ -111,7 +111,7 @@ public class PublishFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         qos.setAdapter(adapter);
 
-        Button publishButton = (Button) rootView.findViewById(R.id.publish_button);
+        Button publishButton = rootView.findViewById(R.id.publish_button);
         publishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

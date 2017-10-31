@@ -55,10 +55,10 @@ public class ManageConnectionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage, container, false);
         final String name = connection.getId() + "@" + connection.getHostName() + ":" + connection.getPort();
-        TextView label = (TextView) rootView.findViewById(R.id.connection_id_text);
+        TextView label = rootView.findViewById(R.id.connection_id_text);
         label.setText(name);
 
-        Button deleteButton = (Button) rootView.findViewById(R.id.delete_button);
+        Button deleteButton = rootView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +73,7 @@ public class ManageConnectionFragment extends Fragment {
             }
         });
 
-        Button editButton = (Button) rootView.findViewById(R.id.edit_button);
+        Button editButton = rootView.findViewById(R.id.edit_button);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

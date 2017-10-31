@@ -61,21 +61,21 @@ public class EditConnectionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_edit_connection, container, false);
-        clientId = (EditText) rootView.findViewById(R.id.client_id);
-        serverHostname = (EditText) rootView.findViewById(R.id.hostname);
-        serverPort = (EditText) rootView.findViewById(R.id.add_connection_port);
+        clientId = rootView.findViewById(R.id.client_id);
+        serverHostname = rootView.findViewById(R.id.hostname);
+        serverPort = rootView.findViewById(R.id.add_connection_port);
         serverPort.setText("");
-        cleanSession = (Switch) rootView.findViewById(R.id.clean_session_switch);
-        username = (EditText) rootView.findViewById(R.id.username);
-        password = (EditText) rootView.findViewById(R.id.password);
-        tlsServerKey = (EditText) rootView.findViewById(R.id.tls_server_key);
-        tlsClientKey = (EditText) rootView.findViewById(R.id.tls_client_key);
-        timeout = (EditText) rootView.findViewById(R.id.timeout);
-        keepAlive = (EditText) rootView.findViewById(R.id.keepalive);
-        lwtTopic = (EditText) rootView.findViewById(R.id.lwt_topic);
-        lwtMessage = (EditText) rootView.findViewById(R.id.lwt_message);
-        lwtQos = (Spinner) rootView.findViewById(R.id.lwt_qos_spinner);
-        lwtRetain = (Switch) rootView.findViewById(R.id.retain_switch);
+        cleanSession = rootView.findViewById(R.id.clean_session_switch);
+        username = rootView.findViewById(R.id.username);
+        password = rootView.findViewById(R.id.password);
+        tlsServerKey = rootView.findViewById(R.id.tls_server_key);
+        tlsClientKey = rootView.findViewById(R.id.tls_client_key);
+        timeout = rootView.findViewById(R.id.timeout);
+        keepAlive = rootView.findViewById(R.id.keepalive);
+        lwtTopic = rootView.findViewById(R.id.lwt_topic);
+        lwtMessage = rootView.findViewById(R.id.lwt_message);
+        lwtQos = rootView.findViewById(R.id.lwt_qos_spinner);
+        lwtRetain = rootView.findViewById(R.id.retain_switch);
 
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter

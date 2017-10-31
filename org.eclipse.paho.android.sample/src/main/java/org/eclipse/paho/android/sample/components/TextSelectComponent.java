@@ -40,9 +40,9 @@ public class TextSelectComponent extends RelativeLayout {
         this.context = context;
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.text_select, this);
-        TextView mainLabel = (TextView) findViewById(R.id.mainLabel);
-        this.subLabel = (TextView) findViewById(R.id.subLabel);
-        RelativeLayout textSelectLayout = (RelativeLayout) findViewById(R.id.container);
+        TextView mainLabel = findViewById(R.id.mainLabel);
+        this.subLabel = findViewById(R.id.subLabel);
+        RelativeLayout textSelectLayout = findViewById(R.id.container);
         final TypedArray attributeArray = context.obtainStyledAttributes(attr, R.styleable.TextSelectComponent);
         mainLabel.setText(attributeArray.getString(R.styleable.TextSelectComponent_main_label));
         this.subLabel.setText(attributeArray.getString(R.styleable.TextSelectComponent_default_value));
@@ -62,9 +62,9 @@ public class TextSelectComponent extends RelativeLayout {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         @SuppressLint("InflateParams")
         View promptView = layoutInflater.inflate(R.layout.text_input_dialog, null);
-        TextView promptText = (TextView) promptView.findViewById(R.id.textView);
+        TextView promptText = promptView.findViewById(R.id.textView);
         promptText.setText(inputTitle);
-        final EditText promptEditText = (EditText) promptView.findViewById(R.id.edittext);
+        final EditText promptEditText = promptView.findViewById(R.id.edittext);
         if (this.numberInput) {
             Log.i(TAG, "NUMBER INPUT");
             promptEditText.setInputType(InputType.TYPE_CLASS_NUMBER);

@@ -32,9 +32,9 @@ public class MessageListItemAdapter extends ArrayAdapter<ReceivedMessage> {
     public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.message_list_item, parent, false);
-        TextView topicTextView = (TextView) rowView.findViewById(R.id.message_topic_text);
-        TextView messageTextView = (TextView) rowView.findViewById(R.id.message_text);
-        TextView dateTextView = (TextView) rowView.findViewById(R.id.message_date_text);
+        TextView topicTextView = rowView.findViewById(R.id.message_topic_text);
+        TextView messageTextView = rowView.findViewById(R.id.message_text);
+        TextView dateTextView = rowView.findViewById(R.id.message_date_text);
         messageTextView.setText(new String(messages.get(position).getMessage().getPayload()));
         topicTextView.setText(context.getString(R.string.topic_fmt, messages.get(position).getTopic()));
         DateFormat dateTimeFormatter = SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);

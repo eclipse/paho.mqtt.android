@@ -30,6 +30,6 @@ dependencies {
 }
 
 task publishAPK(type: Copy) {
-    from file("${project.buildDir}/outputs/apk/" + rootProject.ext.sampleArchivesBaseName + "-debug.apk");
-    into '/shared/technology/paho/Android/' + rootProject.ext.sampleVersion + '/debug/';
+    from file("${project.buildDir}/outputs/apk/" + rootProject.ext.sampleArchivesBaseName + "-debug.apk")
+    into '/shared/technology/paho/Android/' + rootProject.ext.sampleVersion + '/debug/'
 }

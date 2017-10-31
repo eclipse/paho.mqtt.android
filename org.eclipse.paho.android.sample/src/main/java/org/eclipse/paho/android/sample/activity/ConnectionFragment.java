@@ -45,7 +45,7 @@ public class ConnectionFragment extends Fragment {
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
 
         // Initialise the tab-host
-        mTabHost = (FragmentTabHost) rootView.findViewById(android.R.id.tabhost);
+        mTabHost = rootView.findViewById(android.R.id.tabhost);
         mTabHost.setup(getActivity(), getChildFragmentManager(), android.R.id.tabcontent);
         // Add a tab to the tabHost
         mTabHost.addTab(mTabHost.newTabSpec("History").setIndicator("History"), HistoryFragment.class, bundle);
@@ -64,7 +64,7 @@ public class ConnectionFragment extends Fragment {
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_connection, menu);
 
-        connectSwitch = (Switch) menu.findItem(R.id.connect_switch).getActionView().findViewById(R.id.switchForActionBar);
+        connectSwitch = menu.findItem(R.id.connect_switch).getActionView().findViewById(R.id.switchForActionBar);
 
         connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

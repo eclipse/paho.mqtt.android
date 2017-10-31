@@ -54,7 +54,7 @@ public class SubscriptionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_subscriptions, container, false);
-        Button subscribeButton = (Button) rootView.findViewById(R.id.subscribe_button);
+        Button subscribeButton = rootView.findViewById(R.id.subscribe_button);
 
         subscribeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,7 +63,7 @@ public class SubscriptionFragment extends Fragment {
             }
         });
 
-        ListView subscriptionListView = (ListView) rootView.findViewById(R.id.subscription_list_view);
+        ListView subscriptionListView = rootView.findViewById(R.id.subscription_list_view);
         SubscriptionListItemAdapter adapter = new SubscriptionListItemAdapter(this.getActivity(), subscriptions);
 
         adapter.addOnUnsubscribeListner(new SubscriptionListItemAdapter.OnUnsubscribeListner() {
@@ -86,9 +86,9 @@ public class SubscriptionFragment extends Fragment {
     private void showInputDialog() {
         LayoutInflater layoutInflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
-        final EditText topicText = (EditText) promptView.findViewById(R.id.subscription_topic_edit_text);
+        final EditText topicText = promptView.findViewById(R.id.subscription_topic_edit_text);
 
-        final Spinner qos = (Spinner) promptView.findViewById(R.id.subscription_qos_spinner);
+        final Spinner qos = promptView.findViewById(R.id.subscription_qos_spinner);
         final ArrayAdapter<CharSequence> adapter = ArrayAdapter
                 .createFromResource(getActivity(), R.array.qos_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -105,7 +105,7 @@ public class SubscriptionFragment extends Fragment {
             }
         });
 
-        final Switch notifySwitch = (Switch) promptView.findViewById(R.id.show_notifications_switch);
+        final Switch notifySwitch = promptView.findViewById(R.id.show_notifications_switch);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setView(promptView);

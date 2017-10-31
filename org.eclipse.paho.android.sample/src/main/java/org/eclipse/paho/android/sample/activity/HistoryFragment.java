@@ -54,10 +54,10 @@ public class HistoryFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_connection_history, container, false);
 
         messageListAdapter = new MessageListItemAdapter(getActivity(), messages);
-        ListView messageHistoryListView = (ListView) rootView.findViewById(R.id.history_list_view);
+        ListView messageHistoryListView = rootView.findViewById(R.id.history_list_view);
         messageHistoryListView.setAdapter(messageListAdapter);
 
-        Button clearButton = (Button) rootView.findViewById(R.id.history_clear_button);
+        Button clearButton = rootView.findViewById(R.id.history_clear_button);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

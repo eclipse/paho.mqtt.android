@@ -777,8 +777,7 @@ public class MqttService extends Service implements MqttTraceHandler {
             // by requesting a wake lock - we request the minimum possible wake
             // lock - just enough to keep the CPU running until we've finished
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            WakeLock wl = pm
-                    .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT");
+            WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MQTT");
             wl.acquire();
             traceDebug(TAG, "Reconnect for Network recovery.");
             if (isOnline()) {

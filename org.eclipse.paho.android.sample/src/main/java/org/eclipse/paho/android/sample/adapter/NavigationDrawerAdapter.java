@@ -53,8 +53,8 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
-            icon = (ImageView) itemView.findViewById(R.id.connection_icon);
+            title = itemView.findViewById(R.id.title);
+            icon = itemView.findViewById(R.id.connection_icon);
         }
     }
 }

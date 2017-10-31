@@ -94,9 +94,9 @@ public class FragmentDrawer extends Fragment {
             Bundle savedInstanceState) {
         // Inflating view layout
         View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-        RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
+        RecyclerView recyclerView = layout.findViewById(R.id.drawerList);
 
-        TextView addConnectionTextView = (TextView) layout.findViewById(R.id.action_add_connection);
+        TextView addConnectionTextView = layout.findViewById(R.id.action_add_connection);
 
         addConnectionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +106,7 @@ public class FragmentDrawer extends Fragment {
             }
         });
 
-        TextView helpTextView = (TextView) layout.findViewById(R.id.action_help);
+        TextView helpTextView = layout.findViewById(R.id.action_help);
 
         helpTextView.setOnClickListener(new View.OnClickListener() {
             @Override
