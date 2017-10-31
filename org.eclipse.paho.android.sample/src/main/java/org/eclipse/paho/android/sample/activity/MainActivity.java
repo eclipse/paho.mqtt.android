@@ -1,23 +1,20 @@
 package org.eclipse.paho.android.sample.activity;
 
 
-
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
-import android.view.Menu;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.android.sample.model.ConnectionModel;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -26,16 +23,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener{
-
-    private FragmentDrawer drawerFragment;
+public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener {
 
     private static final String TAG = "MainActivity";
-
     private final ChangeListener changeListener = new ChangeListener();
-
     private final MainActivity mainActivity = this;
-
+    private FragmentDrawer drawerFragment;
     private ArrayList<String> connectionMap;
 
     @Override
@@ -55,13 +48,13 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         populateConnectionList();
     }
 
-    public void removeConnectionRow(Connection connection){
+    public void removeConnectionRow(Connection connection) {
         drawerFragment.removeConnection(connection);
         populateConnectionList();
     }
 
 
-    private void populateConnectionList(){
+    private void populateConnectionList() {
         // Clear drawerFragment
         drawerFragment.clearConnections();
 
@@ -72,14 +65,14 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         connectionMap = new ArrayList<String>();
 
         Iterator connectionIterator = connections.entrySet().iterator();
-        while (connectionIterator.hasNext()){
+        while (connectionIterator.hasNext()) {
             Map.Entry pair = (Map.Entry) connectionIterator.next();
             drawerFragment.addConnection((Connection) pair.getValue());
             connectionMap.add((String) pair.getKey());
             ++connectionIndex;
         }
 
-        if(connectionMap.size() == 0){
+        if (connectionMap.size() == 0) {
             displayView(-1);
         } else {
             displayView(0);
@@ -94,20 +87,19 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     }
 
 
-
     @Override
-    public void onDrawerItemSelected(int position){
+    public void onDrawerItemSelected(int position) {
         displayView(position);
     }
 
     @Override
-    public void onDrawerItemLongSelected(int position){
+    public void onDrawerItemLongSelected(int position) {
         displayDeleteView(position);
     }
 
     @Override
     public void onAddConnectionSelected() {
-        Fragment editConnectionFragment =  new EditConnectionFragment();
+        Fragment editConnectionFragment = new EditConnectionFragment();
         String title = "Edit Connection";
         displayFragment(editConnectionFragment, title);
     }
@@ -116,14 +108,13 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     public void onHelpSelected() {
         Fragment helpFragment = new HelpFragment();
         displayFragment(helpFragment, getString(R.string.help_and_feedback));
-
     }
 
-    private void displayDeleteView(int position){
-        if(position == -1){
+    private void displayDeleteView(int position) {
+        if (position == -1) {
             displayFragment(new HomeFragment(), "Home");
         } else {
-            Fragment fragment  = new ManageConnectionFragment();
+            Fragment fragment = new ManageConnectionFragment();
             Bundle bundle = new Bundle();
             bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap.get(position));
             fragment.setArguments(bundle);
@@ -134,11 +125,11 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
     }
 
-    private void displayView(int position){
-        if(position == -1){
+    private void displayView(int position) {
+        if (position == -1) {
             displayFragment(new HomeFragment(), "Home");
         } else {
-            Fragment fragment  = new ConnectionFragment();
+            Fragment fragment = new ConnectionFragment();
             Bundle bundle = new Bundle();
             bundle.putString(ActivityConstants.CONNECTION_KEY, connectionMap.get(position));
             fragment.setArguments(bundle);
@@ -150,8 +141,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
     }
 
-    private void displayFragment(Fragment fragment, String title){
-        if (fragment != null){
+    private void displayFragment(Fragment fragment, String title) {
+        if (fragment != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.container_body, fragment);
@@ -164,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
     }
 
-    public void updateAndConnect(ConnectionModel model){
+    public void updateAndConnect(ConnectionModel model) {
         Map<String, Connection> connections = Connections.getInstance(this)
                 .getConnections();
 
@@ -172,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         Connection connection = connections.get(model.getClientHandle());
         // First disconnect the current instance of this connection
-        if(connection.isConnected()){
+        if (connection.isConnected()) {
             connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTING);
             connection.getClient().disconnect();
         }
@@ -193,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         drawerFragment.updateConnection(connection);
 
         connection.getClient().connect(connOpts, null, callback);
-        Fragment fragment  = new ConnectionFragment();
+        Fragment fragment = new ConnectionFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
         fragment.setArguments(bundle);
@@ -201,15 +192,17 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         displayFragment(fragment, title);
     }
 
-
     /**
      * Takes a {@link ConnectionModel} and uses it to connect
      * and then persist.
+     *
      * @param model - The connection Model
      */
-    public void persistAndConnect(ConnectionModel model){
+    public void persistAndConnect(ConnectionModel model) {
         Log.i(TAG, "Persisting new connection:" + model.getClientHandle());
-        Connection connection = Connection.createConnection(model.getClientHandle(),model.getClientId(),model.getServerHostName(),model.getServerPort(),this,model.isTlsConnection());
+        Connection connection = Connection
+                .createConnection(model.getClientHandle(), model.getClientId(), model.getServerHostName(), model.getServerPort(), this, model
+                        .isTlsConnection());
         connection.registerChangeListener(changeListener);
         connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTING);
 
@@ -219,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         final ActionListener callback = new ActionListener(this,
                 ActionListener.Action.CONNECT, connection, actionArgs);
         connection.getClient().setCallback(new MqttCallbackHandler(this, model.getClientHandle()));
-
 
 
         connection.getClient().setTraceCallback(new MqttTraceCallback());
@@ -232,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         drawerFragment.addConnection(connection);
 
         connection.getClient().connect(connOpts, null, callback);
-        Fragment fragment  = new ConnectionFragment();
+        Fragment fragment = new ConnectionFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
         bundle.putBoolean(ActivityConstants.CONNECTED, true);
@@ -242,23 +234,20 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     }
 
 
-
-
-
-    private MqttConnectOptions optionsFromModel(ConnectionModel model){
+    private MqttConnectOptions optionsFromModel(ConnectionModel model) {
 
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(model.isCleanSession());
         connOpts.setConnectionTimeout(model.getTimeout());
         connOpts.setKeepAliveInterval(model.getKeepAlive());
-        if(!model.getUsername().equals(ActivityConstants.empty)){
+        if (!model.getUsername().equals(ActivityConstants.empty)) {
             connOpts.setUserName(model.getUsername());
         }
 
-        if(!model.getPassword().equals(ActivityConstants.empty)){
+        if (!model.getPassword().equals(ActivityConstants.empty)) {
             connOpts.setPassword(model.getPassword().toCharArray());
         }
-        if(!model.getLwtTopic().equals(ActivityConstants.empty) && !model.getLwtMessage().equals(ActivityConstants.empty)){
+        if (!model.getLwtTopic().equals(ActivityConstants.empty) && !model.getLwtMessage().equals(ActivityConstants.empty)) {
             connOpts.setWill(model.getLwtTopic(), model.getLwtMessage().getBytes(), model.getLwtQos(), model.isLwtRetain());
         }
         //   if(tlsConnection){
@@ -267,8 +256,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         //   }
         return connOpts;
     }
-
-
 
 
     public void connect(Connection connection) {
@@ -280,23 +267,20 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         connection.getClient().connect(connection.getConnectionOptions(), null, callback);
     }
 
-    public void disconnect(Connection connection){
+    public void disconnect(Connection connection) {
         connection.getClient().disconnect();
     }
 
-    public void publish(Connection connection, String topic, String message, int qos, boolean retain){
+    public void publish(Connection connection, String topic, String message, int qos, boolean retain) {
         String[] actionArgs = new String[2];
         actionArgs[0] = message;
         actionArgs[1] = topic;
-        final ActionListener callback = new ActionListener(this,
-                ActionListener.Action.PUBLISH, connection, actionArgs);
+        final ActionListener callback = new ActionListener(this, ActionListener.Action.PUBLISH, connection, actionArgs);
         connection.getClient().publish(topic, message.getBytes(), qos, retain, null, callback);
     }
 
     /**
      * This class ensures that the user interface is updated as the Connection objects change their states
-     *
-     *
      */
     private class ChangeListener implements PropertyChangeListener {
 

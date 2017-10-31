@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="MaterialTheme" parent="MaterialTheme.Base">
+    <style name="MaterialTheme" parent="MaterialTheme.Base">
 
-  </style>
+    </style>
 
-  <style name="MaterialTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
-      <item name="android:windowNoTitle">true</item>
-      <item name="windowActionBar">false</item>
-      <item name="colorPrimary">@color/ColorPrimary</item>
-      <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
-      <item name="colorAccent">@color/colorAccent</item>
-  </style>
+    <style name="MaterialTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
     <style name="Divider">
         <item name="android:layout_width">match_parent</item>
@@ -80,7 +80,6 @@
         <item name="android:paddingBottom">15dp</item>
         <item name="android:layout_alignParentLeft">true</item>
     </style>
-
 
 
 </resources>

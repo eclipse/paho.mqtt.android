@@ -30,14 +30,10 @@ public class TextSelectComponent extends RelativeLayout {
     private final TextView subLabel;
 
     private final String inputTitle;
-
-
-    private String setText;
     private final boolean numberInput;
-
     private final ArrayList<ITextSelectCallback> registeredCallbacks = new ArrayList<ITextSelectCallback>();
-
     private final Context context;
+    private String setText;
 
     public TextSelectComponent(Context context, AttributeSet attr) {
         super(context, attr);
@@ -62,15 +58,14 @@ public class TextSelectComponent extends RelativeLayout {
         attributeArray.recycle();
     }
 
-
-
-    private void showInputDialog(){
+    private void showInputDialog() {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.text_input_dialog, null);
+        @SuppressLint("InflateParams")
+        View promptView = layoutInflater.inflate(R.layout.text_input_dialog, null);
         TextView promptText = (TextView) promptView.findViewById(R.id.textView);
         promptText.setText(inputTitle);
         final EditText promptEditText = (EditText) promptView.findViewById(R.id.edittext);
-        if(this.numberInput){
+        if (this.numberInput) {
             Log.i(TAG, "NUMBER INPUT");
             promptEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
         } else {
@@ -80,7 +75,6 @@ public class TextSelectComponent extends RelativeLayout {
         Log.i(TAG, "Setting text to: " + setText);
         Log.i(TAG, "input Type: " + promptEditText.getInputType());
         promptEditText.setText(setText);
-
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setView(promptView);
@@ -102,10 +96,10 @@ public class TextSelectComponent extends RelativeLayout {
             }
         });
 
-        alertDialogBuilder.setOnKeyListener(new Dialog.OnKeyListener(){
+        alertDialogBuilder.setOnKeyListener(new Dialog.OnKeyListener() {
             @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event){
-                if(keyCode == KeyEvent.KEYCODE_BACK){
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
                     dialog.cancel();
                 }
                 return true;
@@ -117,10 +111,9 @@ public class TextSelectComponent extends RelativeLayout {
         alert.show();
     }
 
-    public void register(ITextSelectCallback callback){
+    public void register(ITextSelectCallback callback) {
         registeredCallbacks.add(callback);
     }
-
 
     public String getSetText() {
         return setText;
@@ -132,17 +125,12 @@ public class TextSelectComponent extends RelativeLayout {
         this.subLabel.setText(setText);
     }
 
-    public int getSetInt(){
+    public int getSetInt() {
         return Integer.parseInt(setText);
     }
 
-    public void setSetInt(int value){
+    public void setSetInt(int value) {
         this.setText = String.valueOf(value);
     }
-
-
-
-
-
 
 }

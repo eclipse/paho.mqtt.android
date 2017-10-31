@@ -9,10 +9,9 @@ import android.widget.Toast;
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
 import org.eclipse.paho.android.sample.model.Subscription;
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.android.service.MqttAndroidClient;
 
 import java.util.ArrayList;
 
@@ -25,30 +24,6 @@ public class ActionListener implements IMqttActionListener {
 
     private static final String TAG = "ActionListener";
     private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
-
-    /**
-     * Actions that can be performed Asynchronously <strong>and</strong> associated with a
-     * {@link ActionListener} object
-     */
-    enum Action {
-        /**
-         * Connect Action
-         **/
-        CONNECT,
-        /**
-         * Disconnect Action
-         **/
-        DISCONNECT,
-        /**
-         * Subscribe Action
-         **/
-        SUBSCRIBE,
-        /**
-         * Publish Action
-         **/
-        PUBLISH
-    }
-
     /**
      * The {@link Action} that is associated with this instance of
      * <code>ActionListener</code>
@@ -58,7 +33,6 @@ public class ActionListener implements IMqttActionListener {
      * The arguments passed to be used for formatting strings
      **/
     private final String[] additionalArgs;
-
     private final Connection connection;
     /**
      * Handle of the {@link Connection} this action was being executed on
@@ -77,8 +51,7 @@ public class ActionListener implements IMqttActionListener {
      * @param connection     The connection
      * @param additionalArgs Used for as arguments for string formating
      */
-    public ActionListener(Context context, Action action,
-                          Connection connection, String... additionalArgs) {
+    public ActionListener(Context context, Action action, Connection connection, String... additionalArgs) {
         this.context = context;
         this.action = action;
         this.connection = connection;
@@ -107,7 +80,6 @@ public class ActionListener implements IMqttActionListener {
                 publish();
                 break;
         }
-
     }
 
     /**
@@ -116,14 +88,12 @@ public class ActionListener implements IMqttActionListener {
      * user of success
      */
     private void publish() {
-
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         @SuppressLint("StringFormatMatches") String actionTaken = context.getString(R.string.toast_pub_success,
-              (Object[]) additionalArgs);
-        c.addAction(actionTaken);
+                (Object[]) additionalArgs);
+        connection.addAction(actionTaken);
         Notify.toast(context, actionTaken, Toast.LENGTH_SHORT);
         System.out.print("Published");
-
     }
 
     /**
@@ -132,13 +102,12 @@ public class ActionListener implements IMqttActionListener {
      * the user of success
      */
     private void subscribe() {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         String actionTaken = context.getString(R.string.toast_sub_success,
                 (Object[]) additionalArgs);
-        c.addAction(actionTaken);
+        connection.addAction(actionTaken);
         Notify.toast(context, actionTaken, Toast.LENGTH_SHORT);
         System.out.print(actionTaken);
-
     }
 
     /**
@@ -147,16 +116,15 @@ public class ActionListener implements IMqttActionListener {
      * then notify the user of success.
      */
     private void disconnect() {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        c.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
+        connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
         String actionTaken = context.getString(R.string.toast_disconnected);
-        c.addAction(actionTaken);
-        Log.i(TAG, c.handle() + " disconnected.");
+        connection.addAction(actionTaken);
+        Log.i(TAG, connection.handle() + " disconnected.");
         //build intent
         Intent intent = new Intent();
         intent.setClassName(context, activityClass);
         intent.putExtra("handle", clientHandle);
-
     }
 
     /**
@@ -165,16 +133,15 @@ public class ActionListener implements IMqttActionListener {
      * then notify the user of success.
      */
     private void connect() {
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
+        connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTED);
+        connection.addAction("Client Connected");
+        Log.i(TAG, connection.handle() + " connected.");
 
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        c.changeConnectionStatus(Connection.ConnectionStatus.CONNECTED);
-        c.addAction("Client Connected");
-        Log.i(TAG, c.handle() + " connected.");
-
-        ArrayList<Subscription> subscriptions = connection.getSubscriptions();
+        ArrayList<Subscription> subscriptions = this.connection.getSubscriptions();
         for (Subscription sub : subscriptions) {
             Log.i(TAG, "Auto-subscribing to: " + sub.getTopic() + "@ QoS: " + sub.getQos());
-            connection.getClient().subscribe(sub.getTopic(), sub.getQos());
+            this.connection.getClient().subscribe(sub.getTopic(), sub.getQos());
         }
     }
 
@@ -200,7 +167,6 @@ public class ActionListener implements IMqttActionListener {
                 publish(exception);
                 break;
         }
-
     }
 
     /**
@@ -209,13 +175,13 @@ public class ActionListener implements IMqttActionListener {
      * @param exception This argument is not used
      */
     private void publish(Throwable exception) {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        @SuppressLint("StringFormatMatches") String action = context.getString(R.string.toast_pub_failed,
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
+        @SuppressLint("StringFormatMatches")
+        String action = context.getString(R.string.toast_pub_failed,
                 (Object[]) additionalArgs);
-        c.addAction(action);
+        connection.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);
         System.out.print("Publish failed");
-
     }
 
     /**
@@ -224,13 +190,12 @@ public class ActionListener implements IMqttActionListener {
      * @param exception This argument is not used
      */
     private void subscribe(Throwable exception) {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
         String action = context.getString(R.string.toast_sub_failed,
                 (Object[]) additionalArgs);
-        c.addAction(action);
+        connection.addAction(action);
         Notify.toast(context, action, Toast.LENGTH_SHORT);
         System.out.print(action);
-
     }
 
     /**
@@ -239,10 +204,9 @@ public class ActionListener implements IMqttActionListener {
      * @param exception This argument is not used
      */
     private void disconnect(Throwable exception) {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        c.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
-        c.addAction("Disconnect Failed - an error occured");
-
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
+        connection.changeConnectionStatus(Connection.ConnectionStatus.DISCONNECTED);
+        connection.addAction("Disconnect Failed - an error occured");
     }
 
     /**
@@ -251,11 +215,33 @@ public class ActionListener implements IMqttActionListener {
      * @param exception This argument is not used
      */
     private void connect(Throwable exception) {
-        Connection c = Connections.getInstance(context).getConnection(clientHandle);
-        c.changeConnectionStatus(Connection.ConnectionStatus.ERROR);
-        c.addAction("Client failed to connect");
+        Connection connection = Connections.getInstance(context).getConnection(clientHandle);
+        connection.changeConnectionStatus(Connection.ConnectionStatus.ERROR);
+        connection.addAction("Client failed to connect");
         System.out.println("Client failed to connect");
+    }
 
+    /**
+     * Actions that can be performed Asynchronously <strong>and</strong> associated with a
+     * {@link ActionListener} object
+     */
+    enum Action {
+        /**
+         * Connect Action
+         **/
+        CONNECT,
+        /**
+         * Disconnect Action
+         **/
+        DISCONNECT,
+        /**
+         * Subscribe Action
+         **/
+        SUBSCRIBE,
+        /**
+         * Publish Action
+         **/
+        PUBLISH
     }
 
 }

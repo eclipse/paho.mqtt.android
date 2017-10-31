@@ -44,17 +44,15 @@ public class ManageConnectionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-         connections = Connections.getInstance(this.getActivity())
+        connections = Connections.getInstance(this.getActivity())
                 .getConnections();
         connectionKey = this.getArguments().getString(ActivityConstants.CONNECTION_KEY);
         connection = connections.get(connectionKey);
         setHasOptionsMenu(false);
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage, container, false);
         final String name = connection.getId() + "@" + connection.getHostName() + ":" + connection.getPort();
         TextView label = (TextView) rootView.findViewById(R.id.connection_id_text);
@@ -64,7 +62,7 @@ public class ManageConnectionFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               System.out.println("Deleting Connection: " + name + ".");
+                System.out.println("Deleting Connection: " + name + ".");
                 connections.remove(connectionKey);
                 Connections.getInstance(getActivity()).removeConnection(connection);
                 FragmentManager fragmentManager = getFragmentManager();
@@ -90,7 +88,6 @@ public class ManageConnectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-
 
         // Inflate the layout for this fragment
         return rootView;

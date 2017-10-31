@@ -22,19 +22,16 @@ public class HistoryFragment extends Fragment {
 
     private MessageListItemAdapter messageListAdapter;
 
-
     private ArrayList<ReceivedMessage> messages;
+
     public HistoryFragment() {
-
         setHasOptionsMenu(true);
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Map<String, Connection> connections = Connections.getInstance(this.getActivity())
-                .getConnections();
+        Map<String, Connection> connections = Connections.getInstance(this.getActivity()).getConnections();
         Connection connection = connections.get(this.getArguments().getString(ActivityConstants.CONNECTION_KEY));
         System.out.println("History Fragment: " + connection.getId());
         setHasOptionsMenu(true);
@@ -49,15 +46,10 @@ public class HistoryFragment extends Fragment {
         });
 
 
-
-
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_connection_history, container, false);
 
@@ -76,12 +68,7 @@ public class HistoryFragment extends Fragment {
 
         // Inflate the layout for this fragment
         return rootView;
-
-
-
-
     }
-
 
 }
 

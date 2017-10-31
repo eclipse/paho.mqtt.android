@@ -16,21 +16,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
-public class MessageListItemAdapter extends ArrayAdapter<ReceivedMessage>{
+public class MessageListItemAdapter extends ArrayAdapter<ReceivedMessage> {
 
     private final Context context;
     private final ArrayList<ReceivedMessage> messages;
 
-    public MessageListItemAdapter(Context context, ArrayList<ReceivedMessage> messages){
+    public MessageListItemAdapter(Context context, ArrayList<ReceivedMessage> messages) {
         super(context, R.layout.message_list_item, messages);
         this.context = context;
         this.messages = messages;
-
     }
 
     @NonNull
     @Override
-    public View getView(final int position, View convertView, @NonNull ViewGroup parent){
+    public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.message_list_item, parent, false);
         TextView topicTextView = (TextView) rowView.findViewById(R.id.message_topic_text);

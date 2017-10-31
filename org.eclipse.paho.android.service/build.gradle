@@ -62,7 +62,7 @@ task("generateLibraryJar", type: Jar) {
 }
 
 // Generate Javadoc
-task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')){
+task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')) {
     from("$buildDir/docs/javadoc")
     classifier = 'javadoc'
 }

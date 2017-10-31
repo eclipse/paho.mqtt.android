@@ -10,14 +10,13 @@
     </string-array>
 
 
-
     <string name="action_add_connection">Add Connection</string>
     <string name="add_connection_general_label">General</string>
     <string name="add_connection_client_id_label">Client ID</string>
     <string name="add_connection_client_id_default">AndroidClient</string>
     <string name="add_connection_server_label">Server</string>
     <string name="add_connection_server_default">iot.eclipse.org</string>
-     <string name="add_connection_port_label">Port</string>
+    <string name="add_connection_port_label">Port</string>
     <string name="add_connection_clean_session_label">Clean Session</string>
     <string name="add_connection_advanced_label">Advanced</string>
     <string name="add_connection_username_label">Username</string>
@@ -67,9 +66,8 @@
     <string name="notify_label">Show Notifications</string>
     <string name="subscribe_ok">OK</string>
     <string name="subscribe_cancel">Cancel</string>
-    <string name="qos_text" >QoS: %1$d</string>
+    <string name="qos_text">QoS: %1$d</string>
     <string name="notify_text">Notifications: %1$s</string>
-
 
 
     <!-- Strings for Help Fragment -->

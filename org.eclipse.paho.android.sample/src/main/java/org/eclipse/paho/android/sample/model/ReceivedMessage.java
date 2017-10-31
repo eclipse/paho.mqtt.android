@@ -6,15 +6,14 @@ import java.util.Date;
 
 
 public class ReceivedMessage {
+    private final String topic;
+    private final MqttMessage message;
+    private final Date timestamp;
     public ReceivedMessage(String topic, MqttMessage message) {
         this.topic = topic;
         this.message = message;
         this.timestamp = new Date();
     }
-
-    private final String topic;
-    private final MqttMessage message;
-    private final Date timestamp;
 
     public String getTopic() {
         return topic;

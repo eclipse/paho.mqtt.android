@@ -37,20 +37,14 @@ public class HelpFragment extends Fragment {
 
     private static final String PAHO_WEBSITE = "http://www.eclipse.org/paho/";
 
-
     public HelpFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_help, container, false);
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(rootView.getContext());
-
 
         Button websiteButton = (Button) rootView.findViewById(R.id.websiteButton);
         websiteButton.setOnClickListener(new View.OnClickListener() {
@@ -79,11 +73,11 @@ public class HelpFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Map<String, Connection> connections = Connections.getInstance(rootView.getContext())
                         .getConnections();
-                if(!connections.isEmpty()){
+                if (!connections.isEmpty()) {
                     Map.Entry<String, Connection> entry = connections.entrySet().iterator().next();
                     Connection connection = entry.getValue();
                     connection.getClient().setTraceEnabled(isChecked);
-                    if(isChecked){
+                    if (isChecked) {
                         connection.getClient().setTraceCallback(new MqttTraceCallback());
                     }
                     Log.i(TAG, "Trace was set to: " + isChecked);
@@ -93,27 +87,23 @@ public class HelpFragment extends Fragment {
             }
         });
 
-
-
         // Inflate the layout for this fragment
         return rootView;
     }
 
 
-    private String getDebugInfoForEmail(){
+    private String getDebugInfoForEmail() {
         StringBuilder sb = new StringBuilder();
 
         try {
             PackageInfo pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             sb.append(FEEDBACK_VERSION + pInfo.versionName + FEEDBACK_NEW_LINE);
-        } catch(PackageManager.NameNotFoundException ex){
+        } catch (PackageManager.NameNotFoundException ex) {
             sb.append(FEEDBACK_VERSION + FEEDBACK_UNKNOWN + FEEDBACK_NEW_LINE);
         }
 
-        sb.append(FEEDBACK_PHONE_MODEL + Build.MANUFACTURER + " " +Build.MODEL + FEEDBACK_NEW_LINE);
+        sb.append(FEEDBACK_PHONE_MODEL + Build.MANUFACTURER + " " + Build.MODEL + FEEDBACK_NEW_LINE);
         sb.append(FEEDBACK_ANDROID_VERSION + Build.VERSION.SDK_INT);
-
-
 
         return sb.toString();
     }

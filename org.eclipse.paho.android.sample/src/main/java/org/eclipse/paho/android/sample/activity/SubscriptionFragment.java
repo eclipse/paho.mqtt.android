@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,9 @@ import android.widget.Spinner;
 import android.widget.Switch;
 
 import org.eclipse.paho.android.sample.R;
-import org.eclipse.paho.android.sample.model.Subscription;
 import org.eclipse.paho.android.sample.components.SubscriptionListItemAdapter;
 import org.eclipse.paho.android.sample.internal.Connections;
+import org.eclipse.paho.android.sample.model.Subscription;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.util.ArrayList;
@@ -45,18 +44,15 @@ public class SubscriptionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle bundle  = this.getArguments();
+        Bundle bundle = this.getArguments();
         String connectionHandle = bundle.getString(ActivityConstants.CONNECTION_KEY);
-        Map<String, Connection> connections = Connections.getInstance(this.getActivity())
-                .getConnections();
+        Map<String, Connection> connections = Connections.getInstance(this.getActivity()).getConnections();
         connection = connections.get(connectionHandle);
         subscriptions = connection.getSubscriptions();
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_subscriptions, container, false);
         Button subscribeButton = (Button) rootView.findViewById(R.id.subscribe_button);
 
@@ -83,18 +79,18 @@ public class SubscriptionFragment extends Fragment {
         });
         subscriptionListView.setAdapter(adapter);
 
-
         // Inflate the layout for this fragment
         return rootView;
     }
 
-    private void showInputDialog(){
-        LayoutInflater layoutInflater =  (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    private void showInputDialog() {
+        LayoutInflater layoutInflater = (LayoutInflater) this.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         @SuppressLint("InflateParams") View promptView = layoutInflater.inflate(R.layout.subscription_dialog, null);
         final EditText topicText = (EditText) promptView.findViewById(R.id.subscription_topic_edit_text);
 
         final Spinner qos = (Spinner) promptView.findViewById(R.id.subscription_qos_spinner);
-        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.qos_options, android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> adapter = ArrayAdapter
+                .createFromResource(getActivity(), R.array.qos_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         qos.setAdapter(adapter);
         qos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -111,9 +107,6 @@ public class SubscriptionFragment extends Fragment {
 
         final Switch notifySwitch = (Switch) promptView.findViewById(R.id.show_notifications_switch);
 
-
-
-
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setView(promptView);
         alertDialogBuilder.setCancelable(true).setPositiveButton(R.string.subscribe_ok, new DialogInterface.OnClickListener() {
@@ -124,7 +117,6 @@ public class SubscriptionFragment extends Fragment {
                 subscriptions.add(subscription);
                 try {
                     connection.addNewSubscription(subscription);
-
                 } catch (MqttException ex) {
                     System.out.println("MqttException whilst subscribing: " + ex.getMessage());
                 }
@@ -137,7 +129,7 @@ public class SubscriptionFragment extends Fragment {
             }
         });
 
-        AlertDialog alert =  alertDialogBuilder.create();
+        AlertDialog alert = alertDialogBuilder.create();
         alert.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         alert.show();
     }

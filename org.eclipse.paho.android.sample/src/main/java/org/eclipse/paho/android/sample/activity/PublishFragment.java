@@ -37,18 +37,15 @@ public class PublishFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Map<String, Connection> connections = Connections.getInstance(this.getActivity())
-                .getConnections();
+        Map<String, Connection> connections = Connections.getInstance(this.getActivity()).getConnections();
         connection = connections.get(this.getArguments().getString(ActivityConstants.CONNECTION_KEY));
 
         System.out.println("FRAGMENT CONNECTION: " + this.getArguments().getString(ActivityConstants.CONNECTION_KEY));
         System.out.println("NAME:" + connection.getId());
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_publish, container, false);
         EditText topicText = (EditText) rootView.findViewById(R.id.topic);
         EditText messageText = (EditText) rootView.findViewById(R.id.message);
@@ -109,7 +106,8 @@ public class PublishFragment extends Fragment {
             }
         });
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.qos_options, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter
+                .createFromResource(getActivity(), R.array.qos_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         qos.setAdapter(adapter);
 
@@ -117,17 +115,14 @@ public class PublishFragment extends Fragment {
         publishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Publising: [topic: " + topic + ", message: " + message + ", QoS: " + selectedQos + ", Retain: " + retainValue + "]");
+                System.out.println("Publising: [topic: " + topic + ", message: " + message + ", QoS: " + selectedQos + ", Retain: " + retainValue +
+                        "]");
                 ((MainActivity) getActivity()).publish(connection, topic, message, selectedQos, retainValue);
-
-
             }
         });
-
 
         // Inflate the layout for this fragment
         return rootView;
     }
-
 
 }
