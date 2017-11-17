@@ -95,7 +95,12 @@ public class AndroidServiceTest extends AndroidTestCase {
     }
 
     /**
-     * Tests that a client calls a callback with a token which sessionPresent is false.
+     * Tests that a client connection with cleanSession=False recieves the session Present Flag in
+     * a subsequent connection.
+     *
+     * 1. Connect with CleanSession=True to ensure that state is cleared.
+     * 2. Connect with CleanSession=False and ensure that sessionPresent is false.
+     * 3. Connect with CleanSession=False and ensure that sessionPresent is true.
      *
      * @throws Exception
      */
@@ -120,14 +125,26 @@ public class AndroidServiceTest extends AndroidTestCase {
             disconnectToken.waitForCompletion(waitForCompletionTime);
 
             final MqttConnectOptions options2 = new MqttConnectOptions();
-            options1.setCleanSession(false);
+            options2.setCleanSession(false);
             final MqttConnectCallback connectCallback2 = new MqttConnectCallback();
 
             connectToken = mqttClient.connect(options2, null, connectCallback2);
             connectToken.waitForCompletion(waitForCompletionTime);
 
-            final IMqttToken connectedToken2 = connectCallback1.getAsyncActionToken();
-            assertTrue(connectedToken2.getSessionPresent());
+            final IMqttToken connectedToken2 = connectCallback2.getAsyncActionToken();
+            assertFalse(connectedToken2.getSessionPresent());
+
+            disconnectToken = mqttClient.disconnect(null, null);
+            disconnectToken.waitForCompletion(waitForCompletionTime);
+
+
+            final MqttConnectCallback connectCallback3 = new MqttConnectCallback();
+
+            connectToken = mqttClient.connect(options2, null, connectCallback3);
+            connectToken.waitForCompletion(waitForCompletionTime);
+
+            final IMqttToken connectedToken3 = connectCallback3.getAsyncActionToken();
+            assertTrue(connectedToken3.getSessionPresent());
 
             disconnectToken = mqttClient.disconnect(null, null);
             disconnectToken.waitForCompletion(waitForCompletionTime);
