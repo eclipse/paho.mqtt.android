@@ -158,9 +158,10 @@ class MqttConnection implements MqttCallbackExtended {
 	 *            null then the default persistence mechanism is used
 	 * @param clientHandle
 	 *            the "handle" by which the activity will identify us
+	 * @throws MqttException thrown if failed to create MqttAsyncClient
 	 */
 	MqttConnection(MqttService service, String serverURI, String clientId,
-			MqttClientPersistence persistence, String clientHandle) {
+			MqttClientPersistence persistence, String clientHandle) throws MqttException {
 		this.serverURI = serverURI;
 		this.service = service;
 		this.clientId = clientId;
@@ -174,6 +175,10 @@ class MqttConnection implements MqttCallbackExtended {
 		stringBuilder.append("on host ");
 		stringBuilder.append(serverURI);
 		wakeLockTag = stringBuilder.toString();
+
+		alarmPingSender = new AlarmPingSender(service);
+		myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender);
+		myClient.setCallback(this);
 	}
 
 	// The major API implementation follows
@@ -189,7 +194,7 @@ class MqttConnection implements MqttCallbackExtended {
 	 */
 	public void connect(MqttConnectOptions options, String invocationContext,
 			String activityToken) {
-		
+
 		connectOptions = options;
 		reconnectActivityToken = activityToken;
 
@@ -211,9 +216,13 @@ class MqttConnection implements MqttCallbackExtended {
 				invocationContext);
 		resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION,
 				MqttServiceConstants.CONNECT_ACTION);
-		
-				
+
 		try {
+			// if myClient is null, throw an exception
+			if (myClient == null) {
+				throw new IllegalStateException("MqttAsyncClient is not created.");
+			}
+
 			if (persistence == null) {
 				// ask Android where we can put files
 				File myDir = service.getExternalFilesDir(TAG);
@@ -268,31 +277,17 @@ class MqttConnection implements MqttCallbackExtended {
 
 				}
 			};
-			
-			if (myClient != null) {
-				if (isConnecting ) {
-					service.traceDebug(TAG,
-							"myClient != null and the client is connecting. Connect return directly.");
-					service.traceDebug(TAG,"Connect return:isConnecting:"+isConnecting+".disconnected:"+disconnected);
-				}else if(!disconnected){
-					service.traceDebug(TAG,"myClient != null and the client is connected and notify!");
-					doAfterConnectSuccess(resultBundle);
-				}
-				else {					
-					service.traceDebug(TAG, "myClient != null and the client is not connected");
-					service.traceDebug(TAG,"Do Real connect!");
-					setConnectingState(true);
-					myClient.connect(connectOptions, invocationContext, listener);
-				}
-			}
-			
-			// if myClient is null, then create a new connection
-			else {
-				alarmPingSender = new AlarmPingSender(service);
-				myClient = new MqttAsyncClient(serverURI, clientId,
-						persistence, alarmPingSender);
-				myClient.setCallback(this);
 
+			if (isConnecting ) {
+				service.traceDebug(TAG,
+						"myClient != null and the client is connecting. Connect return directly.");
+				service.traceDebug(TAG,"Connect return:isConnecting:"+isConnecting+".disconnected:"+disconnected);
+			}else if(!disconnected){
+				service.traceDebug(TAG,"myClient != null and the client is connected and notify!");
+				doAfterConnectSuccess(resultBundle);
+			}
+			else {
+				service.traceDebug(TAG, "myClient != null and the client is not connected");
 				service.traceDebug(TAG,"Do Real connect!");
 				setConnectingState(true);
 				myClient.connect(connectOptions, invocationContext, listener);
@@ -587,6 +582,7 @@ class MqttConnection implements MqttCallbackExtended {
 				handleException(resultBundle, e);
 			}
 		} else if ((myClient !=null) && (this.bufferOpts != null) && (this.bufferOpts.isBufferEnabled())){
+			Log.i(TAG, "Client is not connected, message is buffered");
 			// Client is not connected, but buffer is enabled, so sending message
 			IMqttActionListener listener = new MqttConnectionListener(
 					resultBundle);
