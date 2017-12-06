@@ -10,8 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.Connections;
+
 import java.util.Map;
 
 
@@ -27,8 +29,7 @@ public class ConnectionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Map<String, Connection> connections = Connections.getInstance(this.getActivity())
-                .getConnections();
+        Map<String, Connection> connections = Connections.getInstance(this.getActivity()).getConnections();
         connection = connections.get(this.getArguments().getString(ActivityConstants.CONNECTION_KEY));
         boolean connected = this.getArguments().getBoolean(ActivityConstants.CONNECTED, false);
 
@@ -36,40 +37,34 @@ public class ConnectionFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_connection, container, false);
-
-
-
 
         Bundle bundle = new Bundle();
         bundle.putString(ActivityConstants.CONNECTION_KEY, connection.handle());
 
         // Initialise the tab-host
-        mTabHost = (FragmentTabHost) rootView.findViewById(android.R.id.tabhost);
+        mTabHost = rootView.findViewById(android.R.id.tabhost);
         mTabHost.setup(getActivity(), getChildFragmentManager(), android.R.id.tabcontent);
         // Add a tab to the tabHost
         mTabHost.addTab(mTabHost.newTabSpec("History").setIndicator("History"), HistoryFragment.class, bundle);
         mTabHost.addTab(mTabHost.newTabSpec("Publish").setIndicator("Publish"), PublishFragment.class, bundle);
         mTabHost.addTab(mTabHost.newTabSpec("Subscribe").setIndicator("Subscribe"), SubscriptionFragment.class, bundle);
         return rootView;
-
     }
 
-    private void changeConnectedState(boolean state){
+    private void changeConnectedState(boolean state) {
         mTabHost.getTabWidget().getChildTabViewAt(1).setEnabled(state);
         mTabHost.getTabWidget().getChildTabViewAt(2).setEnabled(state);
         connectSwitch.setChecked(state);
     }
 
     @Override
-    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater){
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_connection, menu);
 
-
-        connectSwitch = (Switch)  menu.findItem(R.id.connect_switch).getActionView().findViewById(R.id.switchForActionBar);
+        connectSwitch = menu.findItem(R.id.connect_switch).getActionView().findViewById(R.id.switchForActionBar);
 
         connectSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

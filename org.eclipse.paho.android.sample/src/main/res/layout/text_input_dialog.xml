@@ -7,19 +7,19 @@
     android:padding="10dp">
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/textView" />
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 
     <EditText
+        android:id="@+id/edittext"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="30dp"
         android:ems="10"
+        android:inputType="text"
         android:lines="1"
-        android:padding="10dp"
-        android:id="@+id/edittext"
-        android:inputType="text"/>
+        android:padding="10dp"/>
 </LinearLayout>

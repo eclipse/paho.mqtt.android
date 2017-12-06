@@ -5,23 +5,6 @@ import org.eclipse.paho.android.sample.activity.Connection;
 
 public class ConnectionModel {
 
-    private static final String CLIENT_HANDLE = "CLIENT_HANDLE";
-    private static final String CLIENT_ID = "CLIENT_ID";
-    private static final String HOST_NAME = "HOST_NAME";
-    private static final String PORT = "PORT";
-    private static final String CLEAN_SESSION = "CLEAN_SESSION";
-    private static final String USERNAME = "USERNAME";
-    private static final String PASSWORD = "PASSWORD";
-    private static final String TLS_SERVER_KEY = "TLS_SERVER_KEY";
-    private static final String TLS_CLIENT_KEY = "TLS_CLIENT_KEY";
-    private static final String TIMEOUT = "TIMEOUT";
-    private static final String KEEP_ALIVE = "KEEP_ALIVE";
-    private static final String LWT_TOPIC = "LWT_TOPIC";
-    private static final String LWT_MESSAGE = "LWT_MESSAGE";
-    private static final String LWT_QOS = "LWT_QOS";
-    private static final String LWT_RETAIN = "LWT_RETAIN";
-
-
     private String clientHandle = "";
     private String clientId = "AndroidExampleClient";
     private String serverHostName = "iot.eclipse.org";
@@ -29,7 +12,6 @@ public class ConnectionModel {
     private boolean cleanSession = true;
     private String username = "";
     private String password = "";
-
 
     private boolean tlsConnection = false;
     private String tlsServerKey = "";
@@ -39,28 +21,28 @@ public class ConnectionModel {
     private String lwtTopic = "";
     private String lwtMessage = "";
     private int lwtQos = 0;
-    private boolean lwtRetain =  false;
+    private boolean lwtRetain = false;
 
-    public ConnectionModel(){
+    public ConnectionModel() {
 
     }
 
-
-
-    /** Initialise the ConnectionModel with an existing connection **/
-    public ConnectionModel(Connection connection){
+    /**
+     * Initialise the ConnectionModel with an existing connection
+     **/
+    public ConnectionModel(Connection connection) {
         clientHandle = connection.handle();
         clientId = connection.getId();
         serverHostName = connection.getHostName();
         serverPort = connection.getPort();
         cleanSession = connection.getConnectionOptions().isCleanSession();
 
-        if(connection.getConnectionOptions().getUserName() == null){
+        if (connection.getConnectionOptions().getUserName() == null) {
             username = "";
-        }else {
+        } else {
             username = connection.getConnectionOptions().getUserName();
         }
-        if(connection.getConnectionOptions().getPassword() != null) {
+        if (connection.getConnectionOptions().getPassword() != null) {
             password = new String(connection.getConnectionOptions().getPassword());
         } else {
             password = "";
@@ -70,12 +52,12 @@ public class ConnectionModel {
         timeout = connection.getConnectionOptions().getConnectionTimeout();
         keepAlive = connection.getConnectionOptions().getKeepAliveInterval();
 
-        if(connection.getConnectionOptions().getWillDestination() == null){
+        if (connection.getConnectionOptions().getWillDestination() == null) {
             lwtTopic = "";
         } else {
             lwtTopic = connection.getConnectionOptions().getWillDestination();
         }
-        if(connection.getConnectionOptions().getWillMessage() != null) {
+        if (connection.getConnectionOptions().getWillMessage() != null) {
             lwtMessage = new String(connection.getConnectionOptions().getWillMessage().getPayload());
             lwtQos = connection.getConnectionOptions().getWillMessage().getQos();
             lwtRetain = connection.getConnectionOptions().getWillMessage().isRetained();
@@ -84,7 +66,6 @@ public class ConnectionModel {
             lwtQos = 0;
             lwtRetain = false;
         }
-
     }
 
     public String getClientHandle() {
@@ -239,34 +220,60 @@ public class ConnectionModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ConnectionModel that = (ConnectionModel) o;
 
-        if (serverPort != that.serverPort) return false;
-        if (cleanSession != that.cleanSession) return false;
-        if (tlsConnection != that.tlsConnection) return false;
-        if (timeout != that.timeout) return false;
-        if (keepAlive != that.keepAlive) return false;
-        if (lwtQos != that.lwtQos) return false;
-        if (lwtRetain != that.lwtRetain) return false;
-        if (clientHandle != null ? !clientHandle.equals(that.clientHandle) : that.clientHandle != null)
+        if (serverPort != that.serverPort) {
             return false;
-        if (clientId != null ? !clientId.equals(that.clientId) : that.clientId != null)
+        }
+        if (cleanSession != that.cleanSession) {
             return false;
-        if (serverHostName != null ? !serverHostName.equals(that.serverHostName) : that.serverHostName != null)
+        }
+        if (tlsConnection != that.tlsConnection) {
             return false;
-        if (username != null ? !username.equals(that.username) : that.username != null)
+        }
+        if (timeout != that.timeout) {
             return false;
-        if (password != null ? !password.equals(that.password) : that.password != null)
+        }
+        if (keepAlive != that.keepAlive) {
             return false;
-        if (tlsServerKey != null ? !tlsServerKey.equals(that.tlsServerKey) : that.tlsServerKey != null)
+        }
+        if (lwtQos != that.lwtQos) {
             return false;
-        if (tlsClientKey != null ? !tlsClientKey.equals(that.tlsClientKey) : that.tlsClientKey != null)
+        }
+        if (lwtRetain != that.lwtRetain) {
             return false;
-        if (lwtTopic != null ? !lwtTopic.equals(that.lwtTopic) : that.lwtTopic != null)
+        }
+        if (clientHandle != null ? !clientHandle.equals(that.clientHandle) : that.clientHandle != null) {
             return false;
+        }
+        if (clientId != null ? !clientId.equals(that.clientId) : that.clientId != null) {
+            return false;
+        }
+        if (serverHostName != null ? !serverHostName.equals(that.serverHostName) : that.serverHostName != null) {
+            return false;
+        }
+        if (username != null ? !username.equals(that.username) : that.username != null) {
+            return false;
+        }
+        if (password != null ? !password.equals(that.password) : that.password != null) {
+            return false;
+        }
+        if (tlsServerKey != null ? !tlsServerKey.equals(that.tlsServerKey) : that.tlsServerKey != null) {
+            return false;
+        }
+        if (tlsClientKey != null ? !tlsClientKey.equals(that.tlsClientKey) : that.tlsClientKey != null) {
+            return false;
+        }
+        if (lwtTopic != null ? !lwtTopic.equals(that.lwtTopic) : that.lwtTopic != null) {
+            return false;
+        }
         return !(lwtMessage != null ? !lwtMessage.equals(that.lwtMessage) : that.lwtMessage != null);
 
     }

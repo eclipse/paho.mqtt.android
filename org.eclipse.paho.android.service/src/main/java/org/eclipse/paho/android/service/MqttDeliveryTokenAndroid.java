@@ -23,32 +23,31 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  * MqttAndroidClient implementation
  */
 class MqttDeliveryTokenAndroid extends MqttTokenAndroid
-		implements IMqttDeliveryToken {
+        implements IMqttDeliveryToken {
 
-	// The message which is being tracked by this token
-	private MqttMessage message;
+    // The message which is being tracked by this token
+    private MqttMessage message;
 
-	MqttDeliveryTokenAndroid(MqttAndroidClient client,
-			Object userContext, IMqttActionListener listener, MqttMessage message) {
-		super(client, userContext, listener);
-		this.message = message;
-	}
+    MqttDeliveryTokenAndroid(MqttAndroidClient client, Object userContext, IMqttActionListener listener, MqttMessage message) {
+        super(client, userContext, listener);
+        this.message = message;
+    }
 
-	/**
-	 * @see org.eclipse.paho.client.mqttv3.IMqttDeliveryToken#getMessage()
-	 */
-	@Override
-	public MqttMessage getMessage() throws MqttException {
-		return message;
-	}
+    /**
+     * @see org.eclipse.paho.client.mqttv3.IMqttDeliveryToken#getMessage()
+     */
+    @Override
+    public MqttMessage getMessage() throws MqttException {
+        return message;
+    }
 
-	void setMessage(MqttMessage message) {
-		this.message = message;
-	}
+    void setMessage(MqttMessage message) {
+        this.message = message;
+    }
 
-	void notifyDelivery(MqttMessage delivered) {
-		message = delivered;
-		super.notifyComplete();
-	}
+    void notifyDelivery(MqttMessage delivered) {
+        message = delivered;
+        super.notifyComplete();
+    }
 
 }

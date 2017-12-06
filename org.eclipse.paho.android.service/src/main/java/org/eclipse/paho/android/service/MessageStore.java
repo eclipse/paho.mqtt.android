@@ -33,71 +33,65 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  */
 interface MessageStore {
 
-	/**
-	 * External representation of a stored message
-	 */
-	interface StoredMessage {
-		/**
-		 * @return the identifier for the message within the store
-		 */
-		String getMessageId();
+    /**
+     * Store a message and return an identifier for it
+     *
+     * @param clientHandle identifier for the client
+     * @param message      message to be stored
+     * @return a unique identifier for it
+     */
+    String storeArrived(String clientHandle, String Topic,
+            MqttMessage message);
 
-		/**
-		 * @return the identifier of the client which stored this message
-		 */
-		String getClientHandle();
+    /**
+     * Discard a message - called when we are certain that an arrived message
+     * has reached the application.
+     *
+     * @param clientHandle identifier for the client
+     * @param id           id of message to be discarded
+     */
+    boolean discardArrived(String clientHandle, String id);
 
-		/**
-		 * @return the topic on which the message was received
-		 */
-		String getTopic();
+    /**
+     * Get all the stored messages, usually for a specific client
+     *
+     * @param clientHandle identifier for the client - if null, then messages for all
+     *                     clients are returned
+     */
+    Iterator<StoredMessage> getAllArrivedMessages(String clientHandle);
 
-		/**
-		 * @return the identifier of the client which stored this message
-		 */
-		MqttMessage getMessage();
-	}
+    /**
+     * Discard stored messages, usually for a specific client
+     *
+     * @param clientHandle identifier for the client - if null, then messages for all
+     *                     clients are discarded
+     */
+    void clearArrivedMessages(String clientHandle);
 
-	/**
-	 * Store a message and return an identifier for it
-	 * 
-	 * @param clientHandle
-	 *            identifier for the client
-	 * @param message
-	 *            message to be stored
-	 * @return a unique identifier for it
-	 */
-	String storeArrived(String clientHandle, String Topic,
-						MqttMessage message);
+    void close();
 
-	/**
-	 * Discard a message - called when we are certain that an arrived message
-	 * has reached the application.
-	 * 
-	 * @param clientHandle
-	 *            identifier for the client
-	 * @param id
-	 *            id of message to be discarded
-	 */
-	boolean discardArrived(String clientHandle, String id);
+    /**
+     * External representation of a stored message
+     */
+    interface StoredMessage {
+        /**
+         * @return the identifier for the message within the store
+         */
+        String getMessageId();
 
-	/**
-	 * Get all the stored messages, usually for a specific client
-	 * 
-	 * @param clientHandle
-	 *            identifier for the client - if null, then messages for all
-	 *            clients are returned
-	 */
-	Iterator<StoredMessage> getAllArrivedMessages(String clientHandle);
+        /**
+         * @return the identifier of the client which stored this message
+         */
+        String getClientHandle();
 
-	/**
-	 * Discard stored messages, usually for a specific client
-	 * 
-	 * @param clientHandle
-	 *            identifier for the client - if null, then messages for all
-	 *            clients are discarded
-	 */
-	void clearArrivedMessages(String clientHandle);
+        /**
+         * @return the topic on which the message was received
+         */
+        String getTopic();
 
-	void close();
+        /**
+         * @return the identifier of the client which stored this message
+         */
+        MqttMessage getMessage();
+    }
 }

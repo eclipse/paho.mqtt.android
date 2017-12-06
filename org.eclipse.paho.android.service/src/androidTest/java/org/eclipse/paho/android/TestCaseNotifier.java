@@ -12,8 +12,8 @@ class TestCaseNotifier {
 
         try {
             wait(timeout);
+        } catch (InterruptedException ignored) {
         }
-        catch (InterruptedException ignored) {}
 
         if (exception != null) {
             throw exception;
