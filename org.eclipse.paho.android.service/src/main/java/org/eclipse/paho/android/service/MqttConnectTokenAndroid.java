@@ -26,7 +26,7 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
 class MqttConnectTokenAndroid implements IMqttToken {
     private boolean sessionPresent;
 
-    MqttConnectTokenAndroid( boolean sessionPresent) {
+    MqttConnectTokenAndroid(boolean sessionPresent) {
         this.sessionPresent = sessionPresent;
     }
 
@@ -57,13 +57,13 @@ class MqttConnectTokenAndroid implements IMqttToken {
     }
 
     @Override
-    public void setActionCallback(IMqttActionListener listener) {
-
+    public IMqttActionListener getActionCallback() {
+        return null;
     }
 
     @Override
-    public IMqttActionListener getActionCallback() {
-        return null;
+    public void setActionCallback(IMqttActionListener listener) {
+
     }
 
     @Override
@@ -77,13 +77,13 @@ class MqttConnectTokenAndroid implements IMqttToken {
     }
 
     @Override
-    public void setUserContext(Object userContext) {
-
+    public Object getUserContext() {
+        return null;
     }
 
     @Override
-    public Object getUserContext() {
-        return null;
+    public void setUserContext(Object userContext) {
+
     }
 
     @Override

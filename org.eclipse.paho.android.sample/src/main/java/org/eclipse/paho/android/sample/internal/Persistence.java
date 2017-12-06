@@ -21,79 +21,127 @@ import java.util.List;
  * <code>Persistence</code> deals with interacting with the database to persist
  * {@link Connection} objects so created clients survive, the destruction of the
  * singleton {@link Connections} object.
- *
  */
 public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
     private static final String TAG = "Persistence";
 
-    /** The version of the database **/
+    /**
+     * The version of the database
+     **/
     private static final int DATABASE_VERSION = 1;
 
-    /** The name of the database file **/
+    /**
+     * The name of the database file
+     **/
     private static final String DATABASE_NAME = "connections.db";
 
-    /** The name of the connections table **/
+    /**
+     * The name of the connections table
+     **/
     private static final String TABLE_CONNECTIONS = "connections";
 
 
-
-    /** Table column for client handle **/
+    /**
+     * Table column for client handle
+     **/
     private static final String COLUMN_CLIENT_HANDLE = "clientHandle";
 
-    /** Table column for host **/
+    /**
+     * Table column for host
+     **/
     private static final String COLUMN_HOST = "host";
-    /** Table column for client id **/
+    /**
+     * Table column for client id
+     **/
     private static final String COLUMN_client_ID = "clientID";
-    /** Table column for port **/
+    /**
+     * Table column for port
+     **/
     private static final String COLUMN_port = "port";
-    /** Table column for ssl enabled**/
+    /**
+     * Table column for ssl enabled
+     **/
     private static final String COLUMN_ssl = "ssl";
 
     //connection options
-    /** Table column for client's timeout**/
+    /**
+     * Table column for client's timeout
+     **/
     private static final String COLUMN_TIME_OUT = "timeout";
-    /** Table column for client's keepalive **/
+    /**
+     * Table column for client's keepalive
+     **/
     private static final String COLUMN_KEEP_ALIVE = "keepalive";
-    /** Table column for the client's username**/
+    /**
+     * Table column for the client's username
+     **/
     private static final String COLUMN_USER_NAME = "username";
-    /** Table column for the client's password**/
+    /**
+     * Table column for the client's password
+     **/
     private static final String COLUMN_PASSWORD = "password";
-    /** Table column for clean session **/
+    /**
+     * Table column for clean session
+     **/
     private static final String COLUMN_CLEAN_SESSION = "cleanSession";
     /** Table column for **/
 
     //last will
-    /** Table column for last will topic **/
+    /**
+     * Table column for last will topic
+     **/
     private static final String COLUMN_TOPIC = "topic";
-    /** Table column for the last will message payload **/
+    /**
+     * Table column for the last will message payload
+     **/
     private static final String COLUMN_MESSAGE = "message";
-    /** Table column for the last will message qos **/
+    /**
+     * Table column for the last will message qos
+     **/
     private static final String COLUMN_QOS = "qos";
-    /** Table column for the retained state of the message **/
+    /**
+     * Table column for the retained state of the message
+     **/
     private static final String COLUMN_RETAINED = "retained";
 
 
-    /** The name of the subscriptions table **/
+    /**
+     * The name of the subscriptions table
+     **/
     private static final String TABLE_SUBSCRIPTIONS = "subscriptions";
 
-    /** Table column for subscription topic **/
+    /**
+     * Table column for subscription topic
+     **/
     private static final String SUBSCRIPTIONS_COLUMN_TOPIC = "topic";
-    /** Table column for the subscription qos **/
+    /**
+     * Table column for the subscription qos
+     **/
     private static final String SUBSCRIPTIONS_COLUMN_QOS = "qos";
-    /** Table column for the subscription enable notification setting **/
+    /**
+     * Table column for the subscription enable notification setting
+     **/
     private static final String SUBSCRIPTIONS_COLUMN_NOTIFY = "notify";
 
 
     //sql lite data types
-    /** Text type for SQLite**/
+    /**
+     * Text type for SQLite
+     **/
     private static final String TEXT_TYPE = " TEXT";
-    /** Int type for SQLite**/
+    /**
+     * Int type for SQLite
+     **/
     private static final String INT_TYPE = " INTEGER";
-    /**Comma separator **/
+    /**
+     * Comma separator
+     **/
     private static final String COMMA_SEP = ",";
 
-    /** Create tables query **/
+    /**
+     * Create tables query
+     **/
     private static final String SQL_CREATE_ENTRIES =
 
             "CREATE TABLE " + TABLE_CONNECTIONS + " (" +
@@ -123,15 +171,16 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                     SUBSCRIPTIONS_COLUMN_NOTIFY + INT_TYPE + COMMA_SEP +
                     SUBSCRIPTIONS_COLUMN_QOS + INT_TYPE + ");";
 
-    /** Delete tables entry **/
-    private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + TABLE_CONNECTIONS;
+    /**
+     * Delete tables entry
+     **/
+    private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_CONNECTIONS;
 
-    private static final String SQL_DELETE_SUBSCRIPTION_ENTRIES =
-            "DROP TABLE IF EXISTS " + TABLE_SUBSCRIPTIONS;
+    private static final String SQL_DELETE_SUBSCRIPTION_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_SUBSCRIPTIONS;
 
     /**
      * Creates the persistence object passing it a context
+     *
      * @param context Context that the application is running in
      */
     public Persistence(Context context) {
@@ -139,17 +188,18 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
     }
 
     /* (non-Javadoc)
-     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onCreate(org.eclipse.paho.android.service.database.sqlite.SQLiteDatabase)
+     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onCreate(org.eclipse.paho.android.service.database.sqlite
+     * .SQLiteDatabase)
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ENTRIES);
         db.execSQL(SQL_CREATE_SUBSCRIPTION_ENTRIES);
-
     }
 
     /* (non-Javadoc)
-     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onUpgrade(org.eclipse.paho.android.service.database.sqlite.SQLiteDatabase, int, int)
+     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onUpgrade(org.eclipse.paho.android.service.database.sqlite
+     * .SQLiteDatabase, int, int)
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -159,7 +209,8 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
     /*
      * (non-Javadoc)
-     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onDowngrade(org.eclipse.paho.android.service.database.sqlite.SQLiteDatabase, int, int)
+     * @see org.eclipse.paho.android.service.database.sqlite.SQLiteOpenHelper#onDowngrade(org.eclipse.paho.android.service.database.sqlite
+     * .SQLiteDatabase, int, int)
      */
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -168,6 +219,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
     /**
      * Persist a Connection to the database
+     *
      * @param connection the connection to persist
      * @throws PersistenceException If storing the data fails
      */
@@ -181,14 +233,14 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
         if (newRowId == -1) {
             throw new PersistenceException("Failed to persist connection: " + connection.handle());
-        }
-        else { //Successfully persisted assigning persistenceID
+        } else { //Successfully persisted assigning persistenceID
             connection.assignPersistenceId(newRowId);
         }
     }
 
     /**
      * Updates a {@link Connection} in the database
+     *
      * @param connection {@link Connection} to update
      */
     public void updateConnection(Connection connection) {
@@ -199,7 +251,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         db.update(TABLE_CONNECTIONS, getValues(connection), whereClause, whereArgs);
     }
 
-    private ContentValues getValues(Connection connection){
+    private ContentValues getValues(Connection connection) {
         MqttConnectOptions conOpts = connection.getConnectionOptions();
         MqttMessage lastWill = conOpts.getWillMessage();
         ContentValues values = new ContentValues();
@@ -225,8 +277,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
         if (lastWill == null) {
             values.put(COLUMN_RETAINED, 0);
-        }
-        else {
+        } else {
             values.put(COLUMN_RETAINED, lastWill.isRetained() ? 1 : 0); //convert from boolean to int
         }
         return values;
@@ -234,6 +285,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
     /**
      * Persist a Subscription to the database
+     *
      * @param subscription the subscription to persist
      * @throws PersistenceException If storing the data fails
      */
@@ -247,7 +299,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
         long newRowId = db.insert(TABLE_SUBSCRIPTIONS, null, values);
         db.close();
-        if(newRowId == -1){
+        if (newRowId == -1) {
             throw new PersistenceException("Failed to persist subscription: " + subscription.toString());
         } else {
             subscription.setPersistenceId(newRowId);
@@ -258,6 +310,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
     /**
      * Deletes a subscription from the database
+     *
      * @param subscription The subscription to delete from the database
      */
     public void deleteSubscription(Subscription subscription) {
@@ -266,19 +319,16 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         db.delete(TABLE_SUBSCRIPTIONS, _ID + "=?", new String[]{String.valueOf(subscription.getPersistenceId())});
         db.close();
         //don't care if it failed, means it's not in the db therefore no need to delete
-
     }
-
 
     /**
      * Recreates connection objects based upon information stored in the database
+     *
      * @param context Context for creating {@link Connection} objects
      * @return list of connections that have been restored
      * @throws PersistenceException if restoring connections fails, this is thrown
      */
-    public List<Connection> restoreConnections(Context context) throws PersistenceException
-    {
-
+    public List<Connection> restoreConnections(Context context) throws PersistenceException {
 
         //columns to return
         String[] connectionColumns = {
@@ -297,8 +347,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                 COLUMN_RETAINED,
                 COLUMN_QOS,
                 _ID
-
-           };
+        };
 
         // Columns to return for subscription
         String[] subscriptionColumns = {
@@ -316,36 +365,36 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor c = db.query(TABLE_CONNECTIONS, connectionColumns, null, null, null, null, sort);
-        ArrayList<Connection> list = new ArrayList<Connection>(c.getCount());
+        Cursor cursor = db.query(TABLE_CONNECTIONS, connectionColumns, null, null, null, null, sort);
+        ArrayList<Connection> list = new ArrayList<Connection>(cursor.getCount());
         Connection connection;
-        for (int i = 0; i < c.getCount(); i++) {
-            if (!c.moveToNext()) { //move to the next item throw persistence exception, if it fails
-                throw new PersistenceException("Failed restoring connection - count: " + c.getCount() + "loop iteration: " + i);
+        for (int i = 0; i < cursor.getCount(); i++) {
+            if (!cursor.moveToNext()) { //move to the next item throw persistence exception, if it fails
+                throw new PersistenceException("Failed restoring connection - count: " + cursor.getCount() + "loop iteration: " + i);
             }
             //get data from cursor
-            Long id = c.getLong(c.getColumnIndexOrThrow(_ID));
+            Long id = cursor.getLong(cursor.getColumnIndexOrThrow(_ID));
             //basic client information
-            String clientHandle = c.getString(c.getColumnIndexOrThrow(COLUMN_CLIENT_HANDLE));
-            String host = c.getString(c.getColumnIndexOrThrow(COLUMN_HOST));
-            String clientID = c.getString(c.getColumnIndexOrThrow(COLUMN_client_ID));
-            int port = c.getInt(c.getColumnIndexOrThrow(COLUMN_port));
+            String clientHandle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CLIENT_HANDLE));
+            String host = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_HOST));
+            String clientID = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_client_ID));
+            int port = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_port));
 
             //connect options strings
-            String username = c.getString(c.getColumnIndexOrThrow(COLUMN_USER_NAME));
-            String password = c.getString(c.getColumnIndexOrThrow(COLUMN_PASSWORD));
-            String topic = c.getString(c.getColumnIndexOrThrow(COLUMN_TOPIC));
-            String message = c.getString(c.getColumnIndexOrThrow(COLUMN_MESSAGE));
+            String username = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME));
+            String password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD));
+            String topic = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TOPIC));
+            String message = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MESSAGE));
 
             //connect options integers
-            int qos = c.getInt(c.getColumnIndexOrThrow(COLUMN_QOS));
-            int keepAlive = c.getInt(c.getColumnIndexOrThrow(COLUMN_KEEP_ALIVE));
-            int timeout = c.getInt(c.getColumnIndexOrThrow(COLUMN_TIME_OUT));
+            int qos = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_QOS));
+            int keepAlive = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_KEEP_ALIVE));
+            int timeout = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TIME_OUT));
 
             //get all values that need converting and convert integers to booleans in line using "condition ? trueValue : falseValue"
-            boolean cleanSession = c.getInt(c.getColumnIndexOrThrow(COLUMN_CLEAN_SESSION)) == 1 ;
-            boolean retained = c.getInt(c.getColumnIndexOrThrow(COLUMN_RETAINED)) == 1;
-            boolean ssl = c.getInt(c.getColumnIndexOrThrow(COLUMN_ssl)) == 1;
+            boolean cleanSession = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CLEAN_SESSION)) == 1;
+            boolean retained = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RETAINED)) == 1;
+            boolean ssl = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ssl)) == 1;
 
             //rebuild objects starting with the connect options
             MqttConnectOptions opts = new MqttConnectOptions();
@@ -375,7 +424,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                 if (!sub_c.moveToNext()) { //move to the next item throw persistence exception, if it fails
                     throw new PersistenceException("Failed restoring subscription - count: " + sub_c.getCount() + "loop iteration: " + x);
                 }
-                Long sub_id =  sub_c.getLong(sub_c.getColumnIndexOrThrow(_ID));
+                Long sub_id = sub_c.getLong(sub_c.getColumnIndexOrThrow(_ID));
                 String sub_clientHandle = sub_c.getString(sub_c.getColumnIndexOrThrow(COLUMN_CLIENT_HANDLE));
                 String sub_topic = sub_c.getString(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_TOPIC));
                 boolean sub_notify = sub_c.getInt(sub_c.getColumnIndexOrThrow(SUBSCRIPTIONS_COLUMN_NOTIFY)) == 1;
@@ -394,16 +443,16 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
         }
         //close the cursor now we are finished with it
-        c.close();
+        cursor.close();
 
 
-            db.close();
+        db.close();
         return list;
-
     }
 
     /**
      * Deletes a connection from the database
+     *
      * @param connection The connection to delete from the database
      */
     public void deleteConnection(Connection connection) {
@@ -412,12 +461,6 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         db.delete(TABLE_CONNECTIONS, _ID + "=?", new String[]{String.valueOf(connection.persistenceId())});
         db.close();
         //don't care if it failed, means it's not in the db therefore no need to delete
-
     }
-
-
-
-
-
 
 }

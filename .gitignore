@@ -95,3 +95,7 @@ hs_err_pid*
 
 
 org.eclipse.paho.android.sample/libs/
+
+!.idea/
+.idea/*
+!codeStyleSettings.xml
