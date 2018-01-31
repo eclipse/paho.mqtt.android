@@ -287,8 +287,9 @@ public class MqttService extends Service implements MqttTraceHandler {
      * @param persistence specifies the persistence layer to be used with this client
      * @return a string to be used by the Activity as a "handle" for this
      * MqttConnection
+     * @throws MqttException thrown if failed to create client
      */
-    public String getClient(String serverURI, String clientId, String contextId, MqttClientPersistence persistence) {
+    public String getClient(String serverURI, String clientId, String contextId, MqttClientPersistence persistence) throws MqttException {
         String clientHandle = serverURI + ":" + clientId + ":" + contextId;
         if (!connections.containsKey(clientHandle)) {
             MqttConnection client = new MqttConnection(this, serverURI, clientId, persistence, clientHandle);
@@ -345,7 +346,6 @@ public class MqttService extends Service implements MqttTraceHandler {
     public void disconnect(String clientHandle, String invocationContext, String activityToken) {
         MqttConnection client = getConnection(clientHandle);
         client.disconnect(invocationContext, activityToken);
-        connections.remove(clientHandle);
 
 
         // the activity has finished using us, so we can stop the service
@@ -365,7 +365,6 @@ public class MqttService extends Service implements MqttTraceHandler {
     public void disconnect(String clientHandle, long quiesceTimeout, String invocationContext, String activityToken) {
         MqttConnection client = getConnection(clientHandle);
         client.disconnect(quiesceTimeout, invocationContext, activityToken);
-        connections.remove(clientHandle);
 
         // the activity has finished using us, so we can stop the service
         // the activities are bound with BIND_AUTO_CREATE, so the service will
@@ -498,22 +497,22 @@ public class MqttService extends Service implements MqttTraceHandler {
         return client.getPendingDeliveryTokens();
     }
 
-  /**
-   * Get the MqttConnection identified by this client handle
-   *
-   * @param clientHandle identifies the MqttConnection
-   * @return the MqttConnection identified by this handle
-   */
-  private MqttConnection getConnection(String clientHandle) {
-    if(clientHandle == null){
-      throw new IllegalArgumentException("Invalid ClientHandle");
+    /**
+     * Get the MqttConnection identified by this client handle
+     *
+     * @param clientHandle identifies the MqttConnection
+     * @return the MqttConnection identified by this handle
+     */
+    private MqttConnection getConnection(String clientHandle) {
+        if (clientHandle == null) {
+            throw new IllegalArgumentException("Invalid ClientHandle");
+        }
+        MqttConnection client = connections.get(clientHandle);
+        if (client == null) {
+            throw new IllegalArgumentException("Invalid ClientHandle");
+        }
+        return client;
     }
-    MqttConnection client = connections.get(clientHandle);
-    if (client == null) {
-      throw new IllegalArgumentException("Invalid ClientHandle");
-    }
-    return client;
-  }
 
     /**
      * Called by the Activity when a message has been passed back to the
