@@ -312,6 +312,14 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         connectOptions = options;
         connectToken = token;
 
+        if (clientHandle == null && mqttService != null) {
+            try {
+                clientHandle = mqttService.getClient(serverURI, clientId, myContext.getApplicationInfo().packageName, persistence);
+            } catch (Exception e) {
+                mqttService.traceError(MqttService.TAG, "Failed to receive client : " + e.getMessage());
+            }
+        }
+
         // check if mqttService is ready
         if (clientHandle != null && mqttService != null) {
             pool.execute(new Runnable() {
@@ -1198,6 +1206,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      * @param data
      */
     private void disconnected(Bundle data) {
+        clientHandle = null; // avoid reuse!
         IMqttToken token = removeMqttToken(data);
         if (token != null) {
             ((MqttTokenAndroid) token).notifyComplete();
