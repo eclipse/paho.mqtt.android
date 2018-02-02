@@ -11,6 +11,7 @@ import org.eclipse.paho.android.sample.internal.PersistenceException;
 import org.eclipse.paho.android.sample.model.ReceivedMessage;
 import org.eclipse.paho.android.sample.model.Subscription;
 import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -85,6 +86,10 @@ public class Connection {
      **/
     private boolean tlsConnection = true;
     /**
+     * Whether the connection should enable the buffer
+     **/
+    private boolean bufferEnabled = true;
+    /**
      * Persistence id, used by {@link Persistence}
      **/
     private long persistenceId = -1;
@@ -100,9 +105,10 @@ public class Connection {
      * @param context       The application context
      * @param client        The MqttAndroidClient which communicates with the service for this connection
      * @param tlsConnection true if the connection is secured by SSL
+     * @param bufferEnabled true if the connection buffer should be enabled
      */
     private Connection(String clientHandle, String clientId, String host,
-            int port, Context context, MqttAndroidClient client, boolean tlsConnection) {
+            int port, Context context, MqttAndroidClient client, boolean tlsConnection, boolean bufferEnabled) {
         //generate the client handle from its hash code
         this.clientHandle = clientHandle;
         this.clientId = clientId;
@@ -111,6 +117,7 @@ public class Connection {
         this.context = context;
         this.client = client;
         this.tlsConnection = tlsConnection;
+        this.bufferEnabled = bufferEnabled;
         history = new ArrayList<>();
         String sb = "Client: " + clientId + " created";
         addAction(sb);
@@ -125,9 +132,11 @@ public class Connection {
      * @param port          the port on the server which the client will attempt to connect to
      * @param context       the application context
      * @param tlsConnection true if the connection is secured by SSL
+     * @param bufferEnabled true if the connection buffer should be enabled
      * @return a new instance of <code>Connection</code>
      */
-    public static Connection createConnection(String clientHandle, String clientId, String host, int port, Context context, boolean tlsConnection) {
+    public static Connection createConnection(String clientHandle, String clientId, String host, int port, Context context, boolean tlsConnection,
+            boolean bufferEnabled) {
 
         String uri;
         if (tlsConnection) {
@@ -137,7 +146,15 @@ public class Connection {
         }
 
         MqttAndroidClient client = new MqttAndroidClient(context, uri, clientId);
-        return new Connection(clientHandle, clientId, host, port, context, client, tlsConnection);
+
+        // add buffer options
+        if (bufferEnabled) {
+            DisconnectedBufferOptions bufferOpts = new DisconnectedBufferOptions();
+            bufferOpts.setBufferEnabled(true);
+            client.setBufferOpts(bufferOpts);
+        }
+
+        return new Connection(clientHandle, clientId, host, port, context, client, tlsConnection, bufferEnabled);
     }
 
     public void updateConnection(String clientId, String host, int port, boolean tlsConnection) {
@@ -337,6 +354,15 @@ public class Connection {
      */
     public int isSSL() {
         return tlsConnection ? 1 : 0;
+    }
+
+    /**
+     * Determines if the connections buffer is enabled
+     *
+     * @return true buffer is enabled
+     */
+    public boolean isBufferEnabled() {
+        return bufferEnabled;
     }
 
     /**

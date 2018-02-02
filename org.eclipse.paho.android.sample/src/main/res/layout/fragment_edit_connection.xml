@@ -115,20 +115,34 @@
             android:layout_below="@+id/port_group"/>
 
 
-        <Switch
-            android:id="@+id/clean_session_switch"
-            style="@style/Switch"
-            android:layout_below="@+id/divider3"
-            android:text="@string/add_connection_clean_session_label"/>
-
         <!--                    Advanced Settings                    -->
         <!--                    General Settings                     -->
 
 
+        <Switch
+            android:id="@+id/clean_session_switch"
+            style="@style/Switch"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/port_group"
+            android:text="@string/add_connection_clean_session_label"/>
+
+        <Switch
+            android:id="@+id/buffer_switch"
+            style="@style/Switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/clean_session_switch"
+            android:text="@string/add_connection_buffer"/>
+
         <TextView
             android:id="@+id/advancedTextView"
             style="@style/HeaderText"
-            android:layout_below="@+id/clean_session_switch"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/buffer_switch"
             android:text="@string/add_connection_advanced_label"/>
 
 

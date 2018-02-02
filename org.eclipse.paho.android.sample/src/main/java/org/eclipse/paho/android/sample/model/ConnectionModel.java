@@ -10,6 +10,7 @@ public class ConnectionModel {
     private String serverHostName = "iot.eclipse.org";
     private int serverPort = 1883;
     private boolean cleanSession = true;
+    private boolean buffer = true;
     private String username = "";
     private String password = "";
 
@@ -36,6 +37,7 @@ public class ConnectionModel {
         serverHostName = connection.getHostName();
         serverPort = connection.getPort();
         cleanSession = connection.getConnectionOptions().isCleanSession();
+        buffer = true; // unable to get buffer information from the connection...
 
         if (connection.getConnectionOptions().getUserName() == null) {
             username = "";
@@ -106,6 +108,14 @@ public class ConnectionModel {
 
     public void setCleanSession(boolean cleanSession) {
         this.cleanSession = cleanSession;
+    }
+
+    public boolean isBufferEnabled() {
+        return buffer;
+    }
+
+    public void setBuffer(boolean buffer) {
+        this.buffer = buffer;
     }
 
     public String getUsername() {

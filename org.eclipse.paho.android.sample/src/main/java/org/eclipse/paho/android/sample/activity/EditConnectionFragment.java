@@ -35,6 +35,7 @@ public class EditConnectionFragment extends Fragment {
     private EditText serverHostname;
     private EditText serverPort;
     private Switch cleanSession;
+    private Switch buffer;
     private EditText username;
     private EditText password;
     private EditText tlsServerKey;
@@ -66,6 +67,7 @@ public class EditConnectionFragment extends Fragment {
         serverPort = rootView.findViewById(R.id.add_connection_port);
         serverPort.setText("");
         cleanSession = rootView.findViewById(R.id.clean_session_switch);
+        buffer = rootView.findViewById(R.id.buffer_switch);
         username = rootView.findViewById(R.id.username);
         password = rootView.findViewById(R.id.password);
         tlsServerKey = rootView.findViewById(R.id.tls_server_key);
@@ -166,6 +168,13 @@ public class EditConnectionFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 formModel.setCleanSession(isChecked);
+            }
+        });
+
+        buffer.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                formModel.setBuffer(isChecked);
             }
         });
 
@@ -338,6 +347,7 @@ public class EditConnectionFragment extends Fragment {
         serverHostname.setText(connectionModel.getServerHostName());
         serverPort.setText(Integer.toString(connectionModel.getServerPort()));
         cleanSession.setChecked(connectionModel.isCleanSession());
+        buffer.setChecked(connectionModel.isBufferEnabled());
         username.setText(connectionModel.getUsername());
         password.setText(connectionModel.getPassword());
         tlsServerKey.setText(connectionModel.getTlsServerKey());

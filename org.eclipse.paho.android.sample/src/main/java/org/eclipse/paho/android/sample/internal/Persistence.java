@@ -85,6 +85,10 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
      * Table column for clean session
      **/
     private static final String COLUMN_CLEAN_SESSION = "cleanSession";
+    /**
+     * Table column for buffer
+     **/
+    private static final String COLUMN_BUFFER = "buffer";
     /** Table column for **/
 
     //last will
@@ -156,6 +160,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                     COLUMN_USER_NAME + TEXT_TYPE + COMMA_SEP +
                     COLUMN_PASSWORD + TEXT_TYPE + COMMA_SEP +
                     COLUMN_CLEAN_SESSION + INT_TYPE + COMMA_SEP +
+                    COLUMN_BUFFER + INT_TYPE + COMMA_SEP +
                     COLUMN_TOPIC + TEXT_TYPE + COMMA_SEP +
                     COLUMN_MESSAGE + TEXT_TYPE + COMMA_SEP +
                     COLUMN_QOS + INT_TYPE + COMMA_SEP +
@@ -271,6 +276,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
         //uses "condition ? trueValue: falseValue" for in line converting of values
         char[] password = conOpts.getPassword();
         values.put(COLUMN_CLEAN_SESSION, conOpts.isCleanSession() ? 1 : 0); //convert boolean to int and then put in values
+        values.put(COLUMN_BUFFER, connection.isBufferEnabled() ? 1 : 0); //convert boolean to int and then put in values
         values.put(COLUMN_PASSWORD, password != null ? String.valueOf(password) : null); //convert char[] to String
         values.put(COLUMN_MESSAGE, lastWill != null ? new String(lastWill.getPayload()) : null); // convert byte[] to string
         values.put(COLUMN_QOS, lastWill != null ? lastWill.getQos() : 0);
@@ -339,6 +345,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
                 COLUMN_ssl,
                 COLUMN_KEEP_ALIVE,
                 COLUMN_CLEAN_SESSION,
+                COLUMN_BUFFER,
                 COLUMN_TIME_OUT,
                 COLUMN_USER_NAME,
                 COLUMN_PASSWORD,
@@ -393,6 +400,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
 
             //get all values that need converting and convert integers to booleans in line using "condition ? trueValue : falseValue"
             boolean cleanSession = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CLEAN_SESSION)) == 1;
+            boolean bufferEnabled = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BUFFER)) == 1;
             boolean retained = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_RETAINED)) == 1;
             boolean ssl = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ssl)) == 1;
 
@@ -410,7 +418,7 @@ public class Persistence extends SQLiteOpenHelper implements BaseColumns {
             }
 
             //now create the connection object
-            connection = Connection.createConnection(clientHandle, clientID, host, port, context, ssl);
+            connection = Connection.createConnection(clientHandle, clientID, host, port, context, ssl, bufferEnabled);
             connection.addConnectionOptions(opts);
             connection.assignPersistenceId(id);
 
