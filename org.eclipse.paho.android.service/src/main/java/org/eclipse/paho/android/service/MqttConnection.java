@@ -111,8 +111,10 @@ class MqttConnection implements MqttCallbackExtended {
      * @param persistence  the persistence class to use to store in-flight message. If
      *                     null then the default persistence mechanism is used
      * @param clientHandle the "handle" by which the activity will identify us
+     * @throws MqttException thrown if failed to create MqttAsyncClient
      */
-    MqttConnection(MqttService service, String serverURI, String clientId, MqttClientPersistence persistence, String clientHandle) {
+    MqttConnection(MqttService service, String serverURI, String clientId, MqttClientPersistence persistence, String clientHandle) throws
+            MqttException {
         this.serverURI = serverURI;
         this.service = service;
         this.clientId = clientId;
@@ -126,6 +128,10 @@ class MqttConnection implements MqttCallbackExtended {
         stringBuilder.append("on host ");
         stringBuilder.append(serverURI);
         wakeLockTag = stringBuilder.toString();
+
+        alarmPingSender = new AlarmPingSender(service);
+        myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender);
+        myClient.setCallback(this);
     }
 
     public String getServerURI() {
@@ -191,6 +197,11 @@ class MqttConnection implements MqttCallbackExtended {
 
 
         try {
+            // if myClient is null, throw an exception
+            if (myClient == null) {
+                throw new IllegalStateException("MqttAsyncClient is not created.");
+            }
+
             if (persistence == null) {
                 // ask Android where we can put files
                 File myDir = service.getExternalFilesDir(TAG);
@@ -231,27 +242,14 @@ class MqttConnection implements MqttCallbackExtended {
                 }
             };
 
-            if (myClient != null) {
-                if (isConnecting) {
-                    service.traceDebug(TAG, "myClient != null and the client is connecting. Connect return directly.");
-                    service.traceDebug(TAG, "Connect return:isConnecting:" + isConnecting + ".disconnected:" + disconnected);
-                } else if (!disconnected) {
-                    service.traceDebug(TAG, "myClient != null and the client is connected and notify!");
-                    doAfterConnectSuccess(resultBundle);
-                } else {
-                    service.traceDebug(TAG, "myClient != null and the client is not connected");
-                    service.traceDebug(TAG, "Do Real connect!");
-                    setConnectingState(true);
-                    myClient.connect(connectOptions, invocationContext, listener);
-                }
-            }
-
-            // if myClient is null, then create a new connection
-            else {
-                alarmPingSender = new AlarmPingSender(service);
-                myClient = new MqttAsyncClient(serverURI, clientId, persistence, alarmPingSender);
-                myClient.setCallback(this);
-
+            if (isConnecting) {
+                service.traceDebug(TAG, "myClient != null and the client is connecting. Connect return directly.");
+                service.traceDebug(TAG, "Connect return:isConnecting:" + isConnecting + ".disconnected:" + disconnected);
+            } else if (!disconnected) {
+                service.traceDebug(TAG, "myClient != null and the client is connected and notify!");
+                doAfterConnectSuccess(resultBundle);
+            } else {
+                service.traceDebug(TAG, "myClient != null and the client is not connected");
                 service.traceDebug(TAG, "Do Real connect!");
                 setConnectingState(true);
                 myClient.connect(connectOptions, invocationContext, listener);
@@ -433,31 +431,12 @@ class MqttConnection implements MqttCallbackExtended {
      * @return token for tracking the operation
      */
     public IMqttDeliveryToken publish(String topic, byte[] payload, int qos, boolean retained, String invocationContext, String activityToken) {
-        final Bundle resultBundle = new Bundle();
-        resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SEND_ACTION);
-        resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
-        resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
+        // Convert the payload into a MqttMessage to avoid code duplication
+        MqttMessage message = new MqttMessage(payload);
+        message.setQos(qos);
+        message.setRetained(retained);
 
-        IMqttDeliveryToken sendToken = null;
-
-        if ((myClient != null) && (myClient.isConnected())) {
-            IMqttActionListener listener = new MqttConnectionListener(resultBundle);
-            try {
-                MqttMessage message = new MqttMessage(payload);
-                message.setQos(qos);
-                message.setRetained(retained);
-                sendToken = myClient.publish(topic, payload, qos, retained, invocationContext, listener);
-                storeSendDetails(topic, message, sendToken, invocationContext, activityToken);
-            } catch (Exception e) {
-                handleException(resultBundle, e);
-            }
-        } else {
-            resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, NOT_CONNECTED);
-            service.traceError(MqttServiceConstants.SEND_ACTION, NOT_CONNECTED);
-            service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
-        }
-
-        return sendToken;
+        return publish(topic, message, invocationContext, activityToken);
     }
 
     /**
@@ -487,6 +466,7 @@ class MqttConnection implements MqttCallbackExtended {
                 handleException(resultBundle, e);
             }
         } else if ((myClient != null) && (this.bufferOpts != null) && (this.bufferOpts.isBufferEnabled())) {
+            Log.i(TAG, "Client is not connected, message is buffered");
             // Client is not connected, but buffer is enabled, so sending message
             IMqttActionListener listener = new MqttConnectionListener(resultBundle);
             try {

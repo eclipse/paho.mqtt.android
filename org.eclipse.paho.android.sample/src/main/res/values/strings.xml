@@ -103,6 +103,7 @@
 
     <!-- Message List Item -->
     <string name="message_topic">Topic: </string>
+    <string name="add_connection_buffer">Enable Message Buffer</string>
 
 
 </resources>

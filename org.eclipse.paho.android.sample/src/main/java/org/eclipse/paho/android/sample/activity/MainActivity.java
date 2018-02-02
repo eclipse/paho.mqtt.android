@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         Log.i(TAG, "Persisting new connection:" + model.getClientHandle());
         Connection connection = Connection
                 .createConnection(model.getClientHandle(), model.getClientId(), model.getServerHostName(), model.getServerPort(), this, model
-                        .isTlsConnection());
+                        .isTlsConnection(), model.isBufferEnabled());
         connection.registerChangeListener(changeListener);
         connection.changeConnectionStatus(Connection.ConnectionStatus.CONNECTING);
 
