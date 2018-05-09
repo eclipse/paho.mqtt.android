@@ -1517,11 +1517,13 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            mqttService = ((MqttServiceBinder) binder).getService();
-            bindedService = true;
-            // now that we have the service available, we can actually
-            // connect...
-            doConnect();
+            if (MqttServiceBinder.class.isAssignableFrom(binder.getClass())) {
+                mqttService = ((MqttServiceBinder) binder).getService();
+                bindedService = true;
+                // now that we have the service available, we can actually
+                // connect...
+                doConnect();
+            }
         }
 
         @Override
