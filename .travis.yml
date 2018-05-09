@@ -4,7 +4,7 @@ jdk: oraclejdk8
 android:
   components:
     - tools
-    - build-tools-26.0.2
+    - build-tools-26.0.3
     - android-26
     - android-22
     - extra-android-support
@@ -23,7 +23,7 @@ before_script:
 
 script:
   - ./gradlew clean
-  - ./gradlew org.eclipse.paho.android.sample:assemble paho.mqtt.android.example:assemble
+  - ./gradlew org.eclipse.paho.android.sample:assemble BasicExample:assemble
   - ./gradlew org.eclipse.paho.android.service:assemble org.eclipse.paho.android.service:connectedCheck
 
 addons:
