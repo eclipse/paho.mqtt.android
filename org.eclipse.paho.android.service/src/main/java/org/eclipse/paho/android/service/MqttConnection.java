@@ -195,11 +195,10 @@ class MqttConnection implements MqttCallbackExtended {
 
 		if (options != null) {
 			cleanSession = options.isCleanSession();
-		}
-
-		if (connectOptions.isCleanSession()) { // if it's a clean session,
-			// discard old data
-			service.messageStore.clearArrivedMessages(clientHandle);
+                        if (options.isCleanSession()) { // if it's a clean session,
+                            // discard old data
+                            service.messageStore.clearArrivedMessages(clientHandle);
+                        }
 		}
 
 		service.traceDebug(TAG, "Connecting {" + serverURI + "} as {" + clientId + "}");
