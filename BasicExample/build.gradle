@@ -7,13 +7,16 @@ android {
     defaultConfig {
         applicationId "paho.mqtt.java.example"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }
     lintOptions {
         abortOnError false
     }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 repositories {
