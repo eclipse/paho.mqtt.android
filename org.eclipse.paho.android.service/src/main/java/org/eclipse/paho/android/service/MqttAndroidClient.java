@@ -57,6 +57,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
+import android.support.v4.content.ContextCompat;
 
 /**
  * Enables an android application to communicate with an MQTT server using non-blocking methods.
@@ -411,7 +412,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		if (mqttService == null) { // First time - must bind to the service
 			Intent serviceStartIntent = new Intent();
 			serviceStartIntent.setClassName(myContext, SERVICE_NAME);
-			Object service = myContext.startService(serviceStartIntent);
+			Object service = ContextCompat.startForegroundService(myContext, serviceStartIntent);
 			if (service == null) {
 				IMqttActionListener listener = token.getActionCallback();
 				if (listener != null) {

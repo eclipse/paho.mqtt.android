@@ -42,6 +42,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
+import android.app.Notification;
 
 /**
  * <p>
@@ -671,6 +672,7 @@ public class MqttService extends Service implements MqttTraceHandler {
   public int onStartCommand(final Intent intent, int flags, final int startId) {
     // run till explicitly stopped, restart when
     // process restarted
+	startForground(0, new Notification());
 	registerBroadcastReceivers();
 
     return START_STICKY;
