@@ -43,6 +43,9 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.graphics.Color;
 
 /**
  * <p>
@@ -647,7 +650,7 @@ public class MqttService extends Service implements MqttTraceHandler {
 
 		if (this.messageStore !=null )
 			this.messageStore.close();
-
+        stopForeground(true);
 		super.onDestroy();
 	}
 
@@ -672,7 +675,27 @@ public class MqttService extends Service implements MqttTraceHandler {
   public int onStartCommand(final Intent intent, int flags, final int startId) {
     // run till explicitly stopped, restart when
     // process restarted
-	startForground(0, new Notification());
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+          String channelId = "001";
+          String channelName = "myChannel";
+          NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+          channel.setLightColor(Color.BLUE);
+          channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+          NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+          manager.createNotificationChannel(channel);
+          Notification notification;
+
+          notification = new Notification.Builder(getApplicationContext(), channelId)
+                  .setOngoing(true)
+                  .setSmallIcon(R.mipmap.ic_launcher)
+                  .setCategory(Notification.CATEGORY_SERVICE)
+                  .build();
+
+          startForeground(101, notification);
+
+      } else {
+          startForeground(101, new Notification());
+      }
 	registerBroadcastReceivers();
 
     return START_STICKY;
