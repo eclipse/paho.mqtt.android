@@ -1146,7 +1146,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		String activityToken = storeToken(token);
 		mqttService.subscribe(clientHandle, topicFilters, qos, null, activityToken, messageListeners);
 
-		return null;
+		return token;
 	}
 
 
