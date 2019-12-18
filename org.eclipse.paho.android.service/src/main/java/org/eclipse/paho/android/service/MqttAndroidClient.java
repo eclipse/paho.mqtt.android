@@ -1074,7 +1074,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
      */
     @Override
     public void setCallback(MqttCallback callback) {
-        if (callbacksList == null) callbacksList == new ArrayList<>();
+        if (callbacksList == null) callbacksList = new ArrayList<>();
         callbacksList.add(callback);
     }
 
