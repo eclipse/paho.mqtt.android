@@ -1228,7 +1228,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         }
         if (callbacksList != null) {
             for (MqttCallback callback : callbacksList) {
-                callback.connectionList(null);
+                callback.connectionLost(null);
             }
         }
     }
