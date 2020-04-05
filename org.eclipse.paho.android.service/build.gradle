@@ -49,14 +49,6 @@ task("generateSourcesJar", type: Jar) {
     classifier = 'sources'
 }
 
-// Renames the Release AAR file to a maven convention
-task("renameReleaseAAR", type: Copy) {
-    from("$buildDir/outputs/aar")
-    into("$buildDir/outputs/aar/")
-    include('org.eclipse.paho.android.service-debug.aar')
-    rename('org.eclipse.paho.android.service-debug.aar', rootProject.ext.serviceArchivesBaseName + '-' + rootProject.ext.serviceVersion + '.aar')
-}
-
 // Generate Plain Jar Version of library (good for legacy users)
 task("generateLibraryJar", type: Jar) {
     from("$buildDir/intermediates/classes/release")
@@ -94,9 +86,4 @@ publishing {
             }
         }
     }
-}
-
-
-assemble.doLast {
-    renameReleaseAAR.execute()
 }
