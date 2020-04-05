@@ -24,7 +24,8 @@ before_script:
 script:
   - ./gradlew clean
   - ./gradlew org.eclipse.paho.android.sample:assemble BasicExample:assemble
-  - ./gradlew org.eclipse.paho.android.service:assemble org.eclipse.paho.android.service:connectedCheck
+  - ./gradlew org.eclipse.paho.android.service:assemble
+  - ./gradlew org.eclipse.paho.android.service:connectedCheck --continue
 
 addons:
   apt:

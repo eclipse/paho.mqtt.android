@@ -36,7 +36,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.util.ArrayList;
 
 public class PahoExampleActivity extends AppCompatActivity {
-    final String serverUri = "tcp://iot.eclipse.org:1883";
+    final String serverUri = "tcp://mqtt.eclipse.org:1883";
     final String subscriptionTopic = "exampleAndroidTopic";
     final String publishTopic = "exampleAndroidPublishTopic";
     final String publishMessage = "Hello World!";

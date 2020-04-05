@@ -15,7 +15,7 @@
     <string name="add_connection_client_id_label">Client ID</string>
     <string name="add_connection_client_id_default">AndroidClient</string>
     <string name="add_connection_server_label">Server</string>
-    <string name="add_connection_server_default">iot.eclipse.org</string>
+    <string name="add_connection_server_default">mqtt.eclipse.org</string>
     <string name="add_connection_port_label">Port</string>
     <string name="add_connection_clean_session_label">Clean Session</string>
     <string name="add_connection_advanced_label">Advanced</string>
