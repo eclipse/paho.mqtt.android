@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: JDK ${{ matrix.java_version }}
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        java_version: [1.8]
+    steps:
+      # In order to have sha256sum on macOS, we need to install coreutils first
+      # Use this until coreutils or sha256sum are natively included in macOS on actions https://github.com/actions/virtual-environments/issues/90
+      - name: Install coreutils for macOS
+        run: brew install coreutils
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Check Gradle checksum
+        run: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ZacSweers/check-gradle-checksums/master/check-gradle-checksums.sh)"
+      - name: Install JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Install Android SDK
+        uses: malinskiy/action-android/install-sdk@release/0.0.5
+      - name: Configure Gradle
+        # Initial gradle configuration, install dependencies, etc
+        run: ./gradlew help
+      - name: Build project
+        run: ./gradlew assemble --stacktrace
+      # TODO split test and instrumentation into parallel builds
+      - name: Run tests
+        run: ./gradlew test --stacktrace
+      - name: Run instrumentation tests
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.5
+        with:
+          cmd: ./gradlew cAT --stacktrace
+          api: 18
+          tag: default
+          abi: x86
+      - name: Archive Espresso results
+        uses: actions/upload-artifact@v1
+        with:
+          name: Espresso-report
+          path: org.eclipse.paho.android.service/build/reports/androidTests/connected
+      - name: Reclaim memory
+        run: ./gradlew --stop && jps|grep -E 'KotlinCompileDaemon|GradleDaemon'| awk '{print $1}'| xargs kill -9
+      - name: Final checks
+        run: ./gradlew check --stacktrace
+      - name: Archive Lint report
+        uses: actions/upload-artifact@v1
+        with:
+          name: Lint-report
+          path: org.eclipse.paho.android.service/build/reports/lint-results.html
