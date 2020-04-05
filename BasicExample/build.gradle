@@ -19,18 +19,13 @@ android {
     useLibrary 'android.test.base'
 }
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
-}
-
-
 dependencies {
-    api project(':org.eclipse.paho.android.service')
-//    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-//    api "org.eclipse.paho:org.eclipse.paho.android.service:${rootProject.ext.clientVersion}"
+    implementation project(':org.eclipse.paho.android.service')
+//    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+//    implementation "org.eclipse.paho:org.eclipse.paho.android.service:${rootProject.ext.clientVersion}"
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
     implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13'
 }
