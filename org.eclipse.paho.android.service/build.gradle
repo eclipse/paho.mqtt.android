@@ -21,10 +21,6 @@ android {
     useLibrary 'android.test.base'
 }
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
-}
-
 dependencies {
     api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
