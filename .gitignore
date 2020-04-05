@@ -15,8 +15,7 @@ gen/
 
 # Gradle files
 .gradle/
-build/
-/*/build/
+build
 
 # Cache of project
 .gradletasknamecache
@@ -37,6 +36,7 @@ proguard/
 
 ## Directory-based project format:
 .idea/
+*.iml
 
 ## File-based project format:
 *.ipr
