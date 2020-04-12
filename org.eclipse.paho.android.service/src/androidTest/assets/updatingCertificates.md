@@ -2,10 +2,14 @@
 
 ## Getting the certificates
 
-```openssl s_client -connect iot.eclipse.org:8883 -showcerts```
+```echo -n | openssl s_client -connect mqtt.eclipse.org:8883 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > eclipse.crt```
 
 Notes: you need all certificates in chain (Copy each to a .crt file)
 
 ## Adding to keystore
 
-```keytool -importcert -v -trustcacerts -file "iot.eclipse.org.crt" -alias iot.eclipse.org -keystore "test.bks" -provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath "/home/james/Downloads/bcprov-jdk15on-154.jar" -storetype BKS -storepass mqtttest```
+```keytool -importcert -v -trustcacerts -file eclipse.crt -alias mqtt.eclipse.org -keystore "test.bks" -provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath "./bcprov-jdk15on-1.65.jar" -storetype BKS -storepass mqtttest```
+
+## List certs
+
+```keytool -list -v -keystore test.bks -provider org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath "./bcprov-jdk15on-1.65.jar" -storetype BKS -storepass mqtttest```
