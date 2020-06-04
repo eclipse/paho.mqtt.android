@@ -3,7 +3,6 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 14
@@ -16,10 +15,9 @@ android {
     lintOptions {
         abortOnError false
     }
-}
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 dependencies {
@@ -29,12 +27,14 @@ dependencies {
 
 android.libraryVariants.all { variant ->
     task("generate${variant.name}Javadoc", type: Javadoc) {
+        doFirst {
+            ext.androidJar =
+                    "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        }
         title = "$name $version API"
         description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        ext.androidJar =
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        source = variant.javaCompileProvider
         options.links("http://docs.oracle.com/javase/7/docs/api/")
         options.links("http://d.android.com/reference/")
         exclude '**/BuildConfig.java'
@@ -46,14 +46,6 @@ android.libraryVariants.all { variant ->
 task("generateSourcesJar", type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
-}
-
-// Renames the Release AAR file to a maven convention
-task("renameReleaseAAR", type: Copy) {
-    from("$buildDir/outputs/aar")
-    into("$buildDir/outputs/aar/")
-    include('org.eclipse.paho.android.service-debug.aar')
-    rename('org.eclipse.paho.android.service-debug.aar', rootProject.ext.serviceArchivesBaseName + '-' + rootProject.ext.serviceVersion + '.aar')
 }
 
 // Generate Plain Jar Version of library (good for legacy users)
@@ -93,9 +85,4 @@ publishing {
             }
         }
     }
-}
-
-
-assemble.doLast {
-    renameReleaseAAR.execute()
 }

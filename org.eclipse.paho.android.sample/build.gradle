@@ -2,28 +2,26 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId rootProject.ext.sampleArchivesBaseName
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "0.1"
     }
     lintOptions {
         abortOnError false
     }
-}
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 dependencies {
-    api project(':org.eclipse.paho.android.service')
-//    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-//    api "org.eclipse.paho:org.eclipse.paho.android.service:${rootProject.ext.clientVersion}"
+    implementation project(':org.eclipse.paho.android.service')
+//    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+//    implementation "org.eclipse.paho:org.eclipse.paho.android.service:${rootProject.ext.clientVersion}"
 
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
