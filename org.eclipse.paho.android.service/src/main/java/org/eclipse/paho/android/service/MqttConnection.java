@@ -698,7 +698,7 @@ class MqttConnection implements MqttCallbackExtended {
 			IMqttActionListener listener = new MqttConnectionListener(resultBundle);
 			try {
 
-				myClient.subscribe(topicFilters, qos,messageListeners);
+				myClient.subscribe(topicFilters, qos, null, listener, messageListeners);
 			} catch (Exception e){
 				handleException(resultBundle, e);
 			}
