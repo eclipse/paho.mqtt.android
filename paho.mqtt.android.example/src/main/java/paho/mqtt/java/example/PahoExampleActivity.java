@@ -77,25 +77,39 @@ public class PahoExampleActivity extends AppCompatActivity{
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), serverUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
             @Override
-            public void connectComplete(boolean reconnect, String serverURI) {
-
-                if (reconnect) {
-                    addToHistory("Reconnected to : " + serverURI);
-                    // Because Clean Session is true, we need to re-subscribe
-                    subscribeToTopic();
-                } else {
-                    addToHistory("Connected to: " + serverURI);
-                }
+            public void connectComplete(final boolean reconnect, final String serverURI) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (reconnect) {
+                            addToHistory("Reconnected to : " + serverURI);
+                            // Because Clean Session is true, we need to re-subscribe
+                            subscribeToTopic();
+                        } else {
+                            addToHistory("Connected to: " + serverURI);
+                        }
+                    }
+                });
             }
 
             @Override
             public void connectionLost(Throwable cause) {
-                addToHistory("The Connection was lost.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addToHistory("The Connection was lost.");
+                    }
+                });
             }
 
             @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                addToHistory("Incoming message: " + new String(message.getPayload()));
+            public void messageArrived(String topic, final MqttMessage message) throws Exception {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addToHistory("Incoming message: " + new String(message.getPayload()));
+                    }
+                });
             }
 
             @Override
@@ -130,7 +144,12 @@ public class PahoExampleActivity extends AppCompatActivity{
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to connect to: " + serverUri);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            addToHistory("Failed to connect to: " + serverUri);
+                        }
+                    });
                 }
             });
 
@@ -173,12 +192,22 @@ public class PahoExampleActivity extends AppCompatActivity{
             mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    addToHistory("Subscribed!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            addToHistory("Subscribed!");
+                        }
+                    });
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to subscribe");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            addToHistory("Failed to subscribe");
+                        }
+                    });
                 }
             });
 

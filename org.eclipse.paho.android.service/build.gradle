@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 24
+        targetSdkVersion 25
 
         testApplicationId "org.eclipse.paho.android.service.test"
     }
@@ -36,7 +36,7 @@ configurations {
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+//    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
