@@ -1404,9 +1404,12 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     }
 
     /**
-     * If foregroundServiceNotification is not null at the time of
-     * MqttService start it will run in foreground mode. This method has no effect if
-     * Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+     * Sets foregroundServiceNotification object. If it is not null at the time of
+     * MqttService start then the service  will run in foreground mode which is
+     * mandatory to keep MQTT service operation when app is
+     * in the background on Android version >=8.
+     *
+     * This method has no effect if Build.VERSION.SDK_INT < Build.VERSION_CODES.O
      *
      * @param notification notification to be used when MqttService runs in foreground mode
      */
@@ -1415,6 +1418,8 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     }
 
     /**
+     * Sets ID of the foreground service notification.
+     * If this method is not used then the default ID 1 will be used.
      *
      * @param id The identifier for foreground service notification
      */
