@@ -600,7 +600,7 @@ public class MqttService extends Service implements MqttTraceHandler {
         // process restarted
         registerBroadcastReceivers();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && intent != null) {
             Notification foregroundServiceNotification
                     = (Notification) (intent.getParcelableExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION));
             if (foregroundServiceNotification != null)
