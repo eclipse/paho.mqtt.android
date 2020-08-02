@@ -195,15 +195,22 @@ class MqttConnection implements MqttCallbackExtended {
                 // ask Android where we can put files
                 // some magic Android OS has no externalFileDir or it will throw an exception, so use internal storage directly.
                 File myDir = null;
+                // use internal storage instead.
                 try {
-                    myDir = service.getFilesDir();
+                    myDir = service.getDir(TAG, Context.MODE_PRIVATE);
                 } catch (Exception e) {
                     //skip
                 }
                 if (myDir == null) {
-                    // No external storage, use internal storage instead.
                     try {
-                        myDir = service.getDir(TAG, Context.MODE_PRIVATE);
+                        myDir = service.getFilesDir();
+                        if (myDir != null) {
+                            StringBuilder stringBuilder = new StringBuilder(myDir.getAbsolutePath());
+                            stringBuilder.append(File.separator);
+                            stringBuilder.append(TAG);
+                            myDir = new File(stringBuilder.toString());
+                            myDir.mkdirs();
+                        }
                     } catch (Exception e) {
                         //skip
                     }
