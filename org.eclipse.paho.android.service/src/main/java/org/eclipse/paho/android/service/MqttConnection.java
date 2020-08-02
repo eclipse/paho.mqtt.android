@@ -31,7 +31,7 @@ import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import java.io.File;
@@ -193,23 +193,30 @@ class MqttConnection implements MqttCallbackExtended {
         try {
             if (persistence == null) {
                 // ask Android where we can put files
-                File myDir = service.getExternalFilesDir(TAG);
-
+                // some magic Android OS has no externalFileDir or it will throw an exception, so use internal storage directly.
+                File myDir = null;
+                try {
+                    myDir = service.getFilesDir();
+                } catch (Exception e) {
+                    //skip
+                }
                 if (myDir == null) {
                     // No external storage, use internal storage instead.
-                    myDir = service.getDir(TAG, Context.MODE_PRIVATE);
-
-                    if (myDir == null) {
-                        //Shouldn't happen.
-                        resultBundle.putString(MqttServiceConstants.CALLBACK_ERROR_MESSAGE, "Error! No external and internal storage available");
-                        resultBundle.putSerializable(MqttServiceConstants.CALLBACK_EXCEPTION, new MqttPersistenceException());
-                        service.callbackToActivity(clientHandle, Status.ERROR, resultBundle);
-                        return;
+                    try {
+                        myDir = service.getDir(TAG, Context.MODE_PRIVATE);
+                    } catch (Exception e) {
+                        //skip
                     }
                 }
 
-                // use that to setup MQTT client persistence storage
-                persistence = new MqttDefaultFilePersistence(myDir.getAbsolutePath());
+                if (myDir == null) {
+                    // compatible very few magic Android OS.
+                    persistence = new MemoryPersistence();
+                } else {
+                    // use that to setup MQTT client persistence storage
+                    persistence = new MqttDefaultFilePersistence(
+                            myDir.getAbsolutePath());
+                }
             }
 
             IMqttActionListener listener = new MqttConnectionListener(resultBundle) {
@@ -671,7 +678,7 @@ class MqttConnection implements MqttCallbackExtended {
 
                     @Override
                     public void onFailure(IMqttToken asyncActionToken,
-                            Throwable exception) {
+                                          Throwable exception) {
                         // No action
                     }
                 });
@@ -762,7 +769,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param activityToken
      */
     private void storeSendDetails(final String topic, final MqttMessage msg, final IMqttDeliveryToken messageToken,
-            final String invocationContext, final String activityToken) {
+                                  final String invocationContext, final String activityToken) {
         savedTopics.put(messageToken, topic);
         savedSentMessages.put(messageToken, msg);
         savedActivityTokens.put(messageToken, activityToken);
