@@ -212,7 +212,7 @@ class MqttConnection implements MqttCallbackExtended {
                             myDir.mkdirs();
                         }
                     } catch (Exception e) {
-                        //skip
+                        myDir = null;
                     }
                 }
 
