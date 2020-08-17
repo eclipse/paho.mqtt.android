@@ -17,6 +17,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MessageStore.StoredMessage;
@@ -657,8 +658,12 @@ class MqttConnection implements MqttCallbackExtended {
      * @param why the exeception causing the break in communications
      */
     @Override
-    public void connectionLost(Throwable why) {
-        service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
+    public void connectionLost(@Nullable Throwable why) {
+        if (why != null) {
+            service.traceDebug(TAG, "connectionLost(" + why.getMessage() + ")");
+        } else {
+            service.traceDebug(TAG, "connectionLost(NO_REASON)");
+        }
         disconnected = true;
         try {
             if (!this.connectOptions.isAutomaticReconnect()) {

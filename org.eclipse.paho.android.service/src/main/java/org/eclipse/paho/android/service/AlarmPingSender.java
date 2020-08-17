@@ -24,6 +24,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -101,19 +103,20 @@ class AlarmPingSender implements MqttPingSender {
 
     @Override
     public void schedule(long delayInMilliseconds) {
-        long nextAlarmInMilliseconds = System.currentTimeMillis() + delayInMilliseconds;
+
+        long nextAlarmInMilliseconds = SystemClock.elapsedRealtime() + delayInMilliseconds;
         Log.d(TAG, "Schedule next alarm at " + nextAlarmInMilliseconds);
         AlarmManager alarmManager = (AlarmManager) service.getSystemService(Service.ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= 23) {
             // In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
             // the device to run this task whilst dosing.
             Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
+            alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
         } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, nextAlarmInMilliseconds, pendingIntent);
         }
     }
 
