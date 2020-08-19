@@ -1029,6 +1029,33 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     }
 
     /**
+     * Removes a published message corresponding to the token.
+     * <p>If a publish is requested with QoS1 or Qos2 and the publish callback is
+     * not called yet, this function returns true, the publish called will never
+     * be called, and a messageId corresponding to the token will become reusable.
+     * </p>
+     * <p>If the publish callback is already be called, this function returns false.
+     * </p>
+     * <p>This function might not stop sending the published message.
+     * </p>
+     * *
+     *
+     * @param token the token of removing published message
+     * @return if the message is removed then true, otherwise false
+     * @throws MqttException if there was an error removing the message.
+     */
+    @Override
+    public boolean removeMessage(IMqttDeliveryToken token) throws MqttException {
+        if (token.getMessage().getQos() > 0 && !token.isComplete())
+            return false;
+        int i = tokenMap.indexOfValue(token);
+        if (i > -1) tokenMap.removeAt(i);
+        if (callback != null)
+            callback.deliveryComplete(token);
+        return true;
+    }
+
+    /**
      * Returns the delivery tokens for any outstanding publish operations.
      * <p>
      * If a client has been restarted and there are messages that were in the
@@ -1174,6 +1201,16 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     public void setManualAcks(boolean manualAcks) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Will attempt to reconnect to the server after the client has lost connection.
+     *
+     * @throws MqttException if an error occurs attempting to reconnect
+     */
+    @Override
+    public void reconnect() throws MqttException {
+        mqttService.reconnect();
     }
 
     /**
@@ -1403,6 +1440,19 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
 
     public void deleteBufferedMessage(int bufferIndex) {
         mqttService.deleteBufferedMessage(clientHandle, bufferIndex);
+    }
+
+    /**
+     * Returns the current number of outgoing in-flight messages being sent by the
+     * client. Note that this number cannot be guaranteed to be 100% accurate as
+     * some messages may have been sent or queued in the time taken for this method
+     * to return.
+     *
+     * @return the current number of in-flight messages.
+     */
+    @Override
+    public int getInFlightMessageCount() {
+        return mqttService.getInFlightMessageCount(clientHandle);
     }
 
     /**
