@@ -932,6 +932,10 @@ class MqttConnection implements MqttCallbackExtended {
         myClient.deleteBufferedMessage(bufferIndex);
     }
 
+    public int getInFlightMessageCount() {
+        return myClient.getInFlightMessageCount();
+    }
+
     /**
      * General-purpose IMqttActionListener for the Client context
      * <p>

@@ -762,6 +762,11 @@ public class MqttService extends Service implements MqttTraceHandler {
         client.deleteBufferedMessage(bufferIndex);
     }
 
+    public int getInFlightMessageCount(String clientHandle) {
+        MqttConnection client = getConnection(clientHandle);
+        return client.getInFlightMessageCount();
+    }
+
     /*
      * Called in response to a change in network connection - after losing a
      * connection to the server, this allows us to wait until we have a usable
