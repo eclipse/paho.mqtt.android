@@ -327,7 +327,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
             Intent serviceStartIntent = new Intent();
             serviceStartIntent.setClassName(myContext, SERVICE_NAME);
 
-            Object service = null;
+            Object service;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     && foregroundServiceNotification != null) {
                 serviceStartIntent.putExtra(
@@ -336,9 +336,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
                 serviceStartIntent.putExtra(
                         MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID,
                         foregroundServiceNotificationId);
-                myContext.startForegroundService(serviceStartIntent);
+                service = myContext.startForegroundService(serviceStartIntent);
             } else {
-                myContext.startService(serviceStartIntent);
+                service = myContext.startService(serviceStartIntent);
             }
 
             if (service == null) {
