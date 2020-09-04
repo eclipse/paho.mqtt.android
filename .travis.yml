@@ -15,7 +15,7 @@ android:
 #  - adb shell input keyevent 82 &
 
 before_install:
-  - yes | sdkmanager "platforms;android-28;build-tools;29.0.2"
+  - yes | sdkmanager "build-tools;platforms;android-28"
 
 script:
   - ./gradlew clean
