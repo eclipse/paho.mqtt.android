@@ -1,10 +1,11 @@
 package org.eclipse.paho.android.sample.activity;
 
 
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.text.Html;
-import android.text.Spanned;
 
 import org.eclipse.paho.android.sample.R;
 import org.eclipse.paho.android.sample.internal.IReceivedMessageListener;
@@ -27,9 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * Represents a {@link MqttAndroidClient} and the actions it has performed
- *
  */
 public class Connection {
     /**
@@ -38,47 +37,73 @@ public class Connection {
 
     private static final String activityClass = "org.eclipse.paho.android.sample.activity.MainActivity";
 
-    /** ClientHandle for this Connection object **/
+    /**
+     * ClientHandle for this Connection object
+     **/
     private String clientHandle = null;
 
-    /** The clientId of the client associated with this <code>Connection</code> object **/
+    /**
+     * The clientId of the client associated with this <code>Connection</code> object
+     **/
     private String clientId = null;
 
-    /** The host that the {@link MqttAndroidClient} represented by this <code>Connection</code> is represented by **/
+    /**
+     * The host that the {@link MqttAndroidClient} represented by this <code>Connection</code> is represented by
+     **/
     private String host = null;
 
-    /** The port on the server that this client is connecting to **/
+    /**
+     * The port on the server that this client is connecting to
+     **/
     private int port = 0;
 
-    /** {@link ConnectionStatus } of the {@link MqttAndroidClient} represented by this <code>Connection</code> object. Default value is {@link ConnectionStatus#NONE} **/
+    /**
+     * {@link ConnectionStatus } of the {@link MqttAndroidClient} represented by this <code>Connection</code> object. Default value is {@link ConnectionStatus#NONE}
+     **/
     private ConnectionStatus status = ConnectionStatus.NONE;
 
-    /** Te history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object **/
+    /**
+     * Te history of the {@link MqttAndroidClient} represented by this <code>Connection</code> object
+     **/
     private ArrayList<String> history = null;
 
-    /** The {@link MqttAndroidClient} instance this class represents **/
+    /**
+     * The {@link MqttAndroidClient} instance this class represents
+     **/
     private MqttAndroidClient client = null;
 
-    /** Collection of {@link java.beans.PropertyChangeListener} **/
+    /**
+     * Collection of {@link java.beans.PropertyChangeListener}
+     **/
     private final ArrayList<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
-    /** The {@link Context} of the application this object is part of**/
+    /**
+     * The {@link Context} of the application this object is part of
+     **/
     private Context context = null;
 
-    /** The {@link MqttConnectOptions} that were used to connect this client **/
+    /**
+     * The {@link MqttConnectOptions} that were used to connect this client
+     **/
     private MqttConnectOptions mqttConnectOptions;
 
-    /** True if this connection is secured using TLS **/
+    /**
+     * True if this connection is secured using TLS
+     **/
     private boolean tlsConnection = true;
 
-    /** Persistence id, used by {@link Persistence} **/
+    /**
+     * Persistence id, used by {@link Persistence}
+     **/
     private long persistenceId = -1;
 
 
-    /** The list of this connection's subscriptions **/
+    /**
+     * The list of this connection's subscriptions
+     **/
     private final Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
 
-    private final ArrayList<ReceivedMessage> messageHistory =  new ArrayList<ReceivedMessage>();
+    private final ArrayList<ReceivedMessage> messageHistory = new ArrayList<ReceivedMessage>();
 
     private final ArrayList<IReceivedMessageListener> receivedMessageListeners = new ArrayList<IReceivedMessageListener>();
 
@@ -87,17 +112,29 @@ public class Connection {
      */
     public enum ConnectionStatus {
 
-        /** Client is Connecting **/
+        /**
+         * Client is Connecting
+         **/
         CONNECTING,
-        /** Client is Connected **/
+        /**
+         * Client is Connected
+         **/
         CONNECTED,
-        /** Client is Disconnecting **/
+        /**
+         * Client is Disconnecting
+         **/
         DISCONNECTING,
-        /** Client is Disconnected **/
+        /**
+         * Client is Disconnected
+         **/
         DISCONNECTED,
-        /** Client has encountered an Error **/
+        /**
+         * Client has encountered an Error
+         **/
         ERROR,
-        /** Status is unknown **/
+        /**
+         * Status is unknown
+         **/
         NONE
     }
 
@@ -105,29 +142,32 @@ public class Connection {
     /**
      * Creates a connection from persisted information in the database store, attempting
      * to create a {@link MqttAndroidClient} and the client handle.
-     * @param clientId The id of the client
-     * @param host the server which the client is connecting to
-     * @param port the port on the server which the client will attempt to connect to
-     * @param context the application context
+     *
+     * @param clientId      The id of the client
+     * @param host          the server which the client is connecting to
+     * @param port          the port on the server which the client will attempt to connect to
+     * @param context       the application context
      * @param tlsConnection true if the connection is secured by SSL
      * @return a new instance of <code>Connection</code>
      */
-    public static Connection createConnection(String clientHandle, String clientId, String host, int port, Context context, boolean tlsConnection){
+    public static Connection createConnection(String clientHandle, String clientId, String host, int port, Context context, boolean tlsConnection) {
 
         String uri;
-        if(tlsConnection) {
+        if (tlsConnection) {
             uri = "ssl://" + host + ":" + port;
         } else {
             uri = "tcp://" + host + ":" + port;
         }
 
         MqttAndroidClient client = new MqttAndroidClient(context, uri, clientId);
+        client.setForegroundServiceNotification(buildNotification(context), 1234);
+
         return new Connection(clientHandle, clientId, host, port, context, client, tlsConnection);
     }
 
-    public void updateConnection(String clientId, String host, int port, boolean tlsConnection){
+    public void updateConnection(String clientId, String host, int port, boolean tlsConnection) {
         String uri;
-        if(tlsConnection) {
+        if (tlsConnection) {
             uri = "ssl://" + host + ":" + port;
         } else {
             uri = "tcp://" + host + ":" + port;
@@ -138,19 +178,33 @@ public class Connection {
         this.port = port;
         this.tlsConnection = tlsConnection;
         this.client = new MqttAndroidClient(context, uri, clientId);
+        client.setForegroundServiceNotification(buildNotification(context), 1234);
+    }
 
+    private static Notification buildNotification(Context context) {
+        return new Notification.Builder(context)
+                .setGroup("foreground")
+                .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(context.getString(R.string.foreground_service))
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.paho_logo_full)
+                .setContentIntent(TaskStackBuilder.create(context)
+                        .addNextIntentWithParentStack(new Intent(context, MainActivity.class))
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT))
+                .build();
     }
 
 
     /**
      * Creates a connection object with the server information and the client
      * hand which is the reference used to pass the client around activities
-     * @param clientHandle The handle to this <code>Connection</code> object
-     * @param clientId The Id of the client
-     * @param host The server which the client is connecting to
-     * @param port The port on the server which the client will attempt to connect to
-     * @param context The application context
-     * @param client The MqttAndroidClient which communicates with the service for this connection
+     *
+     * @param clientHandle  The handle to this <code>Connection</code> object
+     * @param clientId      The Id of the client
+     * @param host          The server which the client is connecting to
+     * @param port          The port on the server which the client will attempt to connect to
+     * @param context       The application context
+     * @param client        The MqttAndroidClient which communicates with the service for this connection
      * @param tlsConnection true if the connection is secured by SSL
      */
     private Connection(String clientHandle, String clientId, String host,
@@ -172,6 +226,7 @@ public class Connection {
 
     /**
      * Add an action to the history of the client
+     *
      * @param action the history item to add
      */
     public void addAction(String action) {
@@ -188,6 +243,7 @@ public class Connection {
 
     /**
      * Gets the client handle for this connection
+     *
      * @return client Handle for this connection
      */
     public String handle() {
@@ -196,6 +252,7 @@ public class Connection {
 
     /**
      * Determines if the client is connected
+     *
      * @return is the client connected
      */
     public boolean isConnected() {
@@ -204,6 +261,7 @@ public class Connection {
 
     /**
      * Changes the connection status of the client
+     *
      * @param connectionStatus The connection status of this connection
      */
     public void changeConnectionStatus(ConnectionStatus connectionStatus) {
@@ -215,7 +273,6 @@ public class Connection {
      * A string representing the state of the client this connection
      * object represents
      *
-     *
      * @return A string representing the state of the client
      */
     @Override
@@ -226,22 +283,22 @@ public class Connection {
 
         switch (status) {
 
-            case CONNECTED :
+            case CONNECTED:
                 sb.append(context.getString(R.string.connection_connected_to));
                 break;
-            case DISCONNECTED :
+            case DISCONNECTED:
                 sb.append(context.getString(R.string.connection_disconnected_from));
                 break;
-            case NONE :
+            case NONE:
                 sb.append(context.getString(R.string.connection_unknown_status));
                 break;
-            case CONNECTING :
+            case CONNECTING:
                 sb.append(context.getString(R.string.connection_connecting_to));
                 break;
-            case DISCONNECTING :
+            case DISCONNECTING:
                 sb.append(context.getString(R.string.connection_disconnecting_from));
                 break;
-            case ERROR :
+            case ERROR:
                 sb.append(context.getString(R.string.connection_error_connecting_to));
         }
         sb.append(" ");
@@ -253,6 +310,7 @@ public class Connection {
     /**
      * Compares two connection objects for equality
      * this only takes account of the client handle
+     *
      * @param o The object to compare to
      * @return true if the client handles match
      */
@@ -270,6 +328,7 @@ public class Connection {
 
     /**
      * Get the client Id for the client this object represents
+     *
      * @return the client id for the client this object represents
      */
     public String getId() {
@@ -278,6 +337,7 @@ public class Connection {
 
     /**
      * Get the host name of the server that this connection object is associated with
+     *
      * @return the host name of the server this connection object is associated with
      */
     public String getHostName() {
@@ -287,6 +347,7 @@ public class Connection {
 
     /**
      * Gets the client which communicates with the org.eclipse.paho.android.service service.
+     *
      * @return the client which communicates with the org.eclipse.paho.android.service service
      */
     public MqttAndroidClient getClient() {
@@ -295,6 +356,7 @@ public class Connection {
 
     /**
      * Add the connectOptions used to connect the client to the server
+     *
      * @param connectOptions the connectOptions used to connect to the server
      */
     public void addConnectionOptions(MqttConnectOptions connectOptions) {
@@ -304,36 +366,36 @@ public class Connection {
 
     /**
      * Get the connectOptions used to connect this client to the server
+     *
      * @return The connectOptions used to connect the client to the server
      */
-    public MqttConnectOptions getConnectionOptions()
-    {
+    public MqttConnectOptions getConnectionOptions() {
         return mqttConnectOptions;
     }
 
     /**
      * Register a {@link PropertyChangeListener} to this object
+     *
      * @param listener the listener to register
      */
-    public void registerChangeListener(PropertyChangeListener listener)
-    {
+    public void registerChangeListener(PropertyChangeListener listener) {
         listeners.add(listener);
     }
 
     /**
      * Notify {@link PropertyChangeListener} objects that the object has been updated
+     *
      * @param propertyChangeEvent - The property Change event
      */
-    private void notifyListeners(PropertyChangeEvent propertyChangeEvent)
-    {
-        for (PropertyChangeListener listener : listeners)
-        {
+    private void notifyListeners(PropertyChangeEvent propertyChangeEvent) {
+        for (PropertyChangeListener listener : listeners) {
             listener.propertyChange(propertyChangeEvent);
         }
     }
 
     /**
      * Gets the port that this connection connects to.
+     *
      * @return port that this connection connects to
      */
     public int getPort() {
@@ -342,6 +404,7 @@ public class Connection {
 
     /**
      * Determines if the connection is secured using SSL, returning a C style integer value
+     *
      * @return 1 if SSL secured 0 if plain text
      */
     public int isSSL() {
@@ -350,6 +413,7 @@ public class Connection {
 
     /**
      * Assign a persistence ID to this object
+     *
      * @param id the persistence id to assign
      */
     public void assignPersistenceId(long id) {
@@ -358,6 +422,7 @@ public class Connection {
 
     /**
      * Returns the persistence ID assigned to this object
+     *
      * @return the persistence ID assigned to this object
      */
     public long persistenceId() {
@@ -365,10 +430,9 @@ public class Connection {
     }
 
 
-
     public void addNewSubscription(Subscription subscription) throws MqttException {
-        if(!subscriptions.containsKey(subscription.getTopic())){
-            try{
+        if (!subscriptions.containsKey(subscription.getTopic())) {
+            try {
                 String[] actionArgs = new String[1];
                 actionArgs[0] = subscription.getTopic();
                 final ActionListener callback = new ActionListener(this.context,
@@ -379,7 +443,7 @@ public class Connection {
                 long rowId = persistence.persistSubscription(subscription);
                 subscription.setPersistenceId(rowId);
                 subscriptions.put(subscription.getTopic(), subscription);
-            } catch (PersistenceException pe){
+            } catch (PersistenceException pe) {
                 throw new MqttException(pe);
             }
 
@@ -387,8 +451,8 @@ public class Connection {
     }
 
 
-    public void unsubscribe (Subscription subscription) throws MqttException {
-        if(subscriptions.containsKey(subscription.getTopic())){
+    public void unsubscribe(Subscription subscription) throws MqttException {
+        if (subscriptions.containsKey(subscription.getTopic())) {
             this.getClient().unsubscribe(subscription.getTopic());
             subscriptions.remove(subscription.getTopic());
             Persistence persistence = new Persistence(context);
@@ -397,28 +461,28 @@ public class Connection {
 
     }
 
-    public void setSubscriptions(ArrayList<Subscription> newSubs){
-        for(Subscription sub : newSubs){
+    public void setSubscriptions(ArrayList<Subscription> newSubs) {
+        for (Subscription sub : newSubs) {
             subscriptions.put(sub.getTopic(), sub);
         }
     }
 
-    public ArrayList<Subscription> getSubscriptions(){
+    public ArrayList<Subscription> getSubscriptions() {
         ArrayList<Subscription> subs = new ArrayList<Subscription>();
         subs.addAll(subscriptions.values());
         return subs;
     }
 
-    public void addReceivedMessageListner(IReceivedMessageListener listener){
+    public void addReceivedMessageListner(IReceivedMessageListener listener) {
         receivedMessageListeners.add(listener);
     }
 
-    public void messageArrived(String topic, MqttMessage message){
+    public void messageArrived(String topic, MqttMessage message) {
         ReceivedMessage msg = new ReceivedMessage(topic, message);
         messageHistory.add(0, msg);
-        if(subscriptions.containsKey(topic)){
+        if (subscriptions.containsKey(topic)) {
             subscriptions.get(topic).setLastMessage(new String(message.getPayload()));
-            if(subscriptions.get(topic).isEnableNotifications()){
+            if (subscriptions.get(topic).isEnableNotifications()) {
                 //create intent to start activity
                 Intent intent = new Intent();
                 intent.setClassName(context, activityClass);
@@ -436,17 +500,16 @@ public class Connection {
             }
         }
 
-        for(IReceivedMessageListener listener : receivedMessageListeners){
+        for (IReceivedMessageListener listener : receivedMessageListeners) {
             listener.onMessageReceived(msg);
         }
 
 
     }
 
-    public ArrayList<ReceivedMessage> getMessages(){
+    public ArrayList<ReceivedMessage> getMessages() {
         return messageHistory;
     }
-
 
 
 }

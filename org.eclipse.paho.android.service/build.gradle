@@ -3,11 +3,9 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 24
+        minSdkVersion 21
 
         testApplicationId "org.eclipse.paho.android.service.test"
     }
@@ -25,35 +23,16 @@ android {
     lintOptions {
         abortOnError false
     }
-}
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
-}
-
-configurations {
-   //androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-}
-
-android.libraryVariants.all { variant ->
-    task("generate${variant.name}Javadoc", type: Javadoc) {
-        title = "$name $version API"
-        description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        ext.androidJar =
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-        options.links("http://docs.oracle.com/javase/7/docs/api/");
-        options.links("http://d.android.com/reference/");
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-    }
+    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
+    api "com.android.support:localbroadcastmanager:${supportLibVersion}"
+    api "com.android.support:support-v4:${supportLibVersion}"
+    api fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 // Generate Sources Jar
@@ -117,18 +96,8 @@ publishing {
     }
 }
 
-
-task debug << {
-    configurations.compile.each { println it}
-}
-// Required to bundle Java library Jar in AAR
-clean.doLast{
-    copyLibs.execute()
-}
-assemble.doLast {
-    renameReleaseAAR.execute()
-}
-
-clean.doFirst {
-    delete 'libs'
+task debug {
+    doLast {
+        configurations.compile.each { println it }
+    }
 }

@@ -112,8 +112,6 @@ public class SubscriptionFragment extends Fragment {
         final Switch notifySwitch = (Switch) promptView.findViewById(R.id.show_notifications_switch);
 
 
-
-
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext());
         alertDialogBuilder.setView(promptView);
         alertDialogBuilder.setCancelable(true).setPositiveButton(R.string.subscribe_ok, new DialogInterface.OnClickListener() {
