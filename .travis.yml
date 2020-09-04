@@ -15,8 +15,9 @@ android:
 #  - adb shell input keyevent 82 &
 
 before_install:
-  - yes | sdkmanager "platforms;android-28"
+  - yes | sudo sdkmanager --licenses
 
 script:
   - ./gradlew clean
-  - ./gradlew org.eclipse.paho.android.service:assemble
+  - ./gradlew org.eclipse.paho.android.sample:assemble paho.mqtt.android.example:assemble
+  - ./gradlew org.eclipse.paho.android.service:assemble org.eclipse.paho.android.service:connectedCheck
