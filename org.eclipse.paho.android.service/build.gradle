@@ -62,19 +62,12 @@ task("generateLibraryJar", type: Jar) {
     from("$buildDir/intermediates/classes/release")
 }
 
-// Generate Javadoc
-task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')){
-    from("$buildDir/docs/javadoc")
-    classifier = 'javadoc'
-}
-
 publishing {
     publications {
         paho(MavenPublication) {
             groupId 'org.eclipse.paho'
             artifact generateSourcesJar
             artifact generateLibraryJar
-            artifact generateJavaDocJar
             artifact "$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar"
         }
     }
