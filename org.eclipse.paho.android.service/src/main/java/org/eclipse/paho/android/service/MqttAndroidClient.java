@@ -16,15 +16,17 @@
  */
 package org.eclipse.paho.android.service;
 
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.SparseArray;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -103,6 +105,9 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private boolean traceEnabled = false;
     private volatile boolean receiverRegistered = false;
     private volatile boolean bindedService = false;
+    // notification for Foreground Service
+    private int foregroundServiceNotificationId = 1;
+    private Notification foregroundServiceNotification;
 
     /**
      * Constructor - create an MqttAndroidClient that can be used to communicate with an MQTT server on android
@@ -321,7 +326,28 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
         if (mqttService == null) { // First time - must bind to the service
             Intent serviceStartIntent = new Intent();
             serviceStartIntent.setClassName(myContext, SERVICE_NAME);
-            Object service = myContext.startService(serviceStartIntent);
+
+            Object service = null;
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && foregroundServiceNotification != null) {
+                serviceStartIntent.putExtra(
+                        MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION,
+                        foregroundServiceNotification);
+                serviceStartIntent.putExtra(
+                        MqttService.PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID,
+                        foregroundServiceNotificationId);
+                service = myContext.startForegroundService(serviceStartIntent);
+            } else {
+                try {
+                    service = myContext.startService(serviceStartIntent);
+                } catch(IllegalStateException ex) {
+                    IMqttActionListener listener = token.getActionCallback();
+                    if (listener != null) {
+                        listener.onFailure(token, ex);
+                    }
+                }
+            }
+
             if (service == null) {
                 IMqttActionListener listener = token.getActionCallback();
                 if (listener != null) {
@@ -1382,6 +1408,30 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
     private synchronized IMqttToken getMqttToken(Bundle data) {
         String activityToken = data.getString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN);
         return tokenMap.get(Integer.parseInt(activityToken));
+    }
+
+    /**
+     * Sets foregroundServiceNotification object. If it is not null at the time of
+     * MqttService start then the service  will run in foreground mode which is
+     * mandatory to keep MQTT service operation when app is
+     * in the background on Android version >=8.
+     *
+     * This method has no effect if Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+     *
+     * @param notification notification to be used when MqttService runs in foreground mode
+     */
+    public void setForegroundServiceNotification(Notification notification) {
+        foregroundServiceNotification = notification;
+    }
+
+    /**
+     * Sets ID of the foreground service notification.
+     * If this method is not used then the default ID 1 will be used.
+     *
+     * @param id The identifier for foreground service notification
+     */
+    public void setForegroundServiceNotificationId(int id) {
+        foregroundServiceNotificationId = id;
     }
 
     /**

@@ -31,7 +31,7 @@
         android:layout_above="@+id/linearLayout"
         android:layout_below="@+id/nav_header_container">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/drawerList"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
