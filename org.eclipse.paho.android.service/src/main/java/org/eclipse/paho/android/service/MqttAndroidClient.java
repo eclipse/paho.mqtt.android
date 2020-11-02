@@ -327,7 +327,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
             Intent serviceStartIntent = new Intent();
             serviceStartIntent.setClassName(myContext, SERVICE_NAME);
 
-            Object service;
+            Object service = null;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                     && foregroundServiceNotification != null) {
                 serviceStartIntent.putExtra(
@@ -338,7 +338,14 @@ public class MqttAndroidClient extends BroadcastReceiver implements IMqttAsyncCl
                         foregroundServiceNotificationId);
                 service = myContext.startForegroundService(serviceStartIntent);
             } else {
-                service = myContext.startService(serviceStartIntent);
+                try {
+                    service = myContext.startService(serviceStartIntent);
+                } catch(IllegalStateException ex) {
+                    IMqttActionListener listener = token.getActionCallback();
+                    if (listener != null) {
+                        listener.onFailure(token, ex);
+                    }
+                }
             }
 
             if (service == null) {
