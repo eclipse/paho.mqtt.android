@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:orientation="vertical">
 
 
     <RelativeLayout
         android:id="@+id/nav_header_container"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:background="@color/ColorPrimary"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentTop="true"
+        android:background="@color/ColorPrimary">
 
         <ImageView
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@mipmap/ic_launcher"
-            android:scaleType="fitCenter"
             android:layout_centerInParent="true"
-            tools:ignore="ContentDescription" />
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_launcher"
+            tools:ignore="ContentDescription"/>
 
     </RelativeLayout>
 
@@ -28,24 +28,25 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/nav_header_container"
-        android:layout_above="@+id/linearLayout">
+        android:layout_above="@+id/linearLayout"
+        android:layout_below="@+id/nav_header_container">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/drawerList"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_marginTop="15dp"
-            android:layout_alignParentTop="false"/>
+            android:layout_alignParentTop="false"
+            android:layout_marginTop="15dp"/>
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
-        android:id="@+id/linearLayout">
+        android:layout_gravity="bottom"
+        android:orientation="vertical">
+
         <View
             android:id="@+id/divider1"
             style="@style/Divider"/>
@@ -55,30 +56,30 @@
             android:id="@+id/action_add_connection"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
+            android:drawableLeft="@drawable/ic_add"
+            android:paddingBottom="10dp"
             android:paddingLeft="15dp"
             android:paddingRight="0dp"
             android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="@color/textColorPrimary"
             android:text="@string/action_add_connection"
-            android:drawableLeft="@drawable/ic_add" />
+            android:textColor="@color/textColorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
 
 
         <TextView
             android:id="@+id/action_help"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
+            android:drawableLeft="@drawable/ic_help"
+            android:paddingBottom="10dp"
             android:paddingLeft="15dp"
             android:paddingRight="0dp"
             android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="@color/textColorPrimary"
             android:text="@string/help_and_feedback"
-            android:drawableLeft="@drawable/ic_help" />
+            android:textColor="@color/textColorPrimary"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
 
 
     </LinearLayout>

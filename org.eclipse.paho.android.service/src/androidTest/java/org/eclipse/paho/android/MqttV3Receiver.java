@@ -28,29 +28,12 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import android.util.Log;
 
-public class MqttV3Receiver implements MqttCallback{
+public class MqttV3Receiver implements MqttCallback {
 
     private final java.io.PrintStream reportStream;
     private boolean reportConnectionLoss = true;
     private boolean connected = false;
     private String clientId;
-
-    /**
-     * For the in bound message.
-     */
-    public class ReceivedMessage {
-
-        /** */
-        public String topic;
-        /** */
-        public MqttMessage message;
-
-        ReceivedMessage(String topic, MqttMessage message) {
-            this.topic = topic;
-            this.message = message;
-        }
-    }
-
     private java.util.List<ReceivedMessage> receivedMessages = Collections.synchronizedList(new java.util.ArrayList<ReceivedMessage>());
 
     /**
@@ -102,13 +85,13 @@ public class MqttV3Receiver implements MqttCallback{
 
 
         if (receivedMessages.isEmpty()) {
-//      wait(waitMilliseconds);
+            //      wait(waitMilliseconds);
             TimeUnit.MILLISECONDS.sleep(waitMilliseconds);
 
         }
 
-        Log.i(methodName, "receiveNext time is "+new Date().toString());
-        Log.i(methodName, "receivedMessages = "+receivedMessages.toString());
+        Log.i(methodName, "receiveNext time is " + new Date().toString());
+        Log.i(methodName, "receivedMessages = " + receivedMessages.toString());
 
 
         if (!receivedMessages.isEmpty()) {
@@ -129,7 +112,7 @@ public class MqttV3Receiver implements MqttCallback{
      * @throws InterruptedException
      */
     public boolean validateReceipt(String sendTopic, int expectedQos,
-                                   byte[] sentBytes) throws MqttException, InterruptedException {
+            byte[] sentBytes) throws MqttException, InterruptedException {
         final String methodName = "validateReceipt";
 
         long waitMilliseconds = 10000;
@@ -172,7 +155,7 @@ public class MqttV3Receiver implements MqttCallback{
      * Validate receipt of a batch of messages sent to a topic by a number of
      * publishers The message payloads are expected to have the format<b>
      * "Batch Message payload :<batch>:<publisher>:<messageNumber>:<any additional payload>"
-     *
+     * <p>
      * We want to detect excess messages, so we don't just handle a certain
      * number. Instead we wait for a timeout period, and exit if no message is
      * received in that period.<b> The timeout period can make this test long
@@ -191,8 +174,8 @@ public class MqttV3Receiver implements MqttCallback{
      * @throws InterruptedException
      */
     public boolean validateReceipt(List<String> sendTopics, List<Integer> expectedQosList,
-                                   int expectedBatchNumber, int nPublishers, List<byte[]> sentBytes,
-                                   boolean expectOrdered) throws MqttException, InterruptedException {
+            int expectedBatchNumber, int nPublishers, List<byte[]> sentBytes,
+            boolean expectOrdered) throws MqttException, InterruptedException {
         final String methodName = "validateReceipt";
 
         int expectedMessageNumbers[] = new int[nPublishers];
@@ -247,8 +230,7 @@ public class MqttV3Receiver implements MqttCallback{
 
                     return false;
                 }
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 report("Received invalid payload\n" + "Received:"
                         + payloadString);
                 report("batchnumber was not a numeric value");
@@ -267,8 +249,7 @@ public class MqttV3Receiver implements MqttCallback{
 
                     return false;
                 }
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 report("Received invalid payload\n" + "Received:"
                         + payloadString);
                 report("publisher was not a numeric value");
@@ -281,8 +262,7 @@ public class MqttV3Receiver implements MqttCallback{
                     int messageNumber = Integer.parseInt(payloadParts[3]);
                     if (messageNumber == expectedMessageNumbers[publisher]) {
                         expectedMessageNumbers[publisher] += 1;
-                    }
-                    else {
+                    } else {
                         report("Received invalid payload\n" + "Received:"
                                 + payloadString);
                         report("messageNumber "
@@ -292,8 +272,7 @@ public class MqttV3Receiver implements MqttCallback{
 
                         return false;
                     }
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     report("Received invalid payload\n" + "Received:"
                             + payloadString);
                     report("messageNumber was not a numeric value");
@@ -315,8 +294,7 @@ public class MqttV3Receiver implements MqttCallback{
                 sentBytes.remove(location);
                 sendTopic = sendTopics.remove(location);
                 expectedQos = expectedQosList.remove(location);
-            }
-            else {
+            } else {
                 report("Received invalid payload\n" + "Received:"
                         + payloadString);
                 for (byte[] expectedPayload : sentBytes) {
@@ -409,20 +387,35 @@ public class MqttV3Receiver implements MqttCallback{
     public void messageArrived(String topic, MqttMessage message)
             throws Exception {
         final String methodName = "messageArrived";
-        Log.i(methodName, "messageArrived "+topic+ " = "+message.toString()+ " clientId = "+this.clientId);
-        Log.i(methodName, "messageArrived "+new Date().toString());
+        Log.i(methodName, "messageArrived " + topic + " = " + message.toString() + " clientId = " + this.clientId);
+        Log.i(methodName, "messageArrived " + new Date().toString());
 
         receivedMessages.add(new ReceivedMessage(topic, message));
-        Log.i(methodName, "receivedMessages = "+receivedMessages.toString());
+        Log.i(methodName, "receivedMessages = " + receivedMessages.toString());
 
         // notify();
     }
 
     /**
-     * @param text
-     *            to be written to the report.
+     * @param text to be written to the report.
      */
     public void report(String text) {
         Log.e(this.getClass().getCanonicalName(), text);
+    }
+
+    /**
+     * For the in bound message.
+     */
+    public class ReceivedMessage {
+
+        /** */
+        public String topic;
+        /** */
+        public MqttMessage message;
+
+        ReceivedMessage(String topic, MqttMessage message) {
+            this.topic = topic;
+            this.message = message;
+        }
     }
 }

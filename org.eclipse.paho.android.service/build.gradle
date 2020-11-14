@@ -3,54 +3,40 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
+        // TODO switch to 26 needs more work https://developer.android.com/about/versions/oreo/background.html
         targetSdkVersion 24
 
         testApplicationId "org.eclipse.paho.android.service.test"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
     }
 
     lintOptions {
         abortOnError false
     }
-}
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
-}
-
-configurations {
-   //androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
 }
 
 android.libraryVariants.all { variant ->
     task("generate${variant.name}Javadoc", type: Javadoc) {
+        doFirst {
+            ext.androidJar =
+                    "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        }
         title = "$name $version API"
         description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        ext.androidJar =
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-        options.links("http://docs.oracle.com/javase/7/docs/api/");
-        options.links("http://d.android.com/reference/");
+        source = variant.javaCompileProvider
+        options.links("http://docs.oracle.com/javase/7/docs/api/")
+        options.links("http://d.android.com/reference/")
         exclude '**/BuildConfig.java'
         exclude '**/R.java'
     }
@@ -62,29 +48,13 @@ task("generateSourcesJar", type: Jar) {
     classifier = 'sources'
 }
 
-// Copy the Paho Java client into the libs directory to bundle it with the AAR
-task("copyLibs", type: Copy) {
-    println "Copying MQTT Jar into libs directory"
-    from configurations.compile
-    into 'libs'
-    include 'org.eclipse.paho*'
-}
-
-// Renames the Release AAR file to a maven convention
-task("renameReleaseAAR", type: Copy) {
-    from("$buildDir/outputs/aar")
-    into("$buildDir/outputs/aar/")
-    include('org.eclipse.paho.android.service-debug.aar')
-    rename('org.eclipse.paho.android.service-debug.aar', rootProject.ext.serviceArchivesBaseName + '-' + rootProject.ext.serviceVersion + '.aar')
-}
-
 // Generate Plain Jar Version of library (good for legacy users)
 task("generateLibraryJar", type: Jar) {
     from("$buildDir/intermediates/classes/release")
 }
 
 // Generate Javadoc
-task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')){
+task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')) {
     from("$buildDir/docs/javadoc")
     classifier = 'javadoc'
 }
@@ -115,20 +85,4 @@ publishing {
             }
         }
     }
-}
-
-
-task debug << {
-    configurations.compile.each { println it}
-}
-// Required to bundle Java library Jar in AAR
-clean.doLast{
-    copyLibs.execute()
-}
-assemble.doLast {
-    renameReleaseAAR.execute()
-}
-
-clean.doFirst {
-    delete 'libs'
 }

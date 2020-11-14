@@ -44,27 +44,25 @@ public class ManageConnectionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-         connections = Connections.getInstance(this.getActivity())
+        connections = Connections.getInstance(this.getActivity())
                 .getConnections();
         connectionKey = this.getArguments().getString(ActivityConstants.CONNECTION_KEY);
         connection = connections.get(connectionKey);
         setHasOptionsMenu(false);
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_manage, container, false);
         final String name = connection.getId() + "@" + connection.getHostName() + ":" + connection.getPort();
-        TextView label = (TextView) rootView.findViewById(R.id.connection_id_text);
+        TextView label = rootView.findViewById(R.id.connection_id_text);
         label.setText(name);
 
-        Button deleteButton = (Button) rootView.findViewById(R.id.delete_button);
+        Button deleteButton = rootView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               System.out.println("Deleting Connection: " + name + ".");
+                System.out.println("Deleting Connection: " + name + ".");
                 connections.remove(connectionKey);
                 Connections.getInstance(getActivity()).removeConnection(connection);
                 FragmentManager fragmentManager = getFragmentManager();
@@ -75,7 +73,7 @@ public class ManageConnectionFragment extends Fragment {
             }
         });
 
-        Button editButton = (Button) rootView.findViewById(R.id.edit_button);
+        Button editButton = rootView.findViewById(R.id.edit_button);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +88,6 @@ public class ManageConnectionFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-
 
         // Inflate the layout for this fragment
         return rootView;

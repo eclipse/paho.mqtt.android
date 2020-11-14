@@ -1,7 +1,3 @@
 include ':org.eclipse.paho.android.service'
 include ':org.eclipse.paho.android.sample'
-include ':paho.mqtt.android.example'
-
-project(':org.eclipse.paho.android.service').projectDir = new File('org.eclipse.paho.android.service')
-project(':paho.mqtt.android.example').projectDir = new File('paho.mqtt.android.example')
-project(':org.eclipse.paho.android.sample').projectDir = new File('org.eclipse.paho.android.sample')
+include ':BasicExample'
