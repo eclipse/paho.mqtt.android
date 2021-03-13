@@ -91,7 +91,7 @@ If you find that there is functionality missing or bugs in the release version, 
 ### Building from source
 
  - Open a terminal and navigate to this directory (org.eclipse.paho.android.service)
- - Run the command ``./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
+ - Run the command `./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
 
 ### Running the Sample App:
 
