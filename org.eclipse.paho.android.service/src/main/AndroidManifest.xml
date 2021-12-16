@@ -1,7 +1,9 @@
-<manifest
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.eclipse.paho.android.service">
 
     <application>
+        <service android:name="org.eclipse.paho.android.service.MqttService">
+        </service>
     </application>
 
 </manifest>

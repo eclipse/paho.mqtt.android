@@ -1,77 +1,78 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
+configurations.implementation.canBeResolved = true
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 24
+        targetSdkVersion 31
 
         testApplicationId "org.eclipse.paho.android.service.test"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
     }
 
     lintOptions {
         abortOnError false
     }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 repositories {
     maven { url rootProject.ext.mavenUrl }
 }
 
-configurations {
-   //androidTestCompile.exclude module: 'org.eclipse.paho.client.mqttv3'
-}
-
-dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-}
 
 android.libraryVariants.all { variant ->
     task("generate${variant.name}Javadoc", type: Javadoc) {
+        doFirst {
+            ext.androidJar =
+                    "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompileProvider.get().classpath.files) + files(ext.androidJar)
+        }
+        source = variant.sourceSets.collect { it.java.sourceFiles }.inject { m, i -> m + i }
         title = "$name $version API"
         description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        ext.androidJar =
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
-        options.links("http://docs.oracle.com/javase/7/docs/api/");
-        options.links("http://d.android.com/reference/");
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
+        // source = variant.javaCompileProvider.get()
+        options.memberLevel = JavadocMemberLevel.PROTECTED
+        options.links("http://docs.oracle.com/javase/7/docs/api/")
+        options.links("http://d.android.com/reference/")
+        exclude '**/BuildConfig*'
+        exclude '**/R**'
+        // options.linkSource false
+        failOnError false
     }
+}
+
+dependencies {
+  implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+  implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 // Generate Sources Jar
 task("generateSourcesJar", type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
+    archiveClassifier.set("sources")
 }
 
 // Copy the Paho Java client into the libs directory to bundle it with the AAR
 task("copyLibs", type: Copy) {
-    println "Copying MQTT Jar into libs directory"
-    from configurations.compile
+    from configurations.implementation
     into 'libs'
     include 'org.eclipse.paho*'
+
+    doLast {
+      println "Copying MQTT Jar into libs directory"
+    }
 }
 
 // Renames the Release AAR file to a maven convention
-task("renameReleaseAAR", type: Copy) {
+task("renameReleaseAAR", type: Copy, dependsOn: ['bundleDebugAar', 'copyLibs']) {
     from("$buildDir/outputs/aar")
     into("$buildDir/outputs/aar/")
     include('org.eclipse.paho.android.service-debug.aar')
@@ -80,55 +81,34 @@ task("renameReleaseAAR", type: Copy) {
 
 // Generate Plain Jar Version of library (good for legacy users)
 task("generateLibraryJar", type: Jar) {
-    from("$buildDir/intermediates/classes/release")
+    from("$buildDir/intermediates/javac/release/classes")
 }
 
 // Generate Javadoc
 task("generateJavaDocJar", type: Jar, dependsOn: (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'generatedebugJavadoc' : 'generatereleaseJavadoc')){
     from("$buildDir/docs/javadoc")
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
 }
 
-publishing {
-    publications {
-        paho(MavenPublication) {
-            groupId 'org.eclipse.paho'
-            artifact generateSourcesJar
-            artifact generateLibraryJar
-            artifact generateJavaDocJar
-            artifact "$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar"
-        }
-    }
-    repositories {
-        if (project.hasProperty('eclipseRepoUsername')) {
-            maven {
-                name 'eclipse'
-                url 'https://repo.eclipse.org/content/repositories/paho-' + (rootProject.ext.serviceVersion.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
-                credentials {
-                    username eclipseRepoUsername
-                    password eclipseRepoPassword
-                }
-            }
-        } else {
-            maven {
-                url "$buildDir/repo"
+project.afterEvaluate {
+    publishing {
+        publications {
+            paho(MavenPublication) {
+                groupId 'org.eclipse.paho'
+                artifact generateSourcesJar
+                artifact generateLibraryJar
+                artifact generateJavaDocJar
+                artifact "$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar"
             }
         }
     }
 }
 
 
-task debug << {
-    configurations.compile.each { println it}
-}
-// Required to bundle Java library Jar in AAR
-clean.doLast{
-    copyLibs.execute()
-}
-assemble.doLast {
-    renameReleaseAAR.execute()
-}
-
-clean.doFirst {
+task deleteLibs {
     delete 'libs'
 }
+
+tasks.clean.dependsOn(deleteLibs)
+
+tasks.assemble.dependsOn(renameReleaseAAR)
