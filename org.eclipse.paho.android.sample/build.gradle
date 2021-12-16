@@ -44,7 +44,7 @@ task publishAPK(type: Copy) {
 
 // configurations.compile.exclude module: 'org.eclipse.paho.client.mqttv3'
 task debug {
-  doLast {
-    configurations.implementation.each { println it }
-  }
+    doLast {
+      configurations.implementation.each { println it }
+    }
 }

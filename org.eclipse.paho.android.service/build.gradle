@@ -49,9 +49,9 @@ android.libraryVariants.all { variant ->
 }
 
 dependencies {
-  implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-  implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-  implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 // Generate Sources Jar
@@ -67,7 +67,7 @@ task("copyLibs", type: Copy) {
     include 'org.eclipse.paho*'
 
     doLast {
-      println "Copying MQTT Jar into libs directory"
+        println "Copying MQTT Jar into libs directory"
     }
 }
 
