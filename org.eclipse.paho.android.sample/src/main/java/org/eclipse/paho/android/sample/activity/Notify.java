@@ -52,9 +52,14 @@ class Notify {
     //the message that will be displayed as the ticker
     String ticker = contentTitle + " " + messageString;
 
+    int retryFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      retryFlags |= PendingIntent.FLAG_IMMUTABLE;
+    }
+
     //build the pending intent that will start the appropriate activity
     PendingIntent pendingIntent = PendingIntent.getActivity(context,
-            0, intent, 0);
+            0, intent, retryFlags);
 
     //build the notification
     Builder notificationCompat = new Builder(context);
