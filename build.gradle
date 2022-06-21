@@ -23,8 +23,8 @@ ext{
     sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
     sampleVersion = '1.1.1'
 
-    serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.1.1'
+    serviceArchivesBaseName = 'in.mohalla.paho.android.service'
+    serviceVersion = '1.1.1.6-timer-ping-sender'
 
     clientVersion = '1.1.0'
 
@@ -60,6 +60,15 @@ allprojects {
         jcenter()
         maven {
             url "file://$sdkDir/extras/android/m2repository/"
+        }
+        google()
+        maven {
+            name = "ShareChatPackages"
+            url = uri("https://maven.pkg.github.com/ShareChat/paho.mqtt.java")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME") ?: "${guser}"
+                password = System.getenv("GITHUB_PACKAGE_KEY") ?: "${gtoken}"
+            }
         }
     }
 

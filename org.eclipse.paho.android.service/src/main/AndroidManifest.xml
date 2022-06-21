@@ -1,7 +1,8 @@
-<manifest
-    package="org.eclipse.paho.android.service">
+<manifest package="org.eclipse.paho.android.service"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application>
-    </application>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application></application>
 
 </manifest>

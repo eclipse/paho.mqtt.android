@@ -31,6 +31,10 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttPingSender;
+import org.eclipse.paho.client.mqttv3.MqttToken;
+import org.eclipse.paho.client.mqttv3.TimerPingSender;
+import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import android.app.Service;
@@ -118,7 +122,7 @@ class MqttConnection implements MqttCallbackExtended {
 	// our client object - instantiated on connect
 	private MqttAsyncClient myClient = null;
 
-	private AlarmPingSender alarmPingSender = null;
+	private MqttPingSender alarmPingSender = null;
 
 	// our (parent) service object
 	private MqttService service = null;
@@ -285,7 +289,7 @@ class MqttConnection implements MqttCallbackExtended {
 			
 			// if myClient is null, then create a new connection
 			else {
-				alarmPingSender = new AlarmPingSender(service);
+				alarmPingSender = new TimerPingSender();
 				myClient = new MqttAsyncClient(serverURI, clientId,
 						persistence, alarmPingSender);
 				myClient.setCallback(this);
