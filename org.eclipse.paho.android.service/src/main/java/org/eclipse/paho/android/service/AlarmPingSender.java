@@ -3,11 +3,11 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution. 
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
  *
- * The Eclipse Public License is available at 
+ * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  *   http://www.eclipse.org/org/documents/edl-v10.php.
  */
 package org.eclipse.paho.android.service;
@@ -59,16 +59,16 @@ class AlarmPingSender implements MqttPingSender {
 		this.service = service;
 		that = this;
 	}
-	
-	
-	 private long pendingIntentFlags() {
-     		  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+
+	 private int pendingIntentFlags() {
+     		  if (Build.VERSION.SDK_INT >= 23) {
         		   return PendingIntent.FLAG_IMMUTABLE ;
       		 } else {
           		   return PendingIntent.FLAG_UPDATE_CURRENT;
        			}
    					   }
-	
+
 
 	@Override
 	public void init(ClientComms comms) {
@@ -105,7 +105,7 @@ class AlarmPingSender implements MqttPingSender {
 			try{
 				service.unregisterReceiver(alarmReceiver);
 			}catch(IllegalArgumentException e){
-				//Ignore unregister errors.			
+				//Ignore unregister errors.
 			}
 		}
 	}

@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+//    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "paho.mqtt.java.example"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
     }
@@ -44,6 +44,6 @@ dependencies {
 }
 
 configurations.compile.exclude module: 'org.eclipse.paho.client.mqttv3'
-task debug << {
+task debug doLast {
     configurations.compile.each { println it}
 }
