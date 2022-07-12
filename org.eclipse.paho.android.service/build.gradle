@@ -36,9 +36,9 @@ configurations {
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    api "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    api "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
+    api fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 android.libraryVariants.all { variant ->

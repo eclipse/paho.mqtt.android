@@ -20,11 +20,11 @@ ext{
 
     group = 'org.eclipse.paho'
 
-    sampleArchivesBaseName = 'org.eclipse.paho.android.sample'
+    sampleArchivesBaseName = 'inder.paho.mqtt'
     sampleVersion = '1.1.3'
 
     serviceArchivesBaseName = 'inder.paho.mqtt'
-    serviceVersion = '1.1.3'
+    serviceVersion = '1.1.4'
 
     clientVersion = '1.1.0'
 
