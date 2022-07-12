@@ -95,9 +95,6 @@ publishing {
     publications {
         paho(MavenPublication) {
             groupId 'inderrapido'
-            artifact generateSourcesJar
-            artifact generateLibraryJar
-            artifact generateJavaDocJar
             artifact "$buildDir/outputs/aar/" + rootProject.ext.serviceArchivesBaseName + "-" + rootProject.ext.serviceVersion + ".aar"
         }
     }
