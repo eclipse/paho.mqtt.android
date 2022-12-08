@@ -467,7 +467,7 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			mqttService.connect(clientHandle, connectOptions, null,
 					activityToken);
 		}
-		catch (MqttException | IllegalStateException e) {
+		catch (MqttException | IllegalStateException | IllegalArgumentException e) {
 			IMqttActionListener listener = connectToken.getActionCallback();
 			if (listener != null) {
 				listener.onFailure(connectToken, e);
