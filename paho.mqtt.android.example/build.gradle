@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "paho.mqtt.java.example"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
     }
@@ -20,9 +20,10 @@ android {
     dexOptions {
         preDexLibraries = false
     }
-    lintOptions {
+    lint {
         abortOnError false
     }
+    namespace 'paho.mqtt.java.example'
 }
 
 repositories {
@@ -31,19 +32,19 @@ repositories {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', excludes: ["org.eclipse.paho.client.mqttv3-${rootProject.ext.clientVersion}.jar"], include: '*.jar')
-    testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-    compile "com.android.support:design:${rootProject.ext.supportLibVersion}"
-    compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile (project(':org.eclipse.paho.android.service')){
-        //exclude module: "org.eclipse.paho.client.mqttv3"
-        transitive=true
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.appcompat}"
+    implementation "com.google.android.material:material:$rootProject.ext.material"
+    implementation "androidx.recyclerview:recyclerview:${rootProject.ext.recyclerview}"
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation(project(':org.eclipse.paho.android.service')) {
+        transitive = true
     }
+    testImplementation 'junit:junit:4.13.2'
 }
 
-configurations.compile.exclude module: 'org.eclipse.paho.client.mqttv3'
-task debug << {
-    configurations.compile.each { println it}
+configurations.implementation.exclude module: 'org.eclipse.paho.client.mqttv3'
+task debug {
+    doLast {
+        configurations.implementation.each { println it }
+    }
 }
