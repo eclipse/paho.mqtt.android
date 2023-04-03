@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer name="default_port">1883</integer>
-    <integer name="default_timeout">60</integer>
-    <integer name="default_keep_alive">200</integer>
-
-</resources>
