@@ -26,6 +26,9 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
 }
 
 repositories {
@@ -37,19 +40,22 @@ configurations {
 }
 
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 android.libraryVariants.all { variant ->
     task("generate${variant.name}Javadoc", type: Javadoc) {
+        doFirst {
+            ext.androidJar =
+                    "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+            classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        }
+
         title = "$name $version API"
         description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        ext.androidJar =
-                "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
-        classpath = files(variant.javaCompile.classpath.files) + files(ext.androidJar)
+        source = variant.javaCompileProvider
         options.links("http://docs.oracle.com/javase/7/docs/api/");
         options.links("http://d.android.com/reference/");
         exclude '**/BuildConfig.java'
@@ -119,8 +125,10 @@ publishing {
 }
 
 
-task debug << {
-    configurations.compile.each { println it}
+task debug {
+    doLast {
+        configurations.compile.each { println it}
+    }
 }
 // Required to bundle Java library Jar in AAR
 clean.doLast{
