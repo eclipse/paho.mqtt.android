@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+group = 'com.github.dominikeinkemmer'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
