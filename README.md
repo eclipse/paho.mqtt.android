@@ -42,5 +42,5 @@ dependencies {
 ### Building from source
 
  - Open a terminal and navigate to this directory (org.eclipse.paho.android.service)
- - Run the command ``./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
+ - Run the command `./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
  - The Jar is located under PROJECT_FOLDER/build/intermediates/runtime_library_classes_jar/release
