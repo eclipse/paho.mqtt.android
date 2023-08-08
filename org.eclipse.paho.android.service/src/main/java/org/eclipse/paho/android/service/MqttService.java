@@ -599,7 +599,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         NotificationChannel channel = new NotificationChannel("org.eclipse.paho.android.service.MqttService",
                 "MqttService",
-                NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationManager.IMPORTANCE_LOW);
 
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
 
