@@ -1,0 +1,55 @@
+# Notices for Eclipse Paho
+
+This content is produced and maintained by the Eclipse Paho project.
+
+* Project home: https://projects.eclipse.org/projects/iot.paho
+
+## Trademarks
+
+Paho™ is a trademark of the Eclipse Foundation.
+
+## Copyright
+
+All content is the property of the respective authors or their employers. For
+more information regarding authorship of content, please consult the listed
+source code repository logs.
+
+## Declared Project Licenses
+
+This program and the accompanying materials are made available under the terms
+of the Eclipse Public License v2.0 which is available at
+https://www.eclipse.org/legal/epl-2.0, or the Eclipse Distribution License
+v1.0 which is available at https://www.eclipse.org/org/documents/edl-v10.php.
+
+SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+
+## Source Code
+
+The project maintains the following source code repositories:
+
+* https://github.com/eclipse/paho-website
+* https://github.com/eclipse/paho.golang
+* https://github.com/eclipse/paho.mqtt-sn.embedded-c
+* https://github.com/eclipse/paho.mqtt-spy
+* https://github.com/eclipse/paho.mqtt.android
+* https://github.com/eclipse/paho.mqtt.c
+* https://github.com/eclipse/paho.mqtt.cpp
+* https://github.com/eclipse/paho.mqtt.d
+* https://github.com/eclipse/paho.mqtt.embedded-c
+* https://github.com/eclipse/paho.mqtt.golang
+* https://github.com/eclipse/paho.mqtt.java
+* https://github.com/eclipse/paho.mqtt.javascript
+* https://github.com/eclipse/paho.mqtt.m2mqtt
+* https://github.com/eclipse/paho.mqtt.python
+* https://github.com/eclipse/paho.mqtt.ruby
+* https://github.com/eclipse/paho.mqtt.rust
+* https://github.com/eclipse/paho.mqtt.testing
+
+## Cryptography
+
+Content may contain encryption software. The country in which you are currently
+may have restrictions on the import, possession, and use, and/or re-export to
+another country, of encryption software. BEFORE using any encryption software,
+please check the country's laws, regulations and policies concerning the import,
+possession, or use, and re-export of encryption software, to see if this is
+permitted.
