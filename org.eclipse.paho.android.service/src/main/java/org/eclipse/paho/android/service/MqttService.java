@@ -16,6 +16,7 @@
 package org.eclipse.paho.android.service;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,7 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -226,6 +227,9 @@ public class MqttService extends Service implements MqttTraceHandler {
 
     // Identifier for Intents, log messages, etc..
     static final String TAG = "MqttService";
+    // names of the start service Intent extras for foreground service mode
+    static final String PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID = "org.eclipse.paho.android.service.MqttService.FOREGROUND_SERVICE_NOTIFICATION_ID";
+    static final String PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION = "org.eclipse.paho.android.service.MqttService.FOREGROUND_SERVICE_NOTIFICATION";
     // somewhere to persist received messages until we're sure
     // that they've reached the application
     MessageStore messageStore;
@@ -595,6 +599,16 @@ public class MqttService extends Service implements MqttTraceHandler {
         // run till explicitly stopped, restart when
         // process restarted
         registerBroadcastReceivers();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && intent != null) {
+            Notification foregroundServiceNotification
+                    = (Notification) (intent.getParcelableExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION));
+            if (foregroundServiceNotification != null)
+                startForeground(
+                        intent.getIntExtra(PAHO_MQTT_FOREGROUND_SERVICE_NOTIFICATION_ID, 1),
+                        foregroundServiceNotification
+                );
+        }
 
         return START_STICKY;
     }
