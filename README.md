@@ -47,7 +47,7 @@ Add the repository definition and the dependency definition shown below to your 
 Replace %REPOURL% with either ``` https://repo.eclipse.org/content/repositories/paho-releases/ ``` for the official releases, or ``` https://repo.eclipse.org/content/repositories/paho-snapshots/  ``` for the nightly snapshots. Replace %VERSION% with the level required .
 The latest release version is ```1.1.1``` and the current snapshot version is ```1.1.2-SNAPSHOT```.
 
-```
+```xml
 <project ...>
 <repositories>
     <repository>
@@ -71,19 +71,20 @@ The latest release version is ```1.1.1``` and the current snapshot version is ``
 
 If you are using Android Studio and / or Gradle to manage your application dependencies and build then you can use the same repository to get the Paho Android Service. Add the Eclipse Maven repository to your `build.gradle` file and then add the Paho dependency to the `dependencies` section.
 
-```
+```groovy
 repositories {
     maven {
-        url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+        url "https://repo.eclipse.org/content/repositories/paho-releases/"
     }
 }
 
 
 dependencies {
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 }
 ```
+
 __Note:__ currently you have to include the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency as well. We are attempting to get the build to produce an Android `AAR` file that contains both the Android service as well as it's dependencies, however this is still experimental. If you wish to try it, remove the `org.eclipse.paho:org.eclipse.paho.client.mqttv3` dependency and append `@aar` to the end of the Android Service dependency. E.g. `org.eclipse.paho:org.eclipse.paho.android.service:1.1.1@aar`
 
 If you find that there is functionality missing or bugs in the release version, you may want to try using the snapshot version to see if this helps before raising a feature request or an issue.
@@ -91,7 +92,7 @@ If you find that there is functionality missing or bugs in the release version, 
 ### Building from source
 
  - Open a terminal and navigate to this directory (org.eclipse.paho.android.service)
- - Run the command ``./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
+ - Run the command `./gradlew clean assemble exportJar` or on Windows: `gradlew.bat clean assemble exportJar`
 
 ### Running the Sample App:
 
