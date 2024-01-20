@@ -54,8 +54,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.os.Looper;
 import android.util.SparseArray;
 
 /**
@@ -444,11 +447,18 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 		return token;
 	}
 
+	private Handler handler;
 	private void registerReceiver(BroadcastReceiver receiver) {
+		if (handler == null) {
+			HandlerThread handlerThread = new HandlerThread("MyNewThread");
+			handlerThread.start();
+			Looper looper = handlerThread.getLooper();
+			handler = new Handler(looper);
+		}
 		IntentFilter filter = new IntentFilter();
-				filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
-				LocalBroadcastManager.getInstance(myContext).registerReceiver(receiver, filter);
-				receiverRegistered = true;
+		filter.addAction(MqttServiceConstants.CALLBACK_TO_ACTIVITY);
+		myContext.registerReceiver(receiver, filter, null, handler);
+		receiverRegistered = true;
 	}
 
 	/**

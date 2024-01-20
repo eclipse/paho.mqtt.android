@@ -283,7 +283,7 @@ public class MqttService extends Service implements MqttTraceHandler {
     if (dataBundle != null) {
       callbackIntent.putExtras(dataBundle);
     }
-    LocalBroadcastManager.getInstance(this).sendBroadcast(callbackIntent);
+    sendBroadcast(callbackIntent);
   }
 
   // The major API implementation follows :-
