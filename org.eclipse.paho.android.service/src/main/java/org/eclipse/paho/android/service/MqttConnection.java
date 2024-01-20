@@ -710,21 +710,10 @@ class MqttConnection implements MqttCallbackExtended {
 
         service.traceDebug(TAG, "deliveryComplete(" + messageToken + ")");
 
-        MqttMessage message = savedSentMessages.remove(messageToken);
-        if (message != null) { // If I don't know about the message, it's
-            // irrelevant
-            String topic = savedTopics.remove(messageToken);
-            String activityToken = savedActivityTokens.remove(messageToken);
-            String invocationContext = savedInvocationContexts.remove(messageToken);
-
-            Bundle resultBundle = messageToBundle(null, topic, message);
-            if (activityToken != null) {
-                resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SEND_ACTION);
-                resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
-                resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
-
+        Bundle resultBundle = popSendDetails(messageToken);
+        if (resultBundle != null) {
+            if (MqttServiceConstants.SEND_ACTION.equals(resultBundle.getString(MqttServiceConstants.CALLBACK_ACTION)))
                 service.callbackToActivity(clientHandle, Status.OK, resultBundle);
-            }
             resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.MESSAGE_DELIVERED_ACTION);
             service.callbackToActivity(clientHandle, Status.OK, resultBundle);
         }
@@ -752,6 +741,29 @@ class MqttConnection implements MqttCallbackExtended {
     }
 
     /**
+     * Removed store details of sent messages in "deliveryComplete"
+     * callbacks from the mqttClient
+     */
+    private synchronized Bundle popSendDetails(final IMqttDeliveryToken messageToken) {
+        MqttMessage message = savedSentMessages.remove(messageToken);
+        if (message != null) { // If I don't know about the message, it's
+            // irrelevant
+            String topic = savedTopics.remove(messageToken);
+            String activityToken = savedActivityTokens.remove(messageToken);
+            String invocationContext = savedInvocationContexts.remove(messageToken);
+
+            Bundle resultBundle = messageToBundle(null, topic, message);
+            if (activityToken != null) {
+                resultBundle.putString(MqttServiceConstants.CALLBACK_ACTION, MqttServiceConstants.SEND_ACTION);
+                resultBundle.putString(MqttServiceConstants.CALLBACK_ACTIVITY_TOKEN, activityToken);
+                resultBundle.putString(MqttServiceConstants.CALLBACK_INVOCATION_CONTEXT, invocationContext);
+            }
+            return resultBundle;
+        }
+        return null;
+    }
+
+    /**
      * Store details of sent messages so we can handle "deliveryComplete"
      * callbacks from the mqttClient
      *
@@ -761,7 +773,7 @@ class MqttConnection implements MqttCallbackExtended {
      * @param invocationContext
      * @param activityToken
      */
-    private void storeSendDetails(final String topic, final MqttMessage msg, final IMqttDeliveryToken messageToken,
+    private synchronized void storeSendDetails(final String topic, final MqttMessage msg, final IMqttDeliveryToken messageToken,
             final String invocationContext, final String activityToken) {
         savedTopics.put(messageToken, topic);
         savedSentMessages.put(messageToken, msg);
@@ -918,6 +930,10 @@ class MqttConnection implements MqttCallbackExtended {
 
     public void deleteBufferedMessage(int bufferIndex) {
         myClient.deleteBufferedMessage(bufferIndex);
+    }
+
+    public int getInFlightMessageCount() {
+        return myClient.getInFlightMessageCount();
     }
 
     /**
