@@ -80,7 +80,7 @@ repositories {
 
 
 dependencies {
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 }
 ```
