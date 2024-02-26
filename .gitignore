@@ -95,3 +95,11 @@ hs_err_pid*
 
 
 org.eclipse.paho.android.sample/libs/
+
+# Ignore all IDE-related artifacts
+.project
+*/.project
+*/.classpath
+tags
+.settings/*
+*/.settings/*
