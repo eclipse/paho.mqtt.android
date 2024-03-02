@@ -12,11 +12,6 @@
  */
 package org.eclipse.paho.android.service;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttPingSender;
-import org.eclipse.paho.client.mqttv3.internal.ClientComms;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -29,6 +24,11 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
+
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttPingSender;
+import org.eclipse.paho.client.mqttv3.internal.ClientComms;
 
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.

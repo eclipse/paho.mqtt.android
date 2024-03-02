@@ -12,10 +12,14 @@
  */
 package org.eclipse.paho.android;
 
-import java.util.concurrent.TimeUnit;
+import android.content.Intent;
+import android.os.IBinder;
 
+import android.test.ServiceTestCase;
+import android.util.Log;
 import junit.framework.Assert;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -23,12 +27,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import android.content.Intent;
-import android.os.IBinder;
-import android.test.ServiceTestCase;
-import android.util.Log;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Rhys

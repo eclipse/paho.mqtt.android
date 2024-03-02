@@ -1,20 +1,18 @@
 package org.eclipse.paho.android;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import android.test.AndroidTestCase;
+import android.util.Log;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import android.test.AndroidTestCase;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
-
-import android.util.Log;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>

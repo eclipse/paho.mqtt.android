@@ -12,11 +12,12 @@
  */
 package org.eclipse.paho.android.service;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import android.app.Service;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.util.Log;
 
 import org.eclipse.paho.android.service.MessageStore.StoredMessage;
 import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
@@ -33,12 +34,11 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
-import android.app.Service;
-import android.content.Context;
-import android.os.Bundle;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
-import android.util.Log;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * <p>

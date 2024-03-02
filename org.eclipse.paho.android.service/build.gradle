@@ -6,7 +6,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 19
         targetSdkVersion 24
 
         testApplicationId "org.eclipse.paho.android.service.test"
@@ -35,6 +35,7 @@ dependencies {
     implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
     implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'androidx.test.ext:junit:1.2.0-alpha03'
 }
 
 /*
