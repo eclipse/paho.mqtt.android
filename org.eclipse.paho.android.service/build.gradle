@@ -36,6 +36,7 @@ dependencies {
     implementation "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.test.ext:junit:1.2.0-alpha03'
+    implementation 'androidx.test:rules:1.5.0'
 }
 
 /*

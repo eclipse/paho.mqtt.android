@@ -1,6 +1,9 @@
 package org.eclipse.paho.android;
 
-import android.test.AndroidTestCase;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ServiceTestRule;
+
+import android.content.Context;
 import android.util.Log;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -9,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -17,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
  */
-public class AndroidServiceTest extends AndroidTestCase {
+public class AndroidServiceTest extends ServiceTestRule {
 
     private static final String TAG = "AndroidServiceTest";
 
@@ -27,11 +31,15 @@ public class AndroidServiceTest extends AndroidTestCase {
     private String mqttSSLServerURI;
     private int waitForCompletionTime;
     private String keyStorePwd;
+    
+    private Context mContext;
 
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        TestProperties properties = new TestProperties(this.getContext());
+    public void beforeService() {
+        super.beforeService();
+        
+        mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        TestProperties properties = new TestProperties(mContext);
         mqttServerURI = properties.getServerURI();
         mqttSSLServerURI = properties.getServerSSLURI();
         waitForCompletionTime = properties.getWaitForCompletionTime();
@@ -39,8 +47,6 @@ public class AndroidServiceTest extends AndroidTestCase {
         keyStorePwd = properties.getClientKeyStorePassword();
         Log.d(TAG, properties.getServerSSLURI());
     }
-
-
 
     /**
      * Tests that a client can be constructed and that it can connect to and
@@ -168,7 +174,6 @@ public class AndroidServiceTest extends AndroidTestCase {
                 mqttClient.close();
             }
         }
-
     }
 
     /**
@@ -235,7 +240,6 @@ public class AndroidServiceTest extends AndroidTestCase {
 
             }
         }
-
     }
 
     /**
@@ -339,7 +343,6 @@ public class AndroidServiceTest extends AndroidTestCase {
 
             }
         }
-
     }
 
     /**
@@ -535,7 +538,6 @@ public class AndroidServiceTest extends AndroidTestCase {
 
             }
         }
-
     }
 
     /**
@@ -672,7 +674,6 @@ public class AndroidServiceTest extends AndroidTestCase {
 
             }
         }
-
     }
     //	/** Oringally commented out from the fv test version
     //	 * Tests that invalid clientIds cannot connect.
@@ -778,7 +779,6 @@ public class AndroidServiceTest extends AndroidTestCase {
 
             }
         }
-
     }
 
     public void testHAConnect() throws Exception{
@@ -900,7 +900,6 @@ public class AndroidServiceTest extends AndroidTestCase {
             fail("Failed to instantiate:" + methodName + " exception="
                     + exception);
         }
-
     }
 
     /**
@@ -918,7 +917,7 @@ public class AndroidServiceTest extends AndroidTestCase {
                     "testSSLConnect");
 
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getAssets().open("test.bks"), keyStorePwd));
+            options.setSocketFactory(mqttClient.getSSLSocketFactory(mContext.getAssets().open("test.bks"), keyStorePwd));
 
             IMqttToken connectToken = null;
             IMqttToken disconnectToken = null;
@@ -943,10 +942,8 @@ public class AndroidServiceTest extends AndroidTestCase {
                 mqttClient.close();
             }
         }
-
     }
-
-
+    
     /**
      * An SSL connection with server cert authentication, simple pub/sub of an message
      *
@@ -967,7 +964,7 @@ public class AndroidServiceTest extends AndroidTestCase {
                     "testSSLPubSub");
 
             MqttConnectOptions options = new MqttConnectOptions();
-            options.setSocketFactory(mqttClient.getSSLSocketFactory(this.getContext().getAssets().open("test.bks"),
+            options.setSocketFactory(mqttClient.getSSLSocketFactory(mContext.getAssets().open("test.bks"),
                     keyStorePwd));
 
             MqttV3Receiver mqttV3Receiver = new MqttV3Receiver(mqttClient, null);
@@ -1007,8 +1004,5 @@ public class AndroidServiceTest extends AndroidTestCase {
                 mqttClient.close();
             }
         }
-
     }
-
-
 }
