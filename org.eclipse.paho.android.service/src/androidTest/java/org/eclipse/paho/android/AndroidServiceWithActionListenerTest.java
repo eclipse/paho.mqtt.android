@@ -12,16 +12,10 @@
  */
 package org.eclipse.paho.android;
 
-import android.content.Context;
-import android.content.Intent;
-
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ServiceTestRule;
-import android.util.Log;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -29,7 +23,15 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.concurrent.TimeUnit;
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import android.content.Intent;
+import android.content.Context;
+import androidx.test.rule.ServiceTestRule;
+import android.util.Log;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+
 import java.util.concurrent.TimeoutException;
 
 /**

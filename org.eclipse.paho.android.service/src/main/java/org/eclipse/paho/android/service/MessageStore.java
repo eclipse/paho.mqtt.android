@@ -12,9 +12,9 @@
  */
 package org.eclipse.paho.android.service;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.util.Iterator;
+
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 /**
  * <p>

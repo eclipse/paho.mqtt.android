@@ -12,7 +12,12 @@
  */
 package org.eclipse.paho.android;
 
-import android.util.Log;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
@@ -21,12 +26,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import android.util.Log;
 
 public class MqttV3Receiver implements MqttCallback{
 

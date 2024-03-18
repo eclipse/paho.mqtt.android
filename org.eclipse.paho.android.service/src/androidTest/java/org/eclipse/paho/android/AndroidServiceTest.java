@@ -1,22 +1,24 @@
 package org.eclipse.paho.android;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ServiceTestRule;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
-import android.content.Context;
-import android.util.Log;
-
-import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import static org.junit.Assert.*;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import androidx.test.rule.ServiceTestRule;
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+
+import android.util.Log;
+
+import android.content.Context;
+import static org.junit.Assert.*;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>

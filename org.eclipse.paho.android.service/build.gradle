@@ -39,13 +39,6 @@ dependencies {
     implementation 'androidx.test:rules:1.5.0'
 }
 
-/*
-android.applicationVariants.all { variant ->
-    variant.outputs.each { output ->
-        output.outputFile = newFile(output.outputFile.parent, "org.eclipse.paho.android.service-" + defaultConfig.versionName + ".apk")
-    }
-}*/
-
 //android.libraryVariants.all { variant ->
 //    task("generate${variant.name}Javadoc", type: Javadoc) {
 //        title = "$name $version API"
